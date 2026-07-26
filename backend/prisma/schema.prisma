@@ -10,4 +10,88 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be added in a later task, once we design the database.
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  provider Provider?
+  bookings Booking[]
+}
+
+// Extra profile for users with role = PROVIDER. Kept separate from User so
+// customers don't carry unused business fields.
+model Provider {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  businessName String
+  address      String
+  description  String?
+  isApproved   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user     User              @relation(fields: [userId], references: [id])
+  services ProviderService[]
+}
+
+// Categories are admin-managed data, not hardcoded, so they can be added
+// or edited without a code change.
+model ServiceCategory {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  providerServices ProviderService[]
+}
+
+// Join model: which categories a given provider actually offers, and at
+// what price. This is what a Booking is really made against.
+model ProviderService {
+  id         Int      @id @default(autoincrement())
+  providerId Int
+  categoryId Int
+  price      Decimal?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  provider Provider        @relation(fields: [providerId], references: [id])
+  category ServiceCategory @relation(fields: [categoryId], references: [id])
+  bookings Booking[]
+
+  @@unique([providerId, categoryId])
+}
+
+model Booking {
+  id                Int           @id @default(autoincrement())
+  customerId        Int
+  providerServiceId Int
+  status            BookingStatus @default(PENDING)
+  scheduledAt       DateTime
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  customer        User            @relation(fields: [customerId], references: [id])
+  providerService ProviderService @relation(fields: [providerServiceId], references: [id])
+}
