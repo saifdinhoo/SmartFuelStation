@@ -2,10 +2,10 @@
   "name": "smart-automotive-service-backend",
   "version": "1.0.0",
   "description": "Backend API for the Smart Automotive Service Platform",
-  "main": "server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
@@ -18,5 +18,9 @@
   "devDependencies": {
     "nodemon": "^3.1.4",
     "prisma": "^5.19.1"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }
