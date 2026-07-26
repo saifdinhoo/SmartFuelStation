@@ -1,4 +1,4 @@
-const authService = require('./auth.service');
+const authService = require('../services/auth.service');
 
 // Handles HTTP request/response only; all logic is delegated to auth.service.js.
 
@@ -20,7 +20,17 @@ async function login(req, res, next) {
   }
 }
 
+async function me(req, res, next) {
+  try {
+    const user = await authService.getCurrentUser(req.user.userId);
+    res.status(200).json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
+  me,
 };
