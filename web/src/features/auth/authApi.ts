@@ -1,5 +1,6 @@
 import { apiClient } from '@/services/apiClient';
 import type { LoginFormValues } from './authSchema';
+import type { RegisterFormValues } from './registerSchema';
 
 export interface AuthUser {
   id: number;
@@ -8,7 +9,7 @@ export interface AuthUser {
   role: 'CUSTOMER' | 'PROVIDER' | 'ADMIN';
 }
 
-interface LoginResponse {
+interface AuthResponse {
   success: boolean;
   data: {
     token: string;
@@ -17,6 +18,11 @@ interface LoginResponse {
 }
 
 export async function login(values: LoginFormValues) {
-  const { data } = await apiClient.post<LoginResponse>('/auth/login', values);
+  const { data } = await apiClient.post<AuthResponse>('/auth/login', values);
+  return data.data;
+}
+
+export async function register(values: RegisterFormValues) {
+  const { data } = await apiClient.post<AuthResponse>('/auth/register', values);
   return data.data;
 }
