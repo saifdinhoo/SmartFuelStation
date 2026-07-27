@@ -1,29 +1,44 @@
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  startAdornment?: ReactNode;
+  endAdornment?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, id, className = '', ...props }, ref) => {
-    const inputId = id ?? props.name;
+  ({ label, error, startAdornment, endAdornment, id, className = '', ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? props.name ?? generatedId;
     return (
-      <div className="flex flex-col gap-1.5 text-left">
-        <label htmlFor={inputId} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={inputId} className="text-sm font-medium text-muted-foreground">
           {label}
         </label>
-        <input
-          id={inputId}
-          ref={ref}
-          className={`rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 ${
-            error
-              ? 'border-red-500 focus:border-red-500'
-              : 'border-gray-300 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-400'
-          } ${className}`}
-          {...props}
-        />
-        {error && <p className="text-xs text-red-500">{error}</p>}
+        <div className="relative">
+          {startAdornment && (
+            <div className="absolute inset-y-0 start-0 flex items-center ps-2.5 text-muted-foreground">
+              {startAdornment}
+            </div>
+          )}
+          <input
+            id={inputId}
+            ref={ref}
+            className={`w-full rounded-md border bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground ${
+              startAdornment ? 'ps-9' : ''
+            } ${endAdornment ? 'pe-9' : ''} ${
+              error
+                ? 'border-destructive focus:border-destructive'
+                : 'border-border focus:border-primary'
+            } ${className}`}
+            {...props}
+          />
+          {endAdornment && (
+            <div className="absolute inset-y-0 end-0 flex items-center pe-2.5">{endAdornment}</div>
+          )}
+        </div>
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   },

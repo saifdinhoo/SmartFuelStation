@@ -1,1 +1,30 @@
 @import 'tailwindcss';
+@import './tokens.css';
+@import './typography.css';
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+/* Respect the user's OS-level motion preference everywhere, including
+   Tailwind/CSS transitions and the skeleton shimmer animation. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

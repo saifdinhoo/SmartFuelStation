@@ -40,12 +40,12 @@ export function LoginPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-sm)]"
       >
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <LogIn className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          <h1 className="text-xl font-semibold">Welcome back</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Log in to your account</p>
+          <LogIn className="h-8 w-8 text-primary" />
+          <h1 className="text-heading-3">Welcome back</h1>
+          <p className="text-caption">Log in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
@@ -64,7 +64,7 @@ export function LoginPage() {
             {...register('password')}
           />
 
-          {serverError && <p className="text-sm text-red-500">{serverError}</p>}
+          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
           <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
             Log in

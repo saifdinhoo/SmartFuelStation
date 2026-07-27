@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 
-// Temporary placeholder — proves the scaffold (Tailwind, Framer Motion,
-// Lucide icons) renders correctly. Real pages come in later tasks.
+// Temporary placeholder — proves the scaffold renders correctly and links
+// to the pages built so far. Real landing page comes in a later task.
 export function Home() {
   return (
     <motion.div
@@ -11,9 +12,15 @@ export function Home() {
       transition={{ duration: 0.3 }}
       className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center"
     >
-      <Wrench className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-      <h1 className="text-2xl font-semibold">Smart Automotive Service Platform</h1>
-      <p className="text-gray-500 dark:text-gray-400">Web dashboard scaffold ready.</p>
+      <Wrench className="h-10 w-10 text-primary" />
+      <h1 className="text-heading-2">Smart Automotive Service Platform</h1>
+      <p className="text-caption">Web dashboard scaffold ready.</p>
+      <nav className="mt-4 flex gap-4 text-sm text-primary underline">
+        <Link to="/login">Login</Link>
+        <Link to="/register">Register</Link>
+        <Link to="/design-system">Design System</Link>
+        <Link to="/components">Components</Link>
+      </nav>
     </motion.div>
   );
 }
