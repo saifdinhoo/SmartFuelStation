@@ -4,6 +4,7 @@ import { queryClient } from './queryClient';
 import { ThemeProvider } from './providers/ThemeProvider';
 import { DirectionProvider } from './providers/DirectionProvider';
 import { ToastProvider } from './providers/ToastProvider';
+import { AuthProvider } from './providers/AuthProvider';
 import { AppRoutes } from '@/routes/AppRoutes';
 
 export function App() {
@@ -13,7 +14,9 @@ export function App() {
         <DirectionProvider>
           <ToastProvider>
             <BrowserRouter>
-              <AppRoutes />
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
             </BrowserRouter>
           </ToastProvider>
         </DirectionProvider>

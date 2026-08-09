@@ -107,7 +107,11 @@ export function ComponentShowcase() {
           <Textarea name="notes" label="Notes" placeholder="Anything the provider should know?" />
           <FormField label="Preferences">
             <div className="flex flex-col gap-2">
-              <Checkbox name="remindersOptIn" label="Send me appointment reminders" defaultChecked />
+              <Checkbox
+                name="remindersOptIn"
+                label="Send me appointment reminders"
+                defaultChecked
+              />
               <Checkbox name="locationOptIn" label="Share my location with providers" />
             </div>
           </FormField>
