@@ -1,30 +1,37 @@
-import { useCallback, useEffect, useState } from 'react';
-import { fetchProviderDetails } from './mockDiscoveryApi';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { fetchProviders } from './discoveryApi';
+import { mapProvider } from './providerHelpers';
 import { useGeolocation } from './useGeolocation';
-import type { ProviderDetails } from './types';
 
-export type ProviderDetailsViewState = 'loading' | 'ready' | 'error';
-
-export function useProviderDetails(providerId: string) {
+// There's no GET /providers/:id endpoint, so this reads from the same
+// ['providers'] query as the search page. If that list is already cached
+// (the customer came from Find Services), this resolves instantly with no
+// extra network call — otherwise TanStack Query fetches it fresh.
+export function useProviderDetails(id: string) {
   const { coordinates } = useGeolocation();
-  const [details, setDetails] = useState<ProviderDetails | null>(null);
-  const [viewState, setViewState] = useState<ProviderDetailsViewState>('loading');
 
-  const load = useCallback(async () => {
-    setViewState('loading');
-    try {
-      const result = await fetchProviderDetails(providerId, coordinates);
-      setDetails(result);
-      setViewState('ready');
-    } catch {
-      setViewState('error');
-    }
-  }, [providerId, coordinates]);
+  const providersQuery = useQuery({
+    queryKey: ['providers'],
+    queryFn: fetchProviders,
+  });
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const provider = useMemo(() => {
+    const raw = providersQuery.data?.find((p) => String(p.id) === id);
+    return raw ? mapProvider(raw, coordinates) : undefined;
+  }, [providersQuery.data, id, coordinates]);
 
-  return { details, viewState, reload: load };
+  const notFound = providersQuery.isSuccess && !provider;
+
+  return {
+    provider,
+    isPending: providersQuery.isPending,
+    isError: providersQuery.isError,
+    errorMessage: providersQuery.isError
+      ? getErrorMessage(providersQuery.error, 'Could not load this provider')
+      : null,
+    notFound,
+    reload: providersQuery.refetch,
+  };
 }

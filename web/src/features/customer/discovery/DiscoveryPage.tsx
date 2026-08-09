@@ -1,38 +1,45 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, RefreshCw } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { useProviderDiscovery } from './useProviderDiscovery';
+import { useNearbyProviders } from './useNearbyProviders';
 import { DiscoveryFilters } from './DiscoveryFilters';
 import { ProviderCard } from './ProviderCard';
 
 export function DiscoveryPage() {
   const {
     providers,
-    viewState,
+    categories,
+    isPending,
+    isError,
+    errorMessage,
+    reload,
     locationStatus,
     retryLocation,
     search,
     setSearch,
-    category,
-    setCategory,
+    categoryId,
+    setCategoryId,
     sort,
     setSort,
     openNowOnly,
     setOpenNowOnly,
-    reload,
-    simulateEmpty,
-  } = useProviderDiscovery();
+  } = useNearbyProviders();
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-heading-2">Find Services</h1>
-        <p className="text-body-sm text-muted-foreground">
-          Automotive shops near you, sorted by distance, rating, or price.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-heading-2">Find Services</h1>
+          <p className="text-body-sm text-muted-foreground">
+            Automotive shops near you, sorted by distance or price.
+          </p>
+        </div>
+        <Button variant="ghost" className="h-9 w-9 p-0" onClick={reload} aria-label="Refresh">
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
 
       {(locationStatus === 'denied' || locationStatus === 'unsupported') && (
@@ -51,36 +58,26 @@ export function DiscoveryPage() {
         </div>
       )}
 
-      <div className="rounded-lg border border-dashed border-border p-4">
-        <p className="text-body-sm mb-3 text-muted-foreground">
-          Demo controls — not part of the real page, just for showing each state.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={reload}>
-            Reload (loading)
-          </Button>
-          <Button variant="ghost" onClick={simulateEmpty}>
-            Simulate empty
-          </Button>
-        </div>
-      </div>
-
       <DiscoveryFilters
         search={search}
         onSearchChange={setSearch}
-        category={category}
-        onCategoryChange={setCategory}
+        categories={categories}
+        categoryId={categoryId}
+        onCategoryChange={setCategoryId}
         sort={sort}
         onSortChange={setSort}
         openNowOnly={openNowOnly}
         onOpenNowOnlyChange={setOpenNowOnly}
       />
 
-      {viewState === 'error' && (
-        <ErrorState onRetry={reload} description="Could not load nearby providers." />
+      {isError && (
+        <ErrorState
+          onRetry={reload}
+          description={errorMessage ?? 'Could not load nearby providers.'}
+        />
       )}
 
-      {viewState === 'loading' && (
+      {!isError && isPending && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-44 rounded-lg" />
@@ -88,14 +85,14 @@ export function DiscoveryPage() {
         </div>
       )}
 
-      {viewState === 'ready' && providers.length === 0 && (
+      {!isError && !isPending && providers.length === 0 && (
         <EmptyState
           title="No providers match your filters"
           description='Try a different search term, category, or turn off "Open now".'
         />
       )}
 
-      {viewState === 'ready' && providers.length > 0 && (
+      {!isError && !isPending && providers.length > 0 && (
         <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => (
             <ProviderCard key={provider.id} provider={provider} />

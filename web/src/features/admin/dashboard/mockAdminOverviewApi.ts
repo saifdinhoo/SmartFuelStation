@@ -1,73 +1,16 @@
 import { SERVICE_CATEGORIES } from '@/features/provider/services/types';
-import type { AdminOverviewData, PendingApprovalItem } from './types';
+import type { AdminOverviewData } from './types';
 
-// Backend has no admin reporting/moderation endpoints yet — this whole
-// feature is explicitly mock-only until those APIs exist.
+// Total providers and pending approvals now come from the real /providers
+// endpoint (see features/admin/providers). Everything else here — customer
+// counts, bookings, complaints, and the charts — has no matching backend
+// endpoint yet, so it stays mock until those APIs exist.
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const FAILURE_CHANCE = 0.15;
-
-function maybeFail(message: string) {
-  if (Math.random() < FAILURE_CHANCE) {
-    throw new Error(message);
-  }
-}
-
-function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value));
-}
-
-let pendingApprovals: PendingApprovalItem[] = [
-  {
-    id: 'pa1',
-    businessName: 'Fahed Auto Care',
-    category: 'Oil Change',
-    submittedDate: '2 days ago',
-  },
-  {
-    id: 'pa2',
-    businessName: 'Cedar Tire Works',
-    category: 'Tire Repair',
-    submittedDate: '3 days ago',
-  },
-  {
-    id: 'pa3',
-    businessName: 'Nour Battery Center',
-    category: 'Battery Check',
-    submittedDate: '3 days ago',
-  },
-  {
-    id: 'pa4',
-    businessName: 'Falcon Brake Specialists',
-    category: 'Brake Inspection',
-    submittedDate: '5 days ago',
-  },
-  {
-    id: 'pa5',
-    businessName: 'Sparkle Car Wash',
-    category: 'Car Wash',
-    submittedDate: '6 days ago',
-  },
-  {
-    id: 'pa6',
-    businessName: 'Horizon General Inspection',
-    category: 'General Inspection',
-    submittedDate: '1 week ago',
-  },
-  {
-    id: 'pa7',
-    businessName: 'Metro Oil Express',
-    category: 'Oil Change',
-    submittedDate: '1 week ago',
-  },
-];
-
 const totalCustomers = 1284;
-let totalProviders = 192;
-const openComplaints = 11;
 
 const PROVIDER_COUNT_BY_CATEGORY: Record<(typeof SERVICE_CATEGORIES)[number], number> = {
   'Oil Change': 46,
@@ -82,19 +25,17 @@ function buildOverview(): AdminOverviewData {
   return {
     summary: {
       totalCustomers,
-      totalProviders,
-      pendingApprovals: pendingApprovals.length,
       activeBookings: 57,
-      openComplaints,
+      openComplaints: 11,
       averageRating: 4.5,
     },
     userGrowth: [
-      { label: 'Feb', customers: 780, providers: 96 },
-      { label: 'Mar', customers: 860, providers: 112 },
-      { label: 'Apr', customers: 945, providers: 128 },
-      { label: 'May', customers: 1040, providers: 149 },
-      { label: 'Jun', customers: 1160, providers: 171 },
-      { label: 'Jul', customers: totalCustomers, providers: totalProviders },
+      { label: 'Feb', customers: 780 },
+      { label: 'Mar', customers: 860 },
+      { label: 'Apr', customers: 945 },
+      { label: 'May', customers: 1040 },
+      { label: 'Jun', customers: 1160 },
+      { label: 'Jul', customers: totalCustomers },
     ],
     bookingTrend: [
       { label: 'Wk 1', bookings: 312 },
@@ -152,7 +93,6 @@ function buildOverview(): AdminOverviewData {
         date: '3 days ago',
       },
     ],
-    pendingApprovals: clone(pendingApprovals),
     platformHealth: 'operational',
   };
 }
@@ -173,23 +113,9 @@ export async function fetchAdminOverview(
       ...data,
       recentRegistrations: [],
       recentComplaints: [],
-      pendingApprovals: [],
-      summary: { ...data.summary, pendingApprovals: 0, openComplaints: 0 },
+      summary: { ...data.summary, openComplaints: 0 },
     };
   }
 
   return data;
-}
-
-export async function approveProvider(id: string): Promise<void> {
-  await delay(500);
-  maybeFail('Failed to approve provider');
-  pendingApprovals = pendingApprovals.filter((item) => item.id !== id);
-  totalProviders += 1;
-}
-
-export async function rejectProvider(id: string): Promise<void> {
-  await delay(500);
-  maybeFail('Failed to reject provider');
-  pendingApprovals = pendingApprovals.filter((item) => item.id !== id);
 }

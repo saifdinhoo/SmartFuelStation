@@ -18,10 +18,12 @@ enum Role {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  ARRIVED
+  IN_QUEUE
   IN_SERVICE
   COMPLETED
   CANCELLED
-  NO_SHOW
+  REJECTED
 }
 
 enum QueueStatus {
@@ -149,9 +151,14 @@ model Booking {
   @@index([status, scheduledAt])
 }
 
+// bookingId is nullable at the schema level for flexibility (e.g. a future
+// admin-entered review with no booking on file), but the POST /reviews
+// endpoint always requires a valid, completed, owned booking — see
+// review.service.js. Postgres unique constraints allow multiple NULLs, so
+// this still prevents two reviews from sharing the same real booking.
 model Review {
   id         Int      @id @default(autoincrement())
-  bookingId  Int      @unique
+  bookingId  Int?     @unique
   customerId Int
   providerId Int
   rating     Int
@@ -159,7 +166,7 @@ model Review {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  booking  Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking  Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   customer User     @relation(fields: [customerId], references: [id])
   provider Provider @relation(fields: [providerId], references: [id])
 

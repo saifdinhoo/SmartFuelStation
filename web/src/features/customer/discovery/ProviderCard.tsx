@@ -2,12 +2,16 @@ import { useNavigate } from 'react-router-dom';
 import { Star, MapPin, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { Button } from '@/components/ui/Button';
-import type { DiscoveredProvider } from './types';
+import { getPriceRange, getDistinctCategories } from './providerHelpers';
+import type { Provider } from './types';
 
-export function ProviderCard({ provider }: { provider: DiscoveredProvider }) {
+export function ProviderCard({ provider }: { provider: Provider }) {
   const navigate = useNavigate();
+  const priceRange = getPriceRange(provider.services);
+  const categories = getDistinctCategories(provider.services);
 
   return (
     <Card>
@@ -15,26 +19,49 @@ export function ProviderCard({ provider }: { provider: DiscoveredProvider }) {
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="font-medium text-foreground">{provider.businessName}</p>
-            <Badge variant="secondary" className="mt-1">
-              {provider.category}
-            </Badge>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {categories.length > 0 ? (
+                categories.slice(0, 3).map((name) => (
+                  <Badge key={name} variant="secondary">
+                    {name}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-caption text-muted-foreground">No services listed</span>
+              )}
+              {categories.length > 3 && (
+                <Badge variant="secondary">+{categories.length - 3} more</Badge>
+              )}
+            </div>
           </div>
           <StatusIndicator
-            variant={provider.isOpenNow ? 'success' : 'neutral'}
-            label={provider.isOpenNow ? 'Open now' : 'Closed'}
+            variant={provider.isOpen ? 'success' : 'neutral'}
+            label={provider.isOpen ? 'Open now' : 'Closed'}
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-body-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <MapPin className="h-3.5 w-3.5" />
-            {provider.distanceKm} km · {provider.address}
+            {provider.distanceKm !== null ? `${provider.distanceKm} km · ` : ''}
+            {provider.address}
           </span>
-          <span className="flex items-center gap-1 text-warning">
-            <Star className="h-3.5 w-3.5 fill-current" />
-            {provider.rating.toFixed(1)}
-            <span className="text-muted-foreground">({provider.reviewCount})</span>
-          </span>
+          {provider.averageRating === undefined ? (
+            <Skeleton className="h-4 w-16 rounded" />
+          ) : provider.averageRating === null ? (
+            <span className="flex items-center gap-1">
+              <Star className="h-3.5 w-3.5" />
+              No ratings yet
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-warning">
+              <Star className="h-3.5 w-3.5 fill-current" />
+              {provider.averageRating.toFixed(1)}
+              <span className="text-muted-foreground">
+                ({provider.reviewCount} {provider.reviewCount === 1 ? 'review' : 'reviews'})
+              </span>
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />~{provider.estimatedWaitMinutes} min wait
           </span>
@@ -42,7 +69,11 @@ export function ProviderCard({ provider }: { provider: DiscoveredProvider }) {
 
         <div className="flex items-center justify-between">
           <span className="text-body-sm text-foreground">
-            ${provider.priceFrom}–${provider.priceTo}
+            {priceRange
+              ? priceRange.min === priceRange.max
+                ? `$${priceRange.min}`
+                : `$${priceRange.min}–$${priceRange.max}`
+              : '—'}
           </span>
           <Button
             variant="secondary"

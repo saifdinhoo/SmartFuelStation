@@ -1,14 +1,14 @@
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { SERVICE_CATEGORIES } from '@/features/provider/services/types';
-import { SORT_OPTIONS, type SortOption } from './types';
+import { SORT_OPTIONS, type Category, type SortOption } from './types';
 
 interface DiscoveryFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
-  category: string;
-  onCategoryChange: (value: string) => void;
+  categories: Category[];
+  categoryId: number | 'all';
+  onCategoryChange: (value: number | 'all') => void;
   sort: SortOption;
   onSortChange: (value: SortOption) => void;
   openNowOnly: boolean;
@@ -18,7 +18,8 @@ interface DiscoveryFiltersProps {
 export function DiscoveryFilters({
   search,
   onSearchChange,
-  category,
+  categories,
+  categoryId,
   onCategoryChange,
   sort,
   onSortChange,
@@ -40,11 +41,13 @@ export function DiscoveryFilters({
         label="Category"
         hideLabel
         className="w-full sm:w-48"
-        value={category}
-        onChange={(e) => onCategoryChange(e.target.value)}
+        value={String(categoryId)}
+        onChange={(e) =>
+          onCategoryChange(e.target.value === 'all' ? 'all' : Number(e.target.value))
+        }
         options={[
           { value: 'all', label: 'All categories' },
-          ...SERVICE_CATEGORIES.map((c) => ({ value: c, label: c })),
+          ...categories.map((c) => ({ value: String(c.id), label: c.name })),
         ]}
       />
       <Select

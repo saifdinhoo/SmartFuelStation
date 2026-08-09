@@ -23,6 +23,9 @@ import { QueuePage } from '@/features/provider/queue/QueuePage';
 import { AnalyticsPage } from '@/features/provider/analytics/AnalyticsPage';
 import { DiscoveryPage } from '@/features/customer/discovery/DiscoveryPage';
 import { ProviderDetailsPage } from '@/features/customer/discovery/ProviderDetailsPage';
+import { CategoriesPage } from '@/features/admin/categories/CategoriesPage';
+import { BookingHistoryPage } from '@/features/customer/bookings/BookingHistoryPage';
+import { BookingDetailsPage } from '@/features/customer/bookings/BookingDetailsPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
@@ -35,11 +38,14 @@ const providerSubRoutes = getNavForRole('PROVIDER')
       item.path !== '/provider/queue' &&
       item.path !== '/provider/analytics',
   );
-const adminSubRoutes = getNavForRole('ADMIN').slice(1);
-// "Find Services" (the customer's landing page) has a real page; the rest
-// of the customer nav is still ComingSoonPage, same convention as above.
+// "Categories" now calls the real backend, so it's excluded from the stub list.
+const adminSubRoutes = getNavForRole('ADMIN')
+  .slice(1)
+  .filter((item) => item.path !== '/admin/categories');
+// "Find Services" and "Bookings" have real pages; the rest of the
+// customer nav is still ComingSoonPage, same convention as above.
 const customerSubRoutes = getNavForRole('CUSTOMER').filter(
-  (item) => item.path !== '/customer/search',
+  (item) => item.path !== '/customer/search' && item.path !== '/customer/bookings',
 );
 
 export function AppRoutes() {
@@ -168,6 +174,18 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
+          <Route
+            path="/admin/categories"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['ADMIN']}>
+                  <AuthenticatedDashboardLayout>
+                    <CategoriesPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
           {adminSubRoutes.map((item) => (
             <Route
               key={item.path}
@@ -202,6 +220,30 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER']}>
                   <AuthenticatedDashboardLayout>
                     <ProviderDetailsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/bookings"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <BookingHistoryPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/bookings/:id"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <BookingDetailsPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

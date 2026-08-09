@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Coordinates } from './types';
-import { DEMO_ORIGIN } from './mockDiscoveryApi';
 
 export type GeolocationStatus = 'locating' | 'granted' | 'denied' | 'unsupported';
+
+// Fallback location when GPS is denied/unavailable — not mock provider
+// data, just a sensible default center point (Beirut) so the page still
+// has something real (real providers, real distances from this point) to
+// show instead of an empty screen.
+const DEMO_ORIGIN: Coordinates = { lat: 33.8938, lng: 35.5018 };
 
 export function useGeolocation() {
   const [status, setStatus] = useState<GeolocationStatus>('locating');

@@ -1,33 +1,36 @@
 import { useState } from 'react';
-import { CheckCircle2, ClipboardCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import type { PendingApprovalItem } from './types';
+import type { AdminProvider } from '@/features/admin/providers/types';
+import type { ProviderApprovalsViewState } from '@/features/admin/providers/useProviderApprovals';
 
 interface PendingApprovalsListProps {
-  items: PendingApprovalItem[];
-  onApprove: (id: string) => Promise<void>;
-  onReject: (id: string) => Promise<void>;
+  items: AdminProvider[];
+  viewState: ProviderApprovalsViewState;
+  onApprove: (id: number) => Promise<void>;
+  onReload: () => void;
 }
 
-type PendingAction = { type: 'approve' | 'reject'; item: PendingApprovalItem } | null;
-
-export function PendingApprovalsList({ items, onApprove, onReject }: PendingApprovalsListProps) {
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+export function PendingApprovalsList({
+  items,
+  viewState,
+  onApprove,
+  onReload,
+}: PendingApprovalsListProps) {
+  const [approvingItem, setApprovingItem] = useState<AdminProvider | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
 
   async function handleConfirm() {
-    if (!pendingAction) return;
+    if (!approvingItem) return;
     setIsConfirming(true);
     try {
-      if (pendingAction.type === 'approve') {
-        await onApprove(pendingAction.item.id);
-      } else {
-        await onReject(pendingAction.item.id);
-      }
-      setPendingAction(null);
+      await onApprove(approvingItem.id);
+      setApprovingItem(null);
     } finally {
       setIsConfirming(false);
     }
@@ -35,17 +38,41 @@ export function PendingApprovalsList({ items, onApprove, onReject }: PendingAppr
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center gap-2">
-        <ClipboardCheck className="h-4 w-4 text-primary" />
-        <h2 className="text-heading-3">Pending Approvals</h2>
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <span className="flex items-center gap-2">
+          <ClipboardCheck className="h-4 w-4 text-primary" />
+          <h2 className="text-heading-3">Pending Approvals</h2>
+        </span>
+        <Button
+          variant="ghost"
+          className="h-8 w-8 p-0"
+          onClick={onReload}
+          aria-label="Refresh pending approvals"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
-        {items.length === 0 ? (
+        {viewState === 'error' && (
+          <ErrorState onRetry={onReload} description="Could not load providers." />
+        )}
+
+        {viewState === 'loading' && (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-md" />
+            ))}
+          </div>
+        )}
+
+        {viewState === 'ready' && items.length === 0 && (
           <EmptyState
             title="No pending approvals"
             description="New provider registrations awaiting review will appear here."
           />
-        ) : (
+        )}
+
+        {viewState === 'ready' && items.length > 0 && (
           <ul className="flex flex-col gap-2">
             {items.map((item) => (
               <li
@@ -55,25 +82,14 @@ export function PendingApprovalsList({ items, onApprove, onReject }: PendingAppr
                 <div>
                   <p className="font-medium text-foreground">{item.businessName}</p>
                   <p className="text-caption">
-                    {item.category} · Submitted {item.submittedDate}
+                    {item.address} · {item.user.email} · Registered{' '}
+                    {new Date(item.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => setPendingAction({ type: 'approve', item })}
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Approve
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setPendingAction({ type: 'reject', item })}
-                  >
-                    <XCircle className="h-4 w-4 text-destructive" />
-                    Reject
-                  </Button>
-                </div>
+                <Button variant="secondary" onClick={() => setApprovingItem(item)}>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Approve
+                </Button>
               </li>
             ))}
           </ul>
@@ -81,17 +97,12 @@ export function PendingApprovalsList({ items, onApprove, onReject }: PendingAppr
       </CardContent>
 
       <ConfirmDialog
-        open={pendingAction !== null}
-        onClose={() => setPendingAction(null)}
+        open={approvingItem !== null}
+        onClose={() => setApprovingItem(null)}
         onConfirm={handleConfirm}
-        title={pendingAction?.type === 'approve' ? 'Approve provider?' : 'Reject provider?'}
-        description={
-          pendingAction?.type === 'approve'
-            ? `${pendingAction.item.businessName} will be approved and can start accepting bookings.`
-            : `${pendingAction?.item.businessName} will be rejected and removed from the approval queue.`
-        }
-        confirmLabel={pendingAction?.type === 'approve' ? 'Approve' : 'Reject'}
-        danger={pendingAction?.type === 'reject'}
+        title="Approve provider?"
+        description={`${approvingItem?.businessName} will be approved and can start accepting bookings.`}
+        confirmLabel="Approve"
         isLoading={isConfirming}
       />
     </Card>

@@ -18,9 +18,8 @@ export function Home() {
       <nav className="mt-4 flex gap-4 text-sm text-primary underline">
         <Link to="/login">Login</Link>
         <Link to="/register">Register</Link>
-      
+
         <Link to="/forgot-password">Forgot password</Link>
-   
       </nav>
     </motion.div>
   );

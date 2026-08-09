@@ -1,7 +1,5 @@
 export interface AdminOverviewSummary {
   totalCustomers: number;
-  totalProviders: number;
-  pendingApprovals: number;
   activeBookings: number;
   openComplaints: number;
   averageRating: number;
@@ -10,7 +8,6 @@ export interface AdminOverviewSummary {
 export interface UserGrowthPoint {
   label: string;
   customers: number;
-  providers: number;
 }
 
 export interface PlatformBookingPoint {
@@ -43,13 +40,6 @@ export interface ComplaintItem {
   date: string;
 }
 
-export interface PendingApprovalItem {
-  id: string;
-  businessName: string;
-  category: string;
-  submittedDate: string;
-}
-
 export type PlatformHealthStatus = 'operational' | 'degraded' | 'down';
 
 export interface AdminOverviewData {
@@ -59,6 +49,5 @@ export interface AdminOverviewData {
   providerCategories: ProviderCategoryPoint[];
   recentRegistrations: RegistrationActivityItem[];
   recentComplaints: ComplaintItem[];
-  pendingApprovals: PendingApprovalItem[];
   platformHealth: PlatformHealthStatus;
 }

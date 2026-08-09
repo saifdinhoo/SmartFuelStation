@@ -31,10 +31,11 @@ npm run db:validate
 npm run db:migrate -- --name migration_name
 npm run db:deploy
 npm run seed
+npm run seed:realistic
 npm run db:studio
 ```
 
-`npm run seed` is idempotent: it updates the demo records instead of duplicating them.
+`npm run seed` creates the base demo records. `npm run seed:realistic` adds a larger realistic synthetic dataset; both commands are idempotent.
 
 ### Main tables
 
