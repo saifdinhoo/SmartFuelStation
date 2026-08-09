@@ -11,7 +11,7 @@ async function list(req, res, next) {
 
 async function approve(req, res, next) {
   try {
-    const provider = await providerService.approveProvider(req.params.id);
+    const provider = await providerService.approveProvider(req.params.id, req.user.userId);
     res.json({ success: true, data: provider });
   } catch (err) {
     next(err);

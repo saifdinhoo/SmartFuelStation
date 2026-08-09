@@ -1,5 +1,4 @@
-// Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
+// Prisma schema for the Smart Automotive Service Platform
 
 generator client {
   provider = "prisma-client-js"
@@ -19,8 +18,30 @@ enum Role {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  IN_SERVICE
   COMPLETED
   CANCELLED
+  NO_SHOW
+}
+
+enum QueueStatus {
+  WAITING
+  IN_SERVICE
+  COMPLETED
+  CANCELLED
+}
+
+enum ComplaintSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
 }
 
 model User {
@@ -33,53 +54,76 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  provider Provider?
-  bookings Booking[]
+  provider            Provider?
+  approvedProviders   Provider[]           @relation("ProviderApprover")
+  bookings            Booking[]
+  reviews             Review[]
+  complaints          Complaint[]
+  queueEntries        QueueEntry[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@index([role])
+  @@index([createdAt])
 }
 
-// Extra profile for users with role = PROVIDER. Kept separate from User so
-// customers don't carry unused business fields.
 model Provider {
-  id           Int      @id @default(autoincrement())
-  userId       Int      @unique
-  businessName String
-  address      String
-  description  String?
-  isApproved   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @unique
+  businessName         String
+  address              String
+  description          String?
+  isApproved           Boolean   @default(false)
+  isOpen               Boolean   @default(false)
+  latitude             Decimal?  @db.Decimal(9, 6)
+  longitude            Decimal?  @db.Decimal(9, 6)
+  estimatedWaitMinutes Int       @default(0)
+  approvedAt           DateTime?
+  approvedById         Int?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  user     User              @relation(fields: [userId], references: [id])
-  services ProviderService[]
+  user         User              @relation(fields: [userId], references: [id])
+  approvedBy   User?             @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  services     ProviderService[]
+  reviews      Review[]
+  complaints   Complaint[]
+  queueEntries QueueEntry[]
+
+  @@index([isApproved, isOpen])
+  @@index([createdAt])
+  @@index([approvedById])
 }
 
-// Categories are admin-managed data, not hardcoded, so they can be added
-// or edited without a code change.
 model ServiceCategory {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   providerServices ProviderService[]
 }
 
-// Join model: which categories a given provider actually offers, and at
-// what price. This is what a Booking is really made against.
 model ProviderService {
-  id         Int      @id @default(autoincrement())
-  providerId Int
-  categoryId Int
-  price      Decimal?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  providerId      Int
+  categoryId      Int
+  name            String
+  price           Decimal  @db.Decimal(10, 2)
+  durationMinutes Int
+  isAvailable     Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  provider Provider        @relation(fields: [providerId], references: [id])
-  category ServiceCategory @relation(fields: [categoryId], references: [id])
-  bookings Booking[]
+  provider     Provider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category     ServiceCategory @relation(fields: [categoryId], references: [id])
+  bookings     Booking[]
+  queueEntries QueueEntry[]
 
-  @@unique([providerId, categoryId])
+  @@unique([providerId, name])
+  @@index([categoryId])
+  @@index([providerId, isAvailable])
 }
 
 model Booking {
@@ -89,9 +133,94 @@ model Booking {
   status            BookingStatus @default(PENDING)
   scheduledAt       DateTime
   notes             String?
+  priceAtBooking    Decimal       @db.Decimal(10, 2)
+  completedAt       DateTime?
+  cancelledAt       DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   customer        User            @relation(fields: [customerId], references: [id])
   providerService ProviderService @relation(fields: [providerServiceId], references: [id])
+  review          Review?
+  queueEntry      QueueEntry?
+
+  @@index([customerId, scheduledAt])
+  @@index([providerServiceId, scheduledAt])
+  @@index([status, scheduledAt])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  bookingId  Int      @unique
+  customerId Int
+  providerId Int
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  booking  Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customer User     @relation(fields: [customerId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+
+  @@index([providerId, createdAt])
+  @@index([customerId])
+}
+
+model QueueEntry {
+  id                Int         @id @default(autoincrement())
+  providerId        Int
+  providerServiceId Int
+  bookingId         Int?        @unique
+  customerId        Int?
+  customerName      String
+  status            QueueStatus @default(WAITING)
+  position          Int
+  joinedAt          DateTime    @default(now())
+  startedAt         DateTime?
+  completedAt       DateTime?
+  updatedAt         DateTime    @updatedAt
+
+  provider        Provider        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerService ProviderService @relation(fields: [providerServiceId], references: [id])
+  booking         Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customer        User?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@unique([providerId, position])
+  @@index([providerId, status])
+  @@index([customerId])
+}
+
+model Complaint {
+  id            Int               @id @default(autoincrement())
+  submittedById Int
+  providerId    Int
+  subject       String
+  details       String?
+  severity      ComplaintSeverity @default(MEDIUM)
+  status        ComplaintStatus   @default(OPEN)
+  resolvedAt    DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  submittedBy User     @relation(fields: [submittedById], references: [id])
+  provider    Provider @relation(fields: [providerId], references: [id])
+
+  @@index([status, severity])
+  @@index([providerId, createdAt])
+  @@index([submittedById])
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
