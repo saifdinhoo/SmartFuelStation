@@ -26,3 +26,8 @@ export async function register(values: RegisterFormValues) {
   const { data } = await apiClient.post<AuthResponse>('/auth/register', values);
   return data.data;
 }
+
+export async function getCurrentUser() {
+  const { data } = await apiClient.get<{ success: boolean; data: AuthUser }>('/auth/me');
+  return data.data;
+}

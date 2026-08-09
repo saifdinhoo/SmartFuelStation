@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenStorage } from './tokenStorage';
 
 // Single axios instance for the whole app. All backend calls should go
 // through this (or a feature-specific wrapper built on top of it) so the
@@ -10,9 +11,9 @@ export const apiClient = axios.create({
   },
 });
 
-// Attaches the JWT (once auth exists) to every outgoing request.
+// Attaches the JWT to every outgoing request.
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = tokenStorage.get();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
