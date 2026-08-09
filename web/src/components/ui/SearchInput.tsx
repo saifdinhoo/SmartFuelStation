@@ -4,6 +4,7 @@ import { Input } from './Input';
 
 interface SearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label: string;
+  hideLabel?: boolean;
 }
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(

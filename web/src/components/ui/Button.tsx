@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import type { ButtonHTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
 type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
 
@@ -39,7 +40,11 @@ export function Button({
       whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
       transition={{ duration: 0.15 }}
       disabled={disabled || isLoading}
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${variantClasses[variant]} ${className}`}
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60',
+        variantClasses[variant],
+        className,
+      )}
       {...props}
     >
       {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}

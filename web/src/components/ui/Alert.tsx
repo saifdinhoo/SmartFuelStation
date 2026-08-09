@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
+import { cn } from '@/utils/cn';
 
 type AlertVariant = 'info' | 'success' | 'warning' | 'destructive';
 
@@ -19,11 +20,11 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
 }
 
-export function Alert({ variant = 'info', title, children, className = '', ...props }: AlertProps) {
+export function Alert({ variant = 'info', title, children, className, ...props }: AlertProps) {
   const { icon: Icon, classes } = variantConfig[variant];
   return (
     <div
-      className={`flex gap-3 rounded-lg border p-4 ${classes} ${className}`}
+      className={cn('flex gap-3 rounded-lg border p-4', classes, className)}
       role="alert"
       {...props}
     >

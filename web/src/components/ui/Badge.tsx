@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
 type BadgeVariant = 'default' | 'secondary' | 'success' | 'warning' | 'destructive';
 
@@ -14,10 +15,14 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
 }
 
-export function Badge({ variant = 'default', className = '', ...props }: BadgeProps) {
+export function Badge({ variant = 'default', className, ...props }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${variantClasses[variant]} ${className}`}
+      className={cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        variantClasses[variant],
+        className,
+      )}
       {...props}
     />
   );

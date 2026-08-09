@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '@/utils/cn';
 
 type HeadingLevel = 'display' | 1 | 2 | 3;
 
@@ -14,10 +15,10 @@ interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   children: ReactNode;
 }
 
-export function Heading({ level = 1, className = '', children, ...props }: HeadingProps) {
+export function Heading({ level = 1, className, children, ...props }: HeadingProps) {
   const Tag = level === 'display' ? 'h1' : (`h${level}` as 'h1' | 'h2' | 'h3');
   return (
-    <Tag className={`${headingClassByLevel[level]} ${className}`} {...props}>
+    <Tag className={cn(headingClassByLevel[level], className)} {...props}>
       {children}
     </Tag>
   );
@@ -36,9 +37,9 @@ interface TextProps extends HTMLAttributes<HTMLParagraphElement> {
   children: ReactNode;
 }
 
-export function Text({ variant = 'body', className = '', children, ...props }: TextProps) {
+export function Text({ variant = 'body', className, children, ...props }: TextProps) {
   return (
-    <p className={`${textClassByVariant[variant]} ${className}`} {...props}>
+    <p className={cn(textClassByVariant[variant], className)} {...props}>
       {children}
     </p>
   );

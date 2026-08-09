@@ -1,4 +1,5 @@
 import { forwardRef, useId, type TextareaHTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
@@ -6,7 +7,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, id, className = '', rows = 4, ...props }, ref) => {
+  ({ label, error, id, className, rows = 4, ...props }, ref) => {
     const generatedId = useId();
     const textareaId = id ?? props.name ?? generatedId;
     return (
@@ -18,11 +19,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           ref={ref}
           rows={rows}
-          className={`resize-y rounded-md border bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground ${
+          className={cn(
+            'resize-y rounded-md border bg-card px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground',
             error
               ? 'border-destructive focus:border-destructive'
-              : 'border-border focus:border-primary'
-          } ${className}`}
+              : 'border-border focus:border-primary',
+            className,
+          )}
           {...props}
         />
         {error && <p className="text-xs text-destructive">{error}</p>}

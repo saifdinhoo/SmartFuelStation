@@ -23,5 +23,10 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Convention for intentionally-unused params (e.g. mock/stub
+      // functions matching a future real signature).
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
 ]);

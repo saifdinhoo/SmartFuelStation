@@ -1,11 +1,12 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react';
+import { cn } from '@/utils/cn';
 
 interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label: string;
 }
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ label, id, className = '', ...props }, ref) => {
+  ({ label, id, className, ...props }, ref) => {
     const generatedId = useId();
     const inputId = id ?? props.name ?? generatedId;
     return (
@@ -14,7 +15,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           id={inputId}
           ref={ref}
           type="checkbox"
-          className={`h-4 w-4 rounded border-border accent-primary ${className}`}
+          className={cn('h-4 w-4 rounded border-border accent-primary', className)}
           {...props}
         />
         {label}
