@@ -8,7 +8,7 @@ async function register(req, res, next) {
     res.status(201).json({ success: true, data: result });
   } catch (err) {
     next(err);
-  }
+}
 }
 
 async function login(req, res, next) {
