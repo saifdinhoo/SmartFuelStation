@@ -5,6 +5,7 @@ import { ThemeProvider } from './providers/ThemeProvider';
 import { DirectionProvider } from './providers/DirectionProvider';
 import { ToastProvider } from './providers/ToastProvider';
 import { AuthProvider } from './providers/AuthProvider';
+import { SocketProvider } from './providers/SocketProvider';
 import { AppRoutes } from '@/routes/AppRoutes';
 
 export function App() {
@@ -15,7 +16,9 @@ export function App() {
           <ToastProvider>
             <BrowserRouter>
               <AuthProvider>
-                <AppRoutes />
+                <SocketProvider>
+                  <AppRoutes />
+                </SocketProvider>
               </AuthProvider>
             </BrowserRouter>
           </ToastProvider>

@@ -5,13 +5,6 @@ export interface UpcomingBooking {
   time: string;
 }
 
-export interface QueueEntry {
-  position: number;
-  customerName: string;
-  service: string;
-  waitMinutes: number;
-}
-
 export interface ServiceAvailability {
   id: string;
   name: string;
@@ -31,17 +24,18 @@ export interface Review {
   date: string;
 }
 
+// Queue length/wait time/entries are NOT part of this mock model — they
+// come from the real Queue backend (see queue/useProviderQueue.ts) so
+// there is exactly one queue implementation, not a mock one here plus a
+// real one there.
 export interface ProviderOverviewData {
   businessName: string;
   isOpen: boolean;
-  queueLength: number;
-  estimatedWaitMinutes: number;
   todayBookings: number;
   completedServices: number;
   averageRating: number;
   revenueThisMonth: number;
   upcomingBookings: UpcomingBooking[];
-  queueEntries: QueueEntry[];
   services: ServiceAvailability[];
   weeklyBookings: WeeklyBookingPoint[];
   reviews: Review[];

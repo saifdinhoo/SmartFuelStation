@@ -1,21 +1,31 @@
-import { ListOrdered, Minus, Plus } from 'lucide-react';
+import { ListOrdered, PlayCircle, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import type { QueueEntry } from './types';
+import type { QueueEntry } from '@/features/provider/queue/types';
+
+interface QueueSummaryEntry extends Pick<QueueEntry, 'customerName' | 'service' | 'waitMinutes'> {
+  position: number;
+}
 
 interface QueueSummaryCardProps {
   queueLength: number;
   estimatedWaitMinutes: number;
-  entries: QueueEntry[];
-  onAdjust: (delta: number) => void;
+  entries: QueueSummaryEntry[];
+  onStartNext: () => void;
+  canStartNext: boolean;
+  onAddWalkIn: () => void;
+  isBusy?: boolean;
 }
 
 export function QueueSummaryCard({
   queueLength,
   estimatedWaitMinutes,
   entries,
-  onAdjust,
+  onStartNext,
+  canStartNext,
+  onAddWalkIn,
+  isBusy = false,
 }: QueueSummaryCardProps) {
   return (
     <Card>
@@ -28,16 +38,17 @@ export function QueueSummaryCard({
           <Button
             variant="ghost"
             className="h-8 w-8 p-0"
-            onClick={() => onAdjust(-1)}
-            disabled={queueLength === 0}
-            aria-label="Serve next customer"
+            onClick={onStartNext}
+            disabled={!canStartNext || isBusy}
+            aria-label="Start service for the next customer"
           >
-            <Minus className="h-4 w-4" />
+            <PlayCircle className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             className="h-8 w-8 p-0"
-            onClick={() => onAdjust(1)}
+            onClick={onAddWalkIn}
+            disabled={isBusy}
             aria-label="Add walk-in"
           >
             <Plus className="h-4 w-4" />
@@ -65,7 +76,7 @@ export function QueueSummaryCard({
                   {entry.customerName}
                   <span className="text-caption">— {entry.service}</span>
                 </span>
-                <span className="text-caption">~{entry.waitMinutes} min</span>
+                <span className="text-caption">~{entry.waitMinutes ?? 0} min</span>
               </li>
             ))}
           </ul>

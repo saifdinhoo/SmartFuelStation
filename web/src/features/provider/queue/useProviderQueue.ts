@@ -1,141 +1,147 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/app/providers/ToastProvider';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 import {
   fetchQueue,
-  addWalkIn,
-  persistQueueOrder,
-  startService,
-  completeEntry,
-  removeEntry,
-} from './mockQueueApi';
-import { AVG_MINUTES_PER_SERVICE, type QueueEntry } from './types';
+  createWalkIn,
+  updateQueueStatus,
+  reorderQueue,
+  removeQueueEntry,
+} from './queueApi';
+import {
+  selectWaiting,
+  selectInService,
+  selectCompletedTodayCount,
+  selectAverageWaitMinutes,
+} from './queueSelectors';
 
-export type QueueViewState = 'loading' | 'ready';
+export const QUEUE_QUERY_KEY = ['queue'];
 
+export type QueueViewState = 'loading' | 'error' | 'ready';
+
+// No optimistic updates here by design: queue order and status are shared,
+// provider-facing operational state — a wrong optimistic guess (e.g. two
+// staff members reordering at once) is worse than a brief pending state.
+// Every mutation waits for the real backend response, then invalidates the
+// query so the UI reflects exactly what the database has.
 export function useProviderQueue() {
-  const [entries, setEntries] = useState<QueueEntry[]>([]);
-  const [completedToday, setCompletedToday] = useState(0);
-  const [viewState, setViewState] = useState<QueueViewState>('loading');
+  const queryClient = useQueryClient();
   const { showToast } = useToast();
 
-  const load = useCallback(async (mode: 'ready' | 'empty' = 'ready') => {
-    setViewState('loading');
-    const result = await fetchQueue(mode);
-    setEntries(result.entries);
-    setCompletedToday(result.completedToday);
-    setViewState('ready');
-  }, []);
+  const query = useQuery({ queryKey: QUEUE_QUERY_KEY, queryFn: fetchQueue });
+  const raw = query.data ?? [];
 
-  useEffect(() => {
-    // Initial data fetch on mount — the canonical effect use case.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const waiting = selectWaiting(raw);
+  const inService = selectInService(raw);
+  const completedToday = selectCompletedTodayCount(raw);
+  const averageWaitMinutes = selectAverageWaitMinutes(waiting);
 
-  const waiting = useMemo(() => entries.filter((e) => e.status === 'waiting'), [entries]);
-  const inService = useMemo(() => entries.filter((e) => e.status === 'in-service'), [entries]);
-
-  const waitingWithEstimate = useMemo(
-    () =>
-      waiting.map((entry, index) => ({
-        ...entry,
-        waitMinutes: (index + 1) * AVG_MINUTES_PER_SERVICE,
-      })),
-    [waiting],
-  );
-
-  async function addWalkInCustomer(input: { customerName: string; service: string }) {
-    const created = await addWalkIn(input);
-    setEntries((current) => [...current, created]);
-    showToast({ title: `${created.customerName} added to the queue`, variant: 'success' });
+  function invalidate() {
+    queryClient.invalidateQueries({ queryKey: QUEUE_QUERY_KEY });
+    // A queue mutation can change a linked booking's status too (see
+    // queue.service.js's Booking synchronization) — keep that in sync too.
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
   }
 
-  async function persistOrder(newWaitingOrder: QueueEntry[]) {
-    const orderedIds = newWaitingOrder.map((e) => e.id);
-    try {
-      await persistQueueOrder(orderedIds);
-    } catch {
-      showToast({ title: 'Could not save new queue order', variant: 'destructive' });
-      await load();
-    }
-  }
+  const addWalkInMutation = useMutation({
+    mutationFn: (input: { customerName: string; providerServiceId: number }) => createWalkIn(input),
+    onSuccess: (created) => {
+      invalidate();
+      showToast({ title: `${created.customerName} added to the queue`, variant: 'success' });
+    },
+    onError: (err) => {
+      showToast({
+        title: getErrorMessage(err, 'Could not add walk-in customer'),
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const reorderMutation = useMutation({
+    mutationFn: (orderedIds: number[]) => reorderQueue(orderedIds),
+    onSuccess: () => invalidate(),
+    onError: (err) => {
+      showToast({
+        title: getErrorMessage(err, 'Could not save new queue order'),
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const startServiceMutation = useMutation({
+    mutationFn: (id: number) => updateQueueStatus(id, 'IN_SERVICE'),
+    onSuccess: () => invalidate(),
+    onError: (err) => {
+      showToast({
+        title: getErrorMessage(err, 'Could not start service, please try again'),
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: (id: number) => updateQueueStatus(id, 'COMPLETED'),
+    onSuccess: () => {
+      invalidate();
+      showToast({ title: 'Service completed', variant: 'success' });
+    },
+    onError: (err) => {
+      showToast({
+        title: getErrorMessage(err, 'Could not complete service, please try again'),
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (id: number) => removeQueueEntry(id),
+    onSuccess: () => {
+      invalidate();
+      showToast({ title: 'Removed from queue', variant: 'success' });
+    },
+    onError: (err) => {
+      showToast({
+        title: getErrorMessage(err, 'Could not remove entry, please try again'),
+        variant: 'destructive',
+      });
+    },
+  });
 
   function moveWaitingEntry(id: string, direction: 'up' | 'down') {
     const index = waiting.findIndex((e) => e.id === id);
     const swapWith = direction === 'up' ? index - 1 : index + 1;
     if (index < 0 || swapWith < 0 || swapWith >= waiting.length) return;
 
-    const reorderedWaiting = [...waiting];
-    [reorderedWaiting[index], reorderedWaiting[swapWith]] = [
-      reorderedWaiting[swapWith],
-      reorderedWaiting[index],
-    ];
-
-    setEntries((current) => [
-      ...current.filter((e) => e.status !== 'waiting'),
-      ...reorderedWaiting,
-    ]); // optimistic
-    persistOrder(reorderedWaiting);
+    const reordered = [...waiting];
+    [reordered[index], reordered[swapWith]] = [reordered[swapWith], reordered[index]];
+    reorderMutation.mutate(reordered.map((e) => Number(e.id)));
   }
 
-  async function beginService(id: string) {
-    setEntries((current) => current.map((e) => (e.id === id ? { ...e, status: 'in-service' } : e))); // optimistic
-    try {
-      await startService(id);
-    } catch {
-      setEntries((current) => current.map((e) => (e.id === id ? { ...e, status: 'waiting' } : e))); // rollback
-      showToast({ title: 'Could not start service, please try again', variant: 'destructive' });
-    }
-  }
+  const isMutating =
+    addWalkInMutation.isPending ||
+    reorderMutation.isPending ||
+    startServiceMutation.isPending ||
+    completeMutation.isPending ||
+    removeMutation.isPending;
 
-  async function complete(id: string) {
-    const removed = entries.find((e) => e.id === id);
-    setEntries((current) => current.filter((e) => e.id !== id)); // optimistic
-    setCompletedToday((count) => count + 1);
-    try {
-      await completeEntry(id);
-      showToast({ title: 'Service completed', variant: 'success' });
-    } catch {
-      if (removed) setEntries((current) => [...current, removed]); // rollback
-      setCompletedToday((count) => Math.max(0, count - 1));
-      showToast({ title: 'Could not complete service, please try again', variant: 'destructive' });
-    }
-  }
-
-  async function remove(id: string) {
-    const removed = entries.find((e) => e.id === id);
-    setEntries((current) => current.filter((e) => e.id !== id)); // optimistic
-    try {
-      await removeEntry(id);
-      showToast({ title: 'Removed from queue', variant: 'success' });
-    } catch {
-      if (removed) setEntries((current) => [...current, removed]); // rollback
-      showToast({ title: 'Could not remove entry, please try again', variant: 'destructive' });
-    }
-  }
-
-  const averageWaitMinutes =
-    waitingWithEstimate.length > 0
-      ? Math.round(
-          waitingWithEstimate.reduce((sum, e) => sum + e.waitMinutes, 0) /
-            waitingWithEstimate.length,
-        )
-      : 0;
+  const viewState: QueueViewState = query.isPending ? 'loading' : query.isError ? 'error' : 'ready';
 
   return {
     viewState,
-    waiting: waitingWithEstimate,
+    errorMessage: query.isError ? getErrorMessage(query.error, 'Could not load the queue') : null,
+    waiting,
     inService,
-    hasAnyEntries: entries.length > 0,
+    hasAnyEntries: waiting.length + inService.length > 0,
     completedToday,
     averageWaitMinutes,
-    reload: () => load('ready'),
-    simulateLoading: () => load('ready'),
-    simulateEmpty: () => load('empty'),
-    addWalkInCustomer,
+    reload: () => query.refetch(),
+    isMutating,
+    isReordering: reorderMutation.isPending,
+    addWalkInCustomer: (input: { customerName: string; providerServiceId: number }) =>
+      addWalkInMutation.mutateAsync(input),
     moveWaitingEntry,
-    beginService,
-    complete,
-    remove,
+    beginService: (id: string) => startServiceMutation.mutateAsync(Number(id)),
+    complete: (id: string) => completeMutation.mutateAsync(Number(id)),
+    remove: (id: string) => removeMutation.mutateAsync(Number(id)),
   };
 }

@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { ACTIVE_STATUSES, ALL_STATUSES, TRANSITIONS } = require('./shared/bookingTransitions');
 
 function badRequest(message) {
   const err = new Error(message);
@@ -32,37 +33,6 @@ function toId(value, label) {
   return id;
 }
 
-const ACTIVE_STATUSES = ['PENDING', 'CONFIRMED', 'ARRIVED', 'IN_QUEUE', 'IN_SERVICE'];
-const TERMINAL_STATUSES = ['COMPLETED', 'CANCELLED', 'REJECTED'];
-
-// Who may drive each transition, and which side-effect field it sets.
-// Admins can invoke anything a provider can — the state machine itself
-// (which edges exist at all) applies equally to every role.
-const TRANSITIONS = {
-  PENDING: {
-    CONFIRMED: { roles: ['PROVIDER', 'ADMIN'] },
-    REJECTED: { roles: ['PROVIDER', 'ADMIN'] },
-    CANCELLED: { roles: ['CUSTOMER', 'PROVIDER', 'ADMIN'], sets: 'cancelledAt' },
-  },
-  CONFIRMED: {
-    ARRIVED: { roles: ['PROVIDER', 'ADMIN'] },
-    CANCELLED: { roles: ['CUSTOMER', 'PROVIDER', 'ADMIN'], sets: 'cancelledAt' },
-  },
-  // Once the customer has arrived, cancellation becomes a front-desk
-  // (provider/admin) action rather than something the app self-serves.
-  ARRIVED: {
-    IN_QUEUE: { roles: ['PROVIDER', 'ADMIN'] },
-    CANCELLED: { roles: ['PROVIDER', 'ADMIN'], sets: 'cancelledAt' },
-  },
-  IN_QUEUE: {
-    IN_SERVICE: { roles: ['PROVIDER', 'ADMIN'] },
-    CANCELLED: { roles: ['PROVIDER', 'ADMIN'], sets: 'cancelledAt' },
-  },
-  IN_SERVICE: {
-    COMPLETED: { roles: ['PROVIDER', 'ADMIN'], sets: 'completedAt' },
-  },
-};
-
 const WITH_DETAILS = {
   customer: { select: { id: true, name: true, email: true, phone: true } },
   providerService: {
@@ -73,8 +43,8 @@ const WITH_DETAILS = {
   },
 };
 
-async function requireOwnProviderId(userId) {
-  const provider = await prisma.provider.findUnique({ where: { userId } });
+async function requireOwnProviderId(userId, tx = prisma) {
+  const provider = await tx.provider.findUnique({ where: { userId } });
   if (!provider) {
     throw forbidden('No provider profile is linked to this account');
   }
@@ -185,16 +155,19 @@ async function getBookingById(idParam, requestingUser) {
   return booking;
 }
 
-const ALL_STATUSES = [...ACTIVE_STATUSES, ...TERMINAL_STATUSES];
-
-async function updateBookingStatus(idParam, nextStatus, requestingUser) {
+// `tx` defaults to the shared prisma client so every existing caller keeps
+// working unchanged; queue.service.js passes its own transaction client so
+// a queue mutation and the booking-status sync it triggers commit or roll
+// back together (see the Queue audit — booking sync must never "silently
+// create an impossible Booking state").
+async function updateBookingStatus(idParam, nextStatus, requestingUser, tx = prisma) {
   const id = toId(idParam, 'booking id');
 
   if (!ALL_STATUSES.includes(nextStatus)) {
     throw badRequest('status is not a recognized booking status');
   }
 
-  const booking = await prisma.booking.findUnique({ where: { id }, include: WITH_DETAILS });
+  const booking = await tx.booking.findUnique({ where: { id }, include: WITH_DETAILS });
   if (!booking) throw notFound('Booking not found');
 
   await assertBookingAccess(booking, requestingUser);
@@ -211,7 +184,7 @@ async function updateBookingStatus(idParam, nextStatus, requestingUser) {
   if (edge.sets === 'cancelledAt') data.cancelledAt = new Date();
   if (edge.sets === 'completedAt') data.completedAt = new Date();
 
-  return prisma.booking.update({ where: { id }, data, include: WITH_DETAILS });
+  return tx.booking.update({ where: { id }, data, include: WITH_DETAILS });
 }
 
 async function deleteBooking(idParam, requestingUser) {
@@ -242,5 +215,6 @@ module.exports = {
   getBookingById,
   updateBookingStatus,
   deleteBooking,
+  requireOwnProviderId,
   TRANSITIONS,
 };

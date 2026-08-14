@@ -1,18 +1,15 @@
 import type { ProviderOverviewData } from './types';
 
-// Backend has no queue/analytics/reviews endpoints yet, and this task is
-// explicitly mock-data-only (no Socket.IO). These simulate realistic
-// latency and occasional failure so the optimistic-update UI has something
-// real to demonstrate against.
-
-export const MINUTES_PER_QUEUE_SLOT = 12;
+// Backend has no analytics/reviews endpoints yet, and this task is
+// explicitly mock-data-only for those (no Socket.IO). These simulate
+// realistic latency and occasional failure so the optimistic-update UI has
+// something real to demonstrate against. Queue data is real — see
+// queue/useProviderQueue.ts — and deliberately absent from this file.
 
 export function buildMockOverview(): ProviderOverviewData {
   return {
     businessName: 'Ahmad Auto Garage',
     isOpen: true,
-    queueLength: 4,
-    estimatedWaitMinutes: 4 * MINUTES_PER_QUEUE_SLOT,
     todayBookings: 9,
     completedServices: 6,
     averageRating: 4.7,
@@ -27,12 +24,6 @@ export function buildMockOverview(): ProviderOverviewData {
         service: 'Brake Inspection',
         time: 'Tomorrow, 9:00 AM',
       },
-    ],
-    queueEntries: [
-      { position: 1, customerName: 'Sami Rasheed', service: 'Oil Change', waitMinutes: 5 },
-      { position: 2, customerName: 'Huda Nasser', service: 'Tire Repair', waitMinutes: 17 },
-      { position: 3, customerName: 'Karim Fadel', service: 'Battery Check', waitMinutes: 29 },
-      { position: 4, customerName: 'Rana Aziz', service: 'General Inspection', waitMinutes: 41 },
     ],
     services: [
       { id: 's1', name: 'Oil Change', available: true },
@@ -94,9 +85,6 @@ export async function fetchProviderOverview(mode: 'ready' | 'empty' | 'error' = 
       ...data,
       upcomingBookings: [],
       reviews: [],
-      queueEntries: [],
-      queueLength: 0,
-      estimatedWaitMinutes: 0,
     };
   }
 
@@ -109,12 +97,5 @@ export async function updateOpenStatus(_nextIsOpen: boolean): Promise<void> {
   await delay(500);
   if (Math.random() < FAILURE_CHANCE) {
     throw new Error('Failed to update status');
-  }
-}
-
-export async function updateQueueLength(_nextLength: number): Promise<void> {
-  await delay(500);
-  if (Math.random() < FAILURE_CHANCE) {
-    throw new Error('Failed to update queue');
   }
 }

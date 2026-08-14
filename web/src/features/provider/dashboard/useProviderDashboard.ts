@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '@/app/providers/ToastProvider';
-import {
-  fetchProviderOverview,
-  updateOpenStatus,
-  updateQueueLength,
-  MINUTES_PER_QUEUE_SLOT,
-} from './mockData';
+import { fetchProviderOverview, updateOpenStatus } from './mockData';
 import type { ProviderOverviewData } from './types';
 
 export type DashboardViewState = 'loading' | 'error' | 'ready';
@@ -49,32 +44,10 @@ export function useProviderDashboard() {
     }
   }
 
-  async function adjustQueue(delta: number) {
-    if (!data) return;
-    const previousLength = data.queueLength;
-    const nextLength = Math.max(0, previousLength + delta);
-    const previousWait = data.estimatedWaitMinutes;
-    const nextWait = nextLength * MINUTES_PER_QUEUE_SLOT;
-
-    setData({ ...data, queueLength: nextLength, estimatedWaitMinutes: nextWait }); // optimistic
-
-    try {
-      await updateQueueLength(nextLength);
-    } catch {
-      setData((current) =>
-        current
-          ? { ...current, queueLength: previousLength, estimatedWaitMinutes: previousWait }
-          : current,
-      ); // rollback
-      showToast({ title: 'Could not update queue, please try again', variant: 'destructive' });
-    }
-  }
-
   return {
     data,
     viewState,
     toggleOpenStatus,
-    adjustQueue,
     reload: () => load('ready'),
     simulateLoading: () => load('ready'),
     simulateEmpty: () => load('empty'),

@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { CustomerQueueStatusCard } from '@/features/customer/queue/CustomerQueueStatusCard';
 import { useBookingDetails } from './useBookingDetails';
 import { useCancelBooking } from './useCancelBooking';
 import { BookingStatusBadge } from './BookingStatusBadge';
@@ -81,6 +82,8 @@ export function BookingDetailsPage() {
               <BookingStatusTimeline status={booking.status} cancelledAt={booking.cancelledAt} />
             </CardContent>
           </Card>
+
+          <CustomerQueueStatusCard bookingId={booking.id} bookingStatus={booking.status} />
 
           <Card>
             <CardHeader>

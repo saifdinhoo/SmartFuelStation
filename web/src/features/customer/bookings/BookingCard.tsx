@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Wrench } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
+import { CustomerQueueBadge } from '@/features/customer/queue/CustomerQueueBadge';
 import { BookingStatusBadge } from './BookingStatusBadge';
 import type { Booking } from './types';
 
@@ -29,6 +30,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
             {new Date(booking.scheduledAt).toLocaleString()}
           </span>
         </div>
+        <CustomerQueueBadge bookingId={booking.id} bookingStatus={booking.status} />
         <p className="text-body-sm text-foreground">${booking.priceAtBooking}</p>
       </CardContent>
     </Card>

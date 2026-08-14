@@ -12,6 +12,7 @@ import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { TranslateButton } from '@/components/common/TranslateButton';
 import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingModal';
+import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
 import { useProviderDetails } from './useProviderDetails';
 import { useProviderRating } from './useProviderRating';
 import { useProviderReviews } from './useProviderReviews';
@@ -25,6 +26,7 @@ export function ProviderDetailsPage() {
     useProviderDetails(providerId);
   const rating = useProviderRating(providerId);
   const reviews = useProviderReviews(providerId);
+  const queue = useQueueSummary(provider?.id);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   return (
@@ -91,7 +93,16 @@ export function ProviderDetailsPage() {
                   </span>
                 )}
                 <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />~{provider.estimatedWaitMinutes} min wait
+                  <Clock className="h-3.5 w-3.5" />
+                  {queue.isPending ? (
+                    <Skeleton className="h-4 w-24 rounded" />
+                  ) : queue.isError || !queue.summary ? (
+                    'Queue status unavailable'
+                  ) : queue.summary.queueLength === 0 ? (
+                    'No wait — queue is empty'
+                  ) : (
+                    `${queue.summary.queueLength} in queue · ~${queue.summary.estimatedWaitMinutes} min wait`
+                  )}
                 </span>
               </div>
             </div>

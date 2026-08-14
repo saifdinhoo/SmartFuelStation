@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { Button } from '@/components/ui/Button';
+import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
 import { getPriceRange, getDistinctCategories } from './providerHelpers';
 import type { Provider } from './types';
 
@@ -12,6 +13,7 @@ export function ProviderCard({ provider }: { provider: Provider }) {
   const navigate = useNavigate();
   const priceRange = getPriceRange(provider.services);
   const categories = getDistinctCategories(provider.services);
+  const queue = useQueueSummary(provider.id);
 
   return (
     <Card>
@@ -63,7 +65,16 @@ export function ProviderCard({ provider }: { provider: Provider }) {
             </span>
           )}
           <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5" />~{provider.estimatedWaitMinutes} min wait
+            <Clock className="h-3.5 w-3.5" />
+            {queue.isPending ? (
+              <Skeleton className="h-4 w-16 rounded" />
+            ) : queue.isError || !queue.summary ? (
+              'Queue unavailable'
+            ) : queue.summary.queueLength === 0 ? (
+              'No wait'
+            ) : (
+              `~${queue.summary.estimatedWaitMinutes} min wait`
+            )}
           </span>
         </div>
 

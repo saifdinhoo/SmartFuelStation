@@ -16,6 +16,7 @@ interface QueueEntryRowProps {
   onStartService?: () => void;
   onComplete?: () => void;
   onRemove: () => void;
+  disabled?: boolean;
 }
 
 export function QueueEntryRow({
@@ -31,6 +32,7 @@ export function QueueEntryRow({
   onStartService,
   onComplete,
   onRemove,
+  disabled = false,
 }: QueueEntryRowProps) {
   return (
     <Card>
@@ -81,6 +83,7 @@ export function QueueEntryRow({
             <Button
               variant="secondary"
               onClick={onStartService}
+              disabled={disabled}
               aria-label={`Start service for ${customerName}`}
             >
               <PlayCircle className="h-4 w-4" />
@@ -92,6 +95,7 @@ export function QueueEntryRow({
             <Button
               variant="secondary"
               onClick={onComplete}
+              disabled={disabled}
               aria-label={`Complete service for ${customerName}`}
             >
               <CheckCircle2 className="h-4 w-4" />
@@ -103,6 +107,7 @@ export function QueueEntryRow({
             variant="ghost"
             className="h-8 w-8 p-0"
             onClick={onRemove}
+            disabled={disabled}
             aria-label={`Remove ${customerName} from queue`}
           >
             <X className="h-4 w-4 text-destructive" />
