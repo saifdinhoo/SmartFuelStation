@@ -2,6 +2,10 @@ const express = require('express');
 const authRoutes = require('./auth.routes');
 const categoryRoutes = require('./category.routes');
 const providerRoutes = require('./provider.routes');
+const translateRoutes = require('./translate.routes');
+const reviewRoutes = require('./review.routes');
+const bookingRoutes = require('./booking.routes');
+const queueRoutes = require('./queue.routes');
 
 const router = express.Router();
 
@@ -9,5 +13,9 @@ const router = express.Router();
 router.use('/auth', authRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/providers', providerRoutes);
+router.use('/translate', translateRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/bookings', bookingRoutes);
+router.use('/queue', queueRoutes);
 
 module.exports = router;

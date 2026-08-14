@@ -9,4 +9,9 @@ const router = express.Router();
 router.get('/', authenticate, providerController.list);
 router.patch('/:id/approve', authenticate, authorize('ADMIN'), providerController.approve);
 
+// Review read access — see review.service.js for the permission rules
+// (providers are limited to their own business's reviews).
+router.get('/:id/reviews', authenticate, providerController.listReviews);
+router.get('/:id/rating-summary', authenticate, providerController.ratingSummary);
+
 module.exports = router;
