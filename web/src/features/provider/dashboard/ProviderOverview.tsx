@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { CalendarCheck, CheckCircle2, Clock, DollarSign, ListOrdered, Star } from 'lucide-react';
+import {
+  CalendarCheck,
+  CheckCircle2,
+  Clock,
+  ListOrdered,
+  MessageSquare,
+  Star,
+} from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { Reveal } from '@/components/common/Reveal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -7,6 +14,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { useProviderQueue } from '@/features/provider/queue/useProviderQueue';
 import { AddWalkInModal } from '@/features/provider/queue/AddWalkInModal';
+import { useUpdateOwnProfile } from '@/features/provider/profile/useOwnProviderProfile';
 import { useProviderDashboard } from './useProviderDashboard';
 import { LiveStatusControl } from './LiveStatusControl';
 import { QueueSummaryCard } from './QueueSummaryCard';
@@ -15,7 +23,6 @@ import { WeeklyBookingsChart } from './WeeklyBookingsChart';
 import { UpcomingBookingsList } from './UpcomingBookingsList';
 import { RecentReviewsList } from './RecentReviewsList';
 import { QuickActions } from './QuickActions';
-import { DemoControls } from './DemoControls';
 
 function LoadingSkeleton() {
   return (
@@ -35,15 +42,8 @@ function LoadingSkeleton() {
 
 export function ProviderOverview() {
   const { user } = useAuth();
-  const {
-    data,
-    viewState,
-    toggleOpenStatus,
-    reload,
-    simulateLoading,
-    simulateEmpty,
-    simulateError,
-  } = useProviderDashboard();
+  const { data, viewState, errorMessage, reload } = useProviderDashboard();
+  const { save: saveProfile, isSaving } = useUpdateOwnProfile();
   const {
     waiting: queueWaiting,
     inService: queueInService,
@@ -66,20 +66,20 @@ export function ProviderOverview() {
         </p>
       </div>
 
-      <DemoControls
-        onSimulateLoading={simulateLoading}
-        onSimulateEmpty={simulateEmpty}
-        onSimulateError={simulateError}
-      />
-
-      {viewState === 'error' && <ErrorState onRetry={reload} />}
+      {viewState === 'error' && (
+        <ErrorState onRetry={reload} description={errorMessage ?? undefined} />
+      )}
 
       {viewState === 'loading' && <LoadingSkeleton />}
 
       {viewState === 'ready' && data && (
         <>
           <Reveal>
-            <LiveStatusControl isOpen={data.isOpen} onToggle={toggleOpenStatus} />
+            <LiveStatusControl
+              isOpen={data.isOpen}
+              disabled={isSaving}
+              onToggle={() => saveProfile({ isOpen: !data.isOpen })}
+            />
           </Reveal>
 
           <Reveal delay={0.05} className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
@@ -87,13 +87,13 @@ export function ProviderOverview() {
             <StatCard label="Est. wait" value={`${averageWaitMinutes} min`} icon={Clock} />
             <StatCard label="Today's bookings" value={data.todayBookings} icon={CalendarCheck} />
             <StatCard label="Completed" value={data.completedServices} icon={CheckCircle2} />
-            <StatCard label="Avg. rating" value={data.averageRating.toFixed(1)} icon={Star} />
             <StatCard
-              label="Revenue (month)"
-              value={`$${data.revenueThisMonth.toLocaleString()}`}
-              icon={DollarSign}
-              hint="Illustrative placeholder — real revenue tracking isn't wired up yet."
+              label="Avg. rating"
+              value={data.averageRating === null ? '—' : data.averageRating.toFixed(1)}
+              icon={Star}
+              hint={`${data.reviewCount} review${data.reviewCount === 1 ? '' : 's'}`}
             />
+            <StatCard label="Reviews" value={data.reviewCount} icon={MessageSquare} />
           </Reveal>
 
           <Reveal delay={0.1} className="grid gap-4 lg:grid-cols-2">

@@ -1,4 +1,12 @@
-import { CalendarRange, CheckCircle2, Clock, Download, Star, TicketX, Wallet } from 'lucide-react';
+import {
+  CalendarRange,
+  CheckCircle2,
+  Clock,
+  Download,
+  ListOrdered,
+  Star,
+  TicketX,
+} from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -16,8 +24,7 @@ import { CustomerSatisfactionSection } from './CustomerSatisfactionSection';
 import { DATE_RANGE_OPTIONS, type DateRangeKey } from './types';
 
 export function AnalyticsPage() {
-  const { range, setRange, data, viewState, isEmpty, retry, simulateEmpty } =
-    useProviderAnalytics();
+  const { range, setRange, data, viewState, isEmpty, errorMessage, retry } = useProviderAnalytics();
 
   return (
     <div className="flex flex-col gap-6">
@@ -49,22 +56,11 @@ export function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-dashed border-border p-4">
-        <p className="text-body-sm mb-3 text-muted-foreground">
-          Demo controls — not part of the real page, just for showing each state.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={retry}>
-            Reload (loading)
-          </Button>
-          <Button variant="ghost" onClick={simulateEmpty}>
-            Simulate empty
-          </Button>
-        </div>
-      </div>
-
       {viewState === 'error' && (
-        <ErrorState onRetry={retry} description="Could not load analytics." />
+        <ErrorState
+          onRetry={retry}
+          description={errorMessage ?? 'Could not load analytics.'}
+        />
       )}
 
       {viewState === 'loading' && (
@@ -115,14 +111,16 @@ export function AnalyticsPage() {
             />
             <StatCard
               label="Avg. rating"
-              value={data.summary.averageRating.toFixed(1)}
+              value={
+                data.summary.averageRating === null ? '—' : data.summary.averageRating.toFixed(1)
+              }
               icon={Star}
             />
             <StatCard
-              label="Revenue (est.)"
-              value={`$${data.summary.revenueEstimate.toLocaleString()}`}
-              icon={Wallet}
-              hint="Estimated from completed bookings — full revenue tracking is coming soon."
+              label="Queue entries"
+              value={data.summary.queueEntriesHandled}
+              icon={ListOrdered}
+              hint="Customers who joined your queue in this period, including walk-ins."
             />
           </div>
 

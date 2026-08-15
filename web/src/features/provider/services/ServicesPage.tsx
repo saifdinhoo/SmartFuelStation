@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Wrench } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -15,8 +16,11 @@ import type { Service, ServiceInput } from './types';
 export function ServicesPage() {
   const {
     viewState,
+    errorMessage,
     services,
     totalResultsCount,
+    hasAnyServices,
+    categories,
     page,
     totalPages,
     setPage,
@@ -27,9 +31,6 @@ export function ServicesPage() {
     availabilityFilter,
     setAvailabilityFilter,
     reload,
-    simulateLoading,
-    simulateEmpty,
-    simulateError,
     addService,
     editService,
     removeService,
@@ -65,6 +66,10 @@ export function ServicesPage() {
     try {
       await removeService(deletingService.id);
       setDeletingService(null);
+    } catch {
+      // The backend refuses deletion when the service has booking or queue
+      // history; the reason is already shown as a toast. Keep the dialog
+      // open so the provider can read it and cancel deliberately.
     } finally {
       setIsDeleting(false);
     }
@@ -85,25 +90,19 @@ export function ServicesPage() {
         </Button>
       </div>
 
-      <div className="rounded-lg border border-dashed border-border p-4">
-        <p className="text-body-sm mb-3 text-muted-foreground">
-          Demo controls — not part of the real page, just for showing each state.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={simulateLoading}>
-            Reload (loading)
-          </Button>
-          <Button variant="ghost" onClick={simulateEmpty}>
-            Simulate empty
-          </Button>
-          <Button variant="ghost" onClick={simulateError}>
-            Simulate error
-          </Button>
-        </div>
-      </div>
-
       {viewState === 'error' ? (
-        <ErrorState onRetry={reload} />
+        <ErrorState
+          title="Could not load your services"
+          description={errorMessage ?? undefined}
+          onRetry={reload}
+        />
+      ) : viewState === 'ready' && !hasAnyServices ? (
+        <EmptyState
+          icon={Wrench}
+          title="No services yet"
+          description="Add the services your business offers so customers can book them."
+          action={{ label: 'Add service', onClick: openAddForm }}
+        />
       ) : (
         <Reveal className="flex flex-col gap-4">
           <ServicesFilters
@@ -113,6 +112,7 @@ export function ServicesPage() {
             onCategoryChange={setCategoryFilter}
             availabilityFilter={availabilityFilter}
             onAvailabilityChange={setAvailabilityFilter}
+            categories={categories}
           />
 
           <ServicesTable
@@ -141,6 +141,7 @@ export function ServicesPage() {
         onClose={() => setFormOpen(false)}
         onSubmit={handleFormSubmit}
         service={editingService}
+        categories={categories}
       />
 
       <ConfirmDialog
@@ -148,7 +149,7 @@ export function ServicesPage() {
         onClose={() => setDeletingService(null)}
         onConfirm={handleConfirmDelete}
         title="Delete service?"
-        description={`This will remove "${deletingService?.name}" from your service list. This action cannot be undone.`}
+        description={`This will remove "${deletingService?.name}" from your service list. Services that already have bookings or queue history can't be deleted — mark them unavailable instead.`}
         confirmLabel="Delete"
         danger
         isLoading={isDeleting}

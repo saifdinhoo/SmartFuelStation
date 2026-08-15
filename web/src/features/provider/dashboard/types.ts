@@ -24,17 +24,17 @@ export interface Review {
   date: string;
 }
 
-// Queue length/wait time/entries are NOT part of this mock model — they
-// come from the real Queue backend (see queue/useProviderQueue.ts) so
-// there is exactly one queue implementation, not a mock one here plus a
-// real one there.
+// Queue length/wait time/entries are NOT part of this model — they come
+// from the real Queue backend (see queue/useProviderQueue.ts) so there is
+// exactly one queue implementation. Revenue is likewise absent: nothing in
+// the database tracks it as a reportable figure.
 export interface ProviderOverviewData {
   businessName: string;
   isOpen: boolean;
   todayBookings: number;
   completedServices: number;
-  averageRating: number;
-  revenueThisMonth: number;
+  averageRating: number | null;
+  reviewCount: number;
   upcomingBookings: UpcomingBooking[];
   services: ServiceAvailability[];
   weeklyBookings: WeeklyBookingPoint[];

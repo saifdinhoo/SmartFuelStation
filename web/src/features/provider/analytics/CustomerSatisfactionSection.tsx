@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import type { RatingDistributionPoint } from './types';
 
 interface CustomerSatisfactionSectionProps {
-  averageRating: number;
+  // null when the business has no reviews at all — shown as a dash rather
+  // than a fabricated 0.0, which would read as "rated badly".
+  averageRating: number | null;
   distribution: RatingDistributionPoint[];
 }
 
@@ -25,17 +27,21 @@ export function CustomerSatisfactionSection({
       <CardContent>
         <div className="flex flex-col gap-6 sm:flex-row">
           <div className="flex shrink-0 flex-col items-center justify-center gap-1 sm:w-40">
-            <p className="text-heading-1">{averageRating.toFixed(1)}</p>
+            <p className="text-heading-1">
+              {averageRating === null ? '—' : averageRating.toFixed(1)}
+            </p>
             <div className="flex items-center gap-0.5 text-warning">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
                   className="h-4 w-4"
-                  fill={i < Math.round(averageRating) ? 'currentColor' : 'none'}
+                  fill={averageRating !== null && i < Math.round(averageRating) ? 'currentColor' : 'none'}
                 />
               ))}
             </div>
-            <p className="text-caption text-muted-foreground">Average rating</p>
+            <p className="text-caption text-muted-foreground">
+              {averageRating === null ? 'No reviews yet' : 'Average rating'}
+            </p>
           </div>
 
           <div className="h-48 w-full flex-1" dir="ltr">

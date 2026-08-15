@@ -1,21 +1,20 @@
-export const SERVICE_CATEGORIES = [
-  'Oil Change',
-  'Tire Repair',
-  'Battery Check',
-  'Brake Inspection',
-  'Car Wash',
-  'General Inspection',
-] as const;
-
-export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
-
+// Services are real ProviderService rows now. Categories come from the
+// /categories table rather than a hardcoded string union, so a service's
+// category is an id that must actually exist in the database.
 export interface Service {
-  id: string;
+  id: number;
   name: string;
-  category: ServiceCategory;
+  categoryId: number;
+  category: string;
   price: number;
   durationMinutes: number;
   available: boolean;
 }
 
-export type ServiceInput = Omit<Service, 'id'>;
+export interface ServiceInput {
+  name: string;
+  categoryId: number;
+  price: number;
+  durationMinutes: number;
+  available: boolean;
+}

@@ -1,14 +1,35 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { PieChart as PieChartIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import type { BookingStatus, BookingStatusSlice } from './types';
+import type { BookingStatusSlice } from './types';
 
-const STATUS_COLOR: Record<BookingStatus, string> = {
-  Completed: 'var(--success)',
-  Cancelled: 'var(--destructive)',
-  'No-show': 'var(--warning)',
-  Pending: 'var(--muted-foreground)',
+// Keyed by the real BookingStatus enum values the API returns. Anything
+// unrecognized falls back to a neutral colour rather than rendering
+// `undefined` as a fill.
+const STATUS_COLOR: Record<string, string> = {
+  COMPLETED: 'var(--success)',
+  IN_SERVICE: 'var(--primary)',
+  IN_QUEUE: 'var(--primary)',
+  ARRIVED: 'var(--primary)',
+  CONFIRMED: 'var(--primary)',
+  PENDING: 'var(--warning)',
+  CANCELLED: 'var(--destructive)',
+  REJECTED: 'var(--destructive)',
 };
+
+const STATUS_LABEL: Record<string, string> = {
+  COMPLETED: 'Completed',
+  IN_SERVICE: 'In service',
+  IN_QUEUE: 'In queue',
+  ARRIVED: 'Arrived',
+  CONFIRMED: 'Confirmed',
+  PENDING: 'Pending',
+  CANCELLED: 'Cancelled',
+  REJECTED: 'Rejected',
+};
+
+const colorFor = (status: string) => STATUS_COLOR[status] ?? 'var(--muted-foreground)';
+const labelFor = (status: string) => STATUS_LABEL[status] ?? status;
 
 export function BookingStatusChart({ data }: { data: BookingStatusSlice[] }) {
   const total = data.reduce((sum, slice) => sum + slice.count, 0);
@@ -34,7 +55,7 @@ export function BookingStatusChart({ data }: { data: BookingStatusSlice[] }) {
                   strokeWidth={0}
                 >
                   {data.map((slice) => (
-                    <Cell key={slice.status} fill={STATUS_COLOR[slice.status]} />
+                    <Cell key={slice.status} fill={colorFor(slice.status)} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -60,9 +81,9 @@ export function BookingStatusChart({ data }: { data: BookingStatusSlice[] }) {
                 <span className="flex items-center gap-2">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: STATUS_COLOR[slice.status] }}
+                    style={{ backgroundColor: colorFor(slice.status) }}
                   />
-                  {slice.status}
+                  {labelFor(slice.status)}
                 </span>
                 <span className="font-medium text-foreground">
                   {slice.count}

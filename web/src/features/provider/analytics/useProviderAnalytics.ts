@@ -1,53 +1,39 @@
-import { useCallback, useEffect, useState } from 'react';
-import { fetchAnalytics } from './mockAnalyticsApi';
-import type { AnalyticsData, DateRangeKey } from './types';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import {
+  fetchOwnAnalytics,
+  type AnalyticsRange,
+} from '@/features/provider/profile/providerProfileApi';
 
-export type AnalyticsViewState = 'loading' | 'ready' | 'error';
+export type AnalyticsViewState = 'loading' | 'error' | 'ready';
 
+// Every figure comes from GET /providers/me/analytics, which computes from
+// Booking / QueueEntry / Review rows. There is no client-side derivation
+// and no fallback data — an empty database produces zeroes, not samples.
 export function useProviderAnalytics() {
-  const [range, setRange] = useState<DateRangeKey>('30d');
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [viewState, setViewState] = useState<AnalyticsViewState>('loading');
+  const [range, setRange] = useState<AnalyticsRange>('30d');
 
-  const load = useCallback(async (selectedRange: DateRangeKey) => {
-    setViewState('loading');
-    try {
-      const result = await fetchAnalytics(selectedRange);
-      setData(result);
-      setViewState('ready');
-    } catch {
-      setViewState('error');
-    }
-  }, []);
+  const query = useQuery({
+    queryKey: ['provider', 'me', 'analytics', range],
+    queryFn: () => fetchOwnAnalytics(range),
+  });
 
-  useEffect(() => {
-    // Fetch on mount and whenever the selected date range changes.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load(range);
-  }, [range, load]);
+  const data = query.data;
+  const viewState: AnalyticsViewState = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : 'ready';
 
   return {
     range,
     setRange,
     data,
     viewState,
-    isEmpty: viewState === 'ready' && data !== null && data.summary.totalBookings === 0,
-    retry: () => load(range),
-    simulateEmpty: () => {
-      setViewState('ready');
-      setData((current) =>
-        current
-          ? {
-              ...current,
-              summary: { ...current.summary, totalBookings: 0, completedBookings: 0 },
-              trend: current.trend.map((point) => ({ ...point, bookings: 0 })),
-              popularServices: [],
-              busyHours: current.busyHours.map((point) => ({ ...point, bookings: 0 })),
-              statusBreakdown: [],
-              ratingDistribution: [],
-            }
-          : current,
-      );
-    },
+    errorMessage: query.isError ? getErrorMessage(query.error, 'Could not load analytics') : null,
+    // "Empty" means this provider genuinely had no bookings in the window.
+    isEmpty: Boolean(data) && data!.summary.totalBookings === 0,
+    retry: () => query.refetch(),
   };
 }

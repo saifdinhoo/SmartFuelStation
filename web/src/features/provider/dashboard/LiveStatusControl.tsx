@@ -6,9 +6,10 @@ import { ProviderStatusIndicator } from '@/components/ui/ProviderStatusIndicator
 interface LiveStatusControlProps {
   isOpen: boolean;
   onToggle: () => void;
+  disabled?: boolean;
 }
 
-export function LiveStatusControl({ isOpen, onToggle }: LiveStatusControlProps) {
+export function LiveStatusControl({ isOpen, onToggle, disabled }: LiveStatusControlProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center gap-2">
@@ -17,7 +18,12 @@ export function LiveStatusControl({ isOpen, onToggle }: LiveStatusControlProps) 
       </CardHeader>
       <CardContent className="flex items-center justify-between">
         <ProviderStatusIndicator status={isOpen ? 'open' : 'closed'} />
-        <Switch checked={isOpen} onChange={onToggle} label="Open for business" />
+        <Switch
+          checked={isOpen}
+          onChange={onToggle}
+          disabled={disabled}
+          label="Open for business"
+        />
       </CardContent>
     </Card>
   );

@@ -1,19 +1,12 @@
-export type DateRangeKey = '7d' | '30d' | '90d';
+import type { AnalyticsRange } from '@/features/provider/profile/providerProfileApi';
+
+export type DateRangeKey = AnalyticsRange;
 
 export const DATE_RANGE_OPTIONS: { value: DateRangeKey; label: string }[] = [
   { value: '7d', label: 'Last 7 days' },
   { value: '30d', label: 'Last 30 days' },
   { value: '90d', label: 'Last 90 days' },
 ];
-
-export interface AnalyticsSummary {
-  totalBookings: number;
-  completedBookings: number;
-  cancellationRate: number;
-  averageWaitMinutes: number;
-  averageRating: number;
-  revenueEstimate: number;
-}
 
 export interface BookingTrendPoint {
   label: string;
@@ -30,23 +23,14 @@ export interface BusyHourPoint {
   bookings: number;
 }
 
-export type BookingStatus = 'Completed' | 'Cancelled' | 'No-show' | 'Pending';
-
+// Real BookingStatus values straight from the database — no invented
+// "No-show" bucket, which the schema has no concept of.
 export interface BookingStatusSlice {
-  status: BookingStatus;
+  status: string;
   count: number;
 }
 
 export interface RatingDistributionPoint {
   stars: number;
   count: number;
-}
-
-export interface AnalyticsData {
-  summary: AnalyticsSummary;
-  trend: BookingTrendPoint[];
-  popularServices: PopularServicePoint[];
-  busyHours: BusyHourPoint[];
-  statusBreakdown: BookingStatusSlice[];
-  ratingDistribution: RatingDistributionPoint[];
 }
