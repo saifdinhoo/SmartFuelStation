@@ -1,0 +1,76 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Smart Automotive Service",
+
+  "actionLogin": "Login",
+  "actionRegister": "Register",
+  "actionLogout": "Logout",
+  "actionRetry": "Retry",
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionAdd": "Add",
+  "actionEdit": "Edit",
+  "actionDelete": "Delete",
+  "actionApprove": "Approve",
+
+  "fieldEmail": "Email",
+  "fieldPassword": "Password",
+  "fieldName": "Name",
+  "fieldDescription": "Description",
+  "fieldBusinessName": "Business name",
+  "fieldAddress": "Address",
+  "fieldAccountType": "Account type",
+
+  "roleCustomer": "Customer",
+  "roleProvider": "Service Provider",
+  "roleAdmin": "Admin",
+
+  "loginSubmitting": "Logging in…",
+  "loginNoAccount": "No account? Register",
+  "registerSubmitting": "Registering…",
+  "registerProviderNotice": "Your provider account will need admin approval before it's active.",
+
+  "navDashboard": "Dashboard",
+  "navCategories": "Categories",
+  "navProviders": "Providers",
+
+  "dashboardWelcome": "Welcome, {name}",
+  "@dashboardWelcome": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "dashboardRole": "Role: {role}",
+  "@dashboardRole": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+  "dashboardApprovalStatus": "Business approval status: {status}",
+  "@dashboardApprovalStatus": {
+    "placeholders": { "status": { "type": "String" } }
+  },
+  "statusApproved": "Approved",
+  "statusPendingApproval": "Pending approval",
+
+  "categoriesEmpty": "No categories yet.",
+  "categoriesAdd": "Add category",
+  "categoriesEdit": "Edit category",
+  "providersEmpty": "No providers yet.",
+
+  "stateLoading": "Loading…",
+  "stateErrorTitle": "Something went wrong",
+  "stateEmptyTitle": "Nothing here yet",
+
+  "settingsTheme": "Theme",
+  "settingsLanguage": "Language",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+
+  "unauthorizedTitle": "Not available for your account",
+  "unauthorizedBody": "You are signed in as {role}, which does not have access to this page.",
+  "@unauthorizedBody": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+  "unauthorizedGoBack": "Go to dashboard",
+
+  "notFoundTitle": "Page not found"
+}

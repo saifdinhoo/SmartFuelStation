@@ -1,0 +1,11 @@
+# Configures `flutter gen-l10n`, which runs automatically because
+# `generate: true` is set under `flutter:` in pubspec.yaml.
+arb-dir: lib/core/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# Generated into the source tree rather than the default .dart_tool
+# location, so the import resolves in any checkout without a prior
+# `pub get` and the strings are reviewable in diffs.
+output-dir: lib/core/l10n/generated
+untranslated-messages-file: .dart_tool/untranslated_messages.txt

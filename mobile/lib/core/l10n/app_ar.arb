@@ -1,0 +1,76 @@
+{
+  "@@locale": "ar",
+
+  "appTitle": "خدمة السيارات الذكية",
+
+  "actionLogin": "تسجيل الدخول",
+  "actionRegister": "إنشاء حساب",
+  "actionLogout": "تسجيل الخروج",
+  "actionRetry": "إعادة المحاولة",
+  "actionSave": "حفظ",
+  "actionCancel": "إلغاء",
+  "actionAdd": "إضافة",
+  "actionEdit": "تعديل",
+  "actionDelete": "حذف",
+  "actionApprove": "اعتماد",
+
+  "fieldEmail": "البريد الإلكتروني",
+  "fieldPassword": "كلمة المرور",
+  "fieldName": "الاسم",
+  "fieldDescription": "الوصف",
+  "fieldBusinessName": "اسم النشاط التجاري",
+  "fieldAddress": "العنوان",
+  "fieldAccountType": "نوع الحساب",
+
+  "roleCustomer": "عميل",
+  "roleProvider": "مقدّم خدمة",
+  "roleAdmin": "مشرف",
+
+  "loginSubmitting": "جارٍ تسجيل الدخول…",
+  "loginNoAccount": "ليس لديك حساب؟ أنشئ حسابًا",
+  "registerSubmitting": "جارٍ إنشاء الحساب…",
+  "registerProviderNotice": "يحتاج حساب مقدّم الخدمة إلى موافقة المشرف قبل تفعيله.",
+
+  "navDashboard": "الرئيسية",
+  "navCategories": "الفئات",
+  "navProviders": "مقدّمو الخدمة",
+
+  "dashboardWelcome": "مرحبًا، {name}",
+  "@dashboardWelcome": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "dashboardRole": "الدور: {role}",
+  "@dashboardRole": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+  "dashboardApprovalStatus": "حالة اعتماد النشاط: {status}",
+  "@dashboardApprovalStatus": {
+    "placeholders": { "status": { "type": "String" } }
+  },
+  "statusApproved": "معتمد",
+  "statusPendingApproval": "بانتظار الاعتماد",
+
+  "categoriesEmpty": "لا توجد فئات بعد.",
+  "categoriesAdd": "إضافة فئة",
+  "categoriesEdit": "تعديل الفئة",
+  "providersEmpty": "لا يوجد مقدّمو خدمة بعد.",
+
+  "stateLoading": "جارٍ التحميل…",
+  "stateErrorTitle": "حدث خطأ ما",
+  "stateEmptyTitle": "لا يوجد شيء هنا بعد",
+
+  "settingsTheme": "المظهر",
+  "settingsLanguage": "اللغة",
+  "themeLight": "فاتح",
+  "themeDark": "داكن",
+  "themeSystem": "حسب النظام",
+
+  "unauthorizedTitle": "غير متاح لحسابك",
+  "unauthorizedBody": "أنت مسجّل الدخول كـ {role}، وهذا الدور لا يملك صلاحية الوصول إلى هذه الصفحة.",
+  "@unauthorizedBody": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+  "unauthorizedGoBack": "العودة إلى الرئيسية",
+
+  "notFoundTitle": "الصفحة غير موجودة"
+}

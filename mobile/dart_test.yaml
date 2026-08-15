@@ -1,0 +1,9 @@
+# Tests tagged `live` talk to a real backend on localhost and a seeded
+# database, so they are skipped in a normal `flutter test` run. Run them
+# deliberately once the API is up:
+#
+#   flutter test test/live_backend_test.dart --run-skipped \
+#     --dart-define=API_BASE_URL=http://localhost:5000/api
+tags:
+  live:
+    skip: "Needs the backend running — see dart_test.yaml"
