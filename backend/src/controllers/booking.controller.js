@@ -1,4 +1,17 @@
 const bookingService = require('../services/booking.service');
+const socketEvents = require('../sockets/queueEvents');
+
+// Same contract as queue.controller.js's `safely`: socket pushes run only
+// after the REST response has already been sent, and a failed push must
+// never turn an request that already succeeded into a 500.
+async function safely(fn) {
+  try {
+    await fn();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Socket.IO notification failed:', err);
+  }
+}
 
 async function create(req, res, next) {
   try {
@@ -40,6 +53,25 @@ async function updateStatus(req, res, next) {
       req.user,
     );
     res.json({ success: true, data: booking });
+
+    // Booking-only edges (PENDING->CONFIRMED, CONFIRMED->ARRIVED, reject,
+    // cancel) never touch the Queue, so queue.controller.js's pushes don't
+    // cover them and the customer's client would otherwise learn about a
+    // provider's decision only on its next manual refetch. The event and
+    // its listener already exist (sockets/queueEvents.js and the web
+    // SocketProvider) — this is the emit that was missing.
+    //
+    // The owning provider is read off the booking row the service just
+    // returned — never from the request — so a client cannot address
+    // someone else's room by forging a providerId.
+    await safely(() =>
+      socketEvents.notifyBookingStatusChanged(
+        booking.customerId,
+        booking.id,
+        booking.status,
+        booking.providerService?.provider?.id ?? null,
+      ),
+    );
   } catch (err) {
     next(err);
   }

@@ -24,24 +24,30 @@ import { AnalyticsPage } from '@/features/provider/analytics/AnalyticsPage';
 import { DiscoveryPage } from '@/features/customer/discovery/DiscoveryPage';
 import { ProviderDetailsPage } from '@/features/customer/discovery/ProviderDetailsPage';
 import { CategoriesPage } from '@/features/admin/categories/CategoriesPage';
+import { AdminProvidersPage } from '@/features/admin/providers/AdminProvidersPage';
+import { AdminUsersPage } from '@/features/admin/users/AdminUsersPage';
+import { AdminBookingsPage } from '@/features/admin/bookings/AdminBookingsPage';
+import { AdminReviewsPage } from '@/features/admin/reviews/AdminReviewsPage';
+import { AdminComplaintsPage } from '@/features/admin/complaints/AdminComplaintsPage';
+import { AdminAnalyticsPage } from '@/features/admin/analytics/AdminAnalyticsPage';
+import { AdminSettingsPage } from '@/features/admin/settings/AdminSettingsPage';
 import { BookingHistoryPage } from '@/features/customer/bookings/BookingHistoryPage';
 import { BookingDetailsPage } from '@/features/customer/bookings/BookingDetailsPage';
+import { ProviderBookingsPage } from '@/features/provider/bookings/ProviderBookingsPage';
+import { ProviderBookingDetailsPage } from '@/features/provider/bookings/ProviderBookingDetailsPage';
+import { BusinessProfilePage } from '@/features/provider/profile/BusinessProfilePage';
+import { LiveStatusPage } from '@/features/provider/livestatus/LiveStatusPage';
+import { ProviderReviewsPage } from '@/features/provider/reviews/ProviderReviewsPage';
+import { ProviderSettingsPage } from '@/features/provider/settings/ProviderSettingsPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
-// "Services", "Queue", and "Analytics" now have real pages too, so they're excluded.
-const providerSubRoutes = getNavForRole('PROVIDER')
-  .slice(1)
-  .filter(
-    (item) =>
-      item.path !== '/provider/services' &&
-      item.path !== '/provider/queue' &&
-      item.path !== '/provider/analytics',
-  );
-// "Categories" now calls the real backend, so it's excluded from the stub list.
-const adminSubRoutes = getNavForRole('ADMIN')
-  .slice(1)
-  .filter((item) => item.path !== '/admin/categories');
+// Every provider nav item now has a real page, so no ComingSoonPage stubs
+// remain for this role.
+const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
+// Every admin nav item now has a real page, so no ComingSoonPage stubs
+// remain for this role either.
+const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
 // "Find Services" and "Bookings" have real pages; the rest of the
 // customer nav is still ComingSoonPage, same convention as above.
 const customerSubRoutes = getNavForRole('CUSTOMER').filter(
@@ -138,6 +144,78 @@ export function AppRoutes() {
             }
           />
           <Route
+            path="/provider/profile"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <BusinessProfilePage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/provider/live-status"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <LiveStatusPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/provider/reviews"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderReviewsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/provider/settings"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderSettingsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/provider/bookings"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderBookingsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/provider/bookings/:id"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderBookingDetailsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
             path="/provider/analytics"
             element={
               <PageTransition>
@@ -174,18 +252,30 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
-          <Route
-            path="/admin/categories"
-            element={
-              <PageTransition>
-                <RoleRoute roles={['ADMIN']}>
-                  <AuthenticatedDashboardLayout>
-                    <CategoriesPage />
-                  </AuthenticatedDashboardLayout>
-                </RoleRoute>
-              </PageTransition>
-            }
-          />
+          {(
+            [
+              ['/admin/categories', <CategoriesPage key="cat" />],
+              ['/admin/providers', <AdminProvidersPage key="prov" />],
+              ['/admin/customers', <AdminUsersPage key="users" />],
+              ['/admin/bookings', <AdminBookingsPage key="book" />],
+              ['/admin/reviews', <AdminReviewsPage key="rev" />],
+              ['/admin/complaints', <AdminComplaintsPage key="comp" />],
+              ['/admin/analytics', <AdminAnalyticsPage key="an" />],
+              ['/admin/system-settings', <AdminSettingsPage key="set" />],
+            ] as const
+          ).map(([path, element]) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <PageTransition>
+                  <RoleRoute roles={['ADMIN']}>
+                    <AuthenticatedDashboardLayout>{element}</AuthenticatedDashboardLayout>
+                  </RoleRoute>
+                </PageTransition>
+              }
+            />
+          ))}
           {adminSubRoutes.map((item) => (
             <Route
               key={item.path}

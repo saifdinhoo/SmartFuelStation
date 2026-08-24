@@ -30,17 +30,30 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Official localization delegates — powers English/Arabic and the RTL
+  # direction flip that comes with an Arabic locale.
+  flutter_localizations:
+    sdk: flutter
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # HTTP calls to the backend API
-  http: ^1.2.2
-  # Persist the JWT on-device between app launches
+  # HTTP client for the backend API. Replaced package:http so the JWT and
+  # global 401 handling live in one interceptor instead of every call site.
+  dio: ^5.11.0
+  # The JWT lives here — Keystore/Keychain backed, not plaintext prefs.
+  flutter_secure_storage: ^11.0.0
+  # Non-sensitive preferences only: language and theme. Never the token.
   shared_preferences: ^2.3.2
+  # Declarative routing with role-based redirect guards.
+  go_router: ^17.5.0
   # Simple app-wide state management (mirrors the web app's AuthContext)
   provider: ^6.1.2
+  # Date/number formatting for both locales.
+  intl: 0.20.2
+  geolocator: ^14.0.3
+  socket_io_client: ^3.1.6
 
 dev_dependencies:
   flutter_test:
@@ -52,12 +65,16 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_secure_storage_platform_interface: ^2.0.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Runs gen-l10n during `flutter pub get` / build, turning the .arb files
+  # in lib/core/l10n into the generated AppLocalizations class.
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

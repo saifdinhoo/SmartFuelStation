@@ -4,13 +4,32 @@ const { authenticate, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Providers register via POST /api/auth/register (role = PROVIDER).
-// This route lists them and lets an admin approve them.
+// The /me routes are registered before the /:id ones so Express never tries
+// to parse "me" as a provider id. They are PROVIDER-only and always resolve
+// the business from the JWT — a provider id is never accepted from the
+// client on any of them, so one provider cannot address another's data.
+router.get('/me', authenticate, authorize('PROVIDER'), providerController.getMe);
+router.patch('/me', authenticate, authorize('PROVIDER'), providerController.updateMe);
+router.get('/me/analytics', authenticate, authorize('PROVIDER'), providerController.myAnalytics);
+router.post('/me/services', authenticate, authorize('PROVIDER'), providerController.createMyService);
+router.patch(
+  '/me/services/:serviceId',
+  authenticate,
+  authorize('PROVIDER'),
+  providerController.updateMyService,
+);
+router.delete(
+  '/me/services/:serviceId',
+  authenticate,
+  authorize('PROVIDER'),
+  providerController.deleteMyService,
+);
+
 router.get('/', authenticate, providerController.list);
 router.patch('/:id/approve', authenticate, authorize('ADMIN'), providerController.approve);
-
-// Review read access — see review.service.js for the permission rules
-// (providers are limited to their own business's reviews).
+// Approve or revoke in one call — the admin UI needs both directions.
+// The older /approve route above is left as-is so nothing calling it breaks.
+router.patch('/:id/approval', authenticate, authorize('ADMIN'), providerController.setApproval);
 router.get('/:id/reviews', authenticate, providerController.listReviews);
 router.get('/:id/rating-summary', authenticate, providerController.ratingSummary);
 

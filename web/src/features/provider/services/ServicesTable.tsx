@@ -8,7 +8,7 @@ import type { Service } from './types';
 interface ServicesTableProps {
   services: Service[];
   isLoading: boolean;
-  onToggleAvailability: (id: string) => void;
+  onToggleAvailability: (id: number) => void;
   onEdit: (service: Service) => void;
   onDelete: (service: Service) => void;
 }
@@ -71,7 +71,7 @@ export function ServicesTable({
       <DataTable
         columns={columns}
         rows={services}
-        getRowKey={(row) => row.id}
+        getRowKey={(row) => String(row.id)}
         isLoading={isLoading}
         emptyMessage="No services match your filters."
       />

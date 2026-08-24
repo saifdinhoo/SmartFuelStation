@@ -1,6 +1,5 @@
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
-import { SERVICE_CATEGORIES } from './types';
 import type { AvailabilityFilter } from './useProviderServices';
 
 interface ServicesFiltersProps {
@@ -10,12 +9,8 @@ interface ServicesFiltersProps {
   onCategoryChange: (value: string) => void;
   availabilityFilter: AvailabilityFilter;
   onAvailabilityChange: (value: AvailabilityFilter) => void;
+  categories: { id: number; name: string }[];
 }
-
-const categoryOptions = [
-  { value: 'all', label: 'All categories' },
-  ...SERVICE_CATEGORIES.map((category) => ({ value: category, label: category })),
-];
 
 const availabilityOptions = [
   { value: 'all', label: 'All availability' },
@@ -30,7 +25,14 @@ export function ServicesFilters({
   onCategoryChange,
   availabilityFilter,
   onAvailabilityChange,
+  categories,
 }: ServicesFiltersProps) {
+  // Real categories from the database, not a hardcoded list.
+  const categoryOptions = [
+    { value: 'all', label: 'All categories' },
+    ...categories.map((c) => ({ value: String(c.id), label: c.name })),
+  ];
+
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <SearchInput

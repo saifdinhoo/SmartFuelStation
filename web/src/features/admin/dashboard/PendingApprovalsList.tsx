@@ -12,7 +12,7 @@ import type { ProviderApprovalsViewState } from '@/features/admin/providers/useP
 interface PendingApprovalsListProps {
   items: AdminProvider[];
   viewState: ProviderApprovalsViewState;
-  onApprove: (id: number) => Promise<void>;
+  onApprove: (id: number) => Promise<unknown>;
   onReload: () => void;
 }
 

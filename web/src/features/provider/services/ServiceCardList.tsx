@@ -10,7 +10,7 @@ import type { Service } from './types';
 interface ServiceCardListProps {
   services: Service[];
   isLoading: boolean;
-  onToggleAvailability: (id: string) => void;
+  onToggleAvailability: (id: number) => void;
   onEdit: (service: Service) => void;
   onDelete: (service: Service) => void;
 }

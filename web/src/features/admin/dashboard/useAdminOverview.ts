@@ -1,36 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
-import { fetchAdminOverview } from './mockAdminOverviewApi';
-import type { AdminOverviewData } from './types';
+import { useQuery } from '@tanstack/react-query';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { fetchAdminOverview } from '@/features/admin/adminApi';
 
 export type AdminOverviewViewState = 'loading' | 'error' | 'ready';
 
+// Single cache key for the platform snapshot. Every figure comes from
+// GET /admin/overview, which counts real rows — there is no client-side
+// derivation and no mock fallback.
+export const ADMIN_OVERVIEW_QUERY_KEY = ['admin', 'overview'];
+
 export function useAdminOverview() {
-  const [data, setData] = useState<AdminOverviewData | null>(null);
-  const [viewState, setViewState] = useState<AdminOverviewViewState>('loading');
+  const query = useQuery({ queryKey: ADMIN_OVERVIEW_QUERY_KEY, queryFn: fetchAdminOverview });
 
-  const load = useCallback(async (mode: 'ready' | 'empty' | 'error' = 'ready') => {
-    setViewState('loading');
-    try {
-      const result = await fetchAdminOverview(mode);
-      setData(result);
-      setViewState('ready');
-    } catch {
-      setViewState('error');
-    }
-  }, []);
-
-  useEffect(() => {
-    // Initial data fetch on mount — the canonical effect use case.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load();
-  }, [load]);
+  const viewState: AdminOverviewViewState = query.isPending
+    ? 'loading'
+    : query.isError
+      ? 'error'
+      : 'ready';
 
   return {
-    data,
+    data: query.data,
     viewState,
-    reload: () => load('ready'),
-    simulateLoading: () => load('ready'),
-    simulateEmpty: () => load('empty'),
-    simulateError: () => load('error'),
+    errorMessage: query.isError
+      ? getErrorMessage(query.error, 'Could not load the admin overview')
+      : null,
+    reload: () => query.refetch(),
   };
 }

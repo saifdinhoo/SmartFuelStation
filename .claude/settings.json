@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub *)"
+    ],
+    "additionalDirectories": [
+      "C:\\project\\SmartFuelStation\\mobile"
+    ]
+  }
+}
