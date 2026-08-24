@@ -10,7 +10,8 @@ import '../core/state/query_cache.dart';
 import '../core/storage/prefs_store.dart';
 import '../core/storage/secure_token_store.dart';
 import '../core/theme/theme_controller.dart';
-import '../features/admin/data/admin_api.dart';
+import '../features/admin/data/admin_realtime_handler.dart';
+import '../features/admin/data/admin_repository.dart';
 import '../features/auth/data/auth_api.dart';
 import '../features/auth/state/auth_state.dart';
 import '../features/customer/data/customer_realtime_handler.dart';
@@ -38,7 +39,7 @@ class AppProviders extends StatefulWidget {
 class _AppProvidersState extends State<AppProviders> {
   late final AuthState _auth;
   late final ApiClient _apiClient;
-  late final AdminApi _adminApi;
+  late final AdminRepository _adminRepo;
   late final QueryCache _queryCache;
   late final CustomerRepository _customerRepo;
   late final ProviderRepository _providerRepo;
@@ -63,7 +64,7 @@ class _AppProvidersState extends State<AppProviders> {
     );
 
     _auth.api = AuthApi(_apiClient);
-    _adminApi = AdminApi(_apiClient);
+    _adminRepo = AdminRepository(_apiClient, _queryCache);
     _customerRepo = CustomerRepository(_apiClient, _queryCache);
     _providerRepo = ProviderRepository(_apiClient, _queryCache);
     _location = LocationService();
@@ -71,7 +72,7 @@ class _AppProvidersState extends State<AppProviders> {
     _locale = LocaleController(prefs);
 
     // One socket, one handler chain. The role is unknown at build time, so
-    // both handlers are wired and each no-ops on events its role never
+    // all three handlers are wired and each no-ops on events its role never
     // receives — rooms are assigned server-side, so a customer socket is
     // never sent a provider event in the first place.
     _socket = SocketService(
@@ -79,6 +80,7 @@ class _AppProvidersState extends State<AppProviders> {
       handler: CompositeRealtimeHandler([
         CustomerRealtimeHandler(_queryCache),
         ProviderRealtimeHandler(_queryCache),
+        AdminRealtimeHandler(_queryCache),
       ]),
     );
 
@@ -131,7 +133,7 @@ class _AppProvidersState extends State<AppProviders> {
         // key resolves; the repository reads through it.
         ChangeNotifierProvider<QueryCache>.value(value: _queryCache),
         Provider<ApiClient>.value(value: _apiClient),
-        Provider<AdminApi>.value(value: _adminApi),
+        Provider<AdminRepository>.value(value: _adminRepo),
         Provider<CustomerRepository>.value(value: _customerRepo),
         Provider<ProviderRepository>.value(value: _providerRepo),
       ],

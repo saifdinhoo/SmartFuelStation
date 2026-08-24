@@ -3,8 +3,19 @@ import 'package:go_router/go_router.dart';
 
 import '../core/l10n/generated/app_localizations.dart';
 import '../core/widgets/loading_view.dart';
-import '../features/admin/screens/admin_categories_screen.dart';
-import '../features/admin/screens/admin_providers_screen.dart';
+import '../features/admin/analytics/admin_analytics_screen.dart';
+import '../features/admin/bookings/admin_booking_details_screen.dart';
+import '../features/admin/bookings/admin_bookings_screen.dart';
+import '../features/admin/categories/admin_categories_screen.dart';
+import '../features/admin/complaints/admin_complaints_screen.dart';
+import '../features/admin/more/admin_more_screen.dart';
+import '../features/admin/overview/admin_overview_screen.dart';
+import '../features/admin/providers/admin_provider_details_screen.dart';
+import '../features/admin/providers/admin_providers_screen.dart';
+import '../features/admin/reviews/admin_reviews_screen.dart';
+import '../features/admin/shell/admin_shell.dart';
+import '../features/admin/users/admin_user_details_screen.dart';
+import '../features/admin/users/admin_users_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/state/auth_state.dart';
@@ -27,8 +38,6 @@ import '../features/provider/queue/provider_queue_screen.dart';
 import '../features/provider/reviews/provider_reviews_screen.dart';
 import '../features/provider/services/provider_services_screen.dart';
 import '../features/provider/shell/provider_shell.dart';
-import '../features/shell/screens/dashboard_screen.dart';
-import '../features/shell/screens/home_shell.dart';
 import '../features/shell/screens/unauthorized_screen.dart';
 
 /// Route paths in one place so nothing navigates by raw string literal.
@@ -40,11 +49,20 @@ class Routes {
   static const register = '/register';
   static const unauthorized = '/unauthorized';
 
-  // Provider/admin area (Phase 0). Customer accounts land in the customer
-  // shell instead — see the redirect below.
-  static const dashboard = '/dashboard';
-  static const categories = '/categories';
+  // Admin area.
+  static const adminOverview = '/admin/overview';
   static const adminProviders = '/admin/providers';
+  static const adminBookings = '/admin/bookings';
+  static const adminComplaints = '/admin/complaints';
+  static const adminMore = '/admin/more';
+  static const adminUsers = '/admin/users';
+  static const adminCategories = '/admin/categories';
+  static const adminReviews = '/admin/reviews';
+  static const adminAnalytics = '/admin/analytics';
+
+  static String adminUserDetails(int id) => '/admin/users/$id';
+  static String adminProviderDetails(int id) => '/admin/providers/$id';
+  static String adminBookingDetails(int id) => '/admin/bookings/$id';
 
   // Customer area.
   static const customerHome = '/customer/home';
@@ -80,10 +98,6 @@ const _roleGuards = <String, Set<UserRole>>{
   '/customer': {UserRole.customer},
   '/provider': {UserRole.provider},
   '/admin': {UserRole.admin},
-  // Admin mobile still lives in the legacy shell; providers have their own
-  // area now, so these stay admin-only.
-  Routes.dashboard: {UserRole.admin},
-  Routes.categories: {UserRole.admin},
 };
 
 Set<UserRole>? _allowedRolesFor(String location) {
@@ -99,8 +113,7 @@ Set<UserRole>? _allowedRolesFor(String location) {
 String _homeFor(UserRole? role) => switch (role) {
   UserRole.customer => Routes.customerHome,
   UserRole.provider => Routes.providerOverview,
-  // Admin mobile is not built yet; the legacy shell is still their landing.
-  UserRole.admin || null => Routes.dashboard,
+  UserRole.admin || null => Routes.adminOverview,
 };
 
 GoRouter createRouter(AuthState auth) {
@@ -242,21 +255,65 @@ GoRouter createRouter(AuthState auth) {
         ],
       ),
 
-      // --- admin area (legacy shell, pending Admin Mobile) ---------------
+      // --- admin area ----------------------------------------------------
+      // Secondary screens sit outside the shell so they push full-screen
+      // with a back button rather than keeping the bottom bar.
+      GoRoute(
+        path: Routes.adminUsers,
+        builder: (_, _) => const AdminUsersScreen(),
+      ),
+      GoRoute(
+        path: '/admin/users/:id',
+        builder: (_, state) => AdminUserDetailsScreen(
+          userId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/admin/providers/:id',
+        builder: (_, state) => AdminProviderDetailsScreen(
+          providerId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/admin/bookings/:id',
+        builder: (_, state) => AdminBookingDetailsScreen(
+          bookingId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: Routes.adminCategories,
+        builder: (_, _) => const AdminCategoriesScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminReviews,
+        builder: (_, _) => const AdminReviewsScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminAnalytics,
+        builder: (_, _) => const AdminAnalyticsScreen(),
+      ),
       ShellRoute(
-        builder: (_, _, child) => HomeShell(child: child),
+        builder: (_, _, child) => AdminShell(child: child),
         routes: [
           GoRoute(
-            path: Routes.dashboard,
-            builder: (_, _) => const DashboardScreen(),
-          ),
-          GoRoute(
-            path: Routes.categories,
-            builder: (_, _) => const AdminCategoriesScreen(),
+            path: Routes.adminOverview,
+            builder: (_, _) => const AdminOverviewScreen(),
           ),
           GoRoute(
             path: Routes.adminProviders,
             builder: (_, _) => const AdminProvidersScreen(),
+          ),
+          GoRoute(
+            path: Routes.adminBookings,
+            builder: (_, _) => const AdminBookingsScreen(),
+          ),
+          GoRoute(
+            path: Routes.adminComplaints,
+            builder: (_, _) => const AdminComplaintsScreen(),
+          ),
+          GoRoute(
+            path: Routes.adminMore,
+            builder: (_, _) => const AdminMoreScreen(),
           ),
         ],
       ),

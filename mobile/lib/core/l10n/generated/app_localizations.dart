@@ -2137,6 +2137,846 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get commonBack;
+
+  /// No description provided for @aNavOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get aNavOverview;
+
+  /// No description provided for @aNavProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'Businesses'**
+  String get aNavProviders;
+
+  /// No description provided for @aNavBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get aNavBookings;
+
+  /// No description provided for @aNavComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get aNavComplaints;
+
+  /// No description provided for @aNavMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get aNavMore;
+
+  /// No description provided for @aOverviewUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get aOverviewUsers;
+
+  /// No description provided for @aOverviewCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get aOverviewCustomers;
+
+  /// No description provided for @aOverviewProviderAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider accounts'**
+  String get aOverviewProviderAccounts;
+
+  /// No description provided for @aOverviewAdmins.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins'**
+  String get aOverviewAdmins;
+
+  /// No description provided for @aOverviewBusinesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Businesses'**
+  String get aOverviewBusinesses;
+
+  /// No description provided for @aOverviewApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get aOverviewApproved;
+
+  /// No description provided for @aOverviewPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get aOverviewPending;
+
+  /// No description provided for @aOverviewOpenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now'**
+  String get aOverviewOpenNow;
+
+  /// No description provided for @aOverviewBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get aOverviewBookings;
+
+  /// No description provided for @aOverviewActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get aOverviewActive;
+
+  /// No description provided for @aOverviewCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get aOverviewCompleted;
+
+  /// No description provided for @aOverviewCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get aOverviewCancelled;
+
+  /// No description provided for @aOverviewRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get aOverviewRejected;
+
+  /// No description provided for @aOverviewQueueNow.
+  ///
+  /// In en, this message translates to:
+  /// **'In queue now'**
+  String get aOverviewQueueNow;
+
+  /// No description provided for @aOverviewReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aOverviewReviews;
+
+  /// No description provided for @aOverviewAvgRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get aOverviewAvgRating;
+
+  /// No description provided for @aOverviewCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get aOverviewCatalog;
+
+  /// No description provided for @aOverviewCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get aOverviewCategories;
+
+  /// No description provided for @aOverviewServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get aOverviewServices;
+
+  /// No description provided for @aOverviewComplaintsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open complaints'**
+  String get aOverviewComplaintsOpen;
+
+  /// No description provided for @aOverviewComplaintsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total complaints'**
+  String get aOverviewComplaintsTotal;
+
+  /// No description provided for @aOverviewRecentRegistrations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent registrations'**
+  String get aOverviewRecentRegistrations;
+
+  /// No description provided for @aOverviewPendingApprovals.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending approvals'**
+  String get aOverviewPendingApprovals;
+
+  /// No description provided for @aOverviewRecentComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent complaints'**
+  String get aOverviewRecentComplaints;
+
+  /// No description provided for @aOverviewNothingPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is waiting for approval.'**
+  String get aOverviewNothingPending;
+
+  /// No description provided for @aOverviewNoComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints have been filed.'**
+  String get aOverviewNoComplaints;
+
+  /// No description provided for @aOverviewNoRegistrations.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent registrations.'**
+  String get aOverviewNoRegistrations;
+
+  /// No description provided for @aOverviewQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get aOverviewQuickActions;
+
+  /// No description provided for @aOverviewViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get aOverviewViewAll;
+
+  /// No description provided for @aUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get aUsersTitle;
+
+  /// No description provided for @aUsersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or email'**
+  String get aUsersSearchHint;
+
+  /// No description provided for @aUsersAllRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'All roles'**
+  String get aUsersAllRoles;
+
+  /// No description provided for @aUsersNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No users match this filter.'**
+  String get aUsersNoResults;
+
+  /// No description provided for @aUsersJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get aUsersJoined;
+
+  /// No description provided for @aUsersBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get aUsersBookings;
+
+  /// No description provided for @aUsersReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aUsersReviews;
+
+  /// No description provided for @aUsersComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get aUsersComplaints;
+
+  /// No description provided for @aUsersDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'User details'**
+  String get aUsersDetails;
+
+  /// No description provided for @aUsersRecentBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent bookings'**
+  String get aUsersRecentBookings;
+
+  /// No description provided for @aUsersRecentReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent reviews'**
+  String get aUsersRecentReviews;
+
+  /// No description provided for @aUsersBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked business'**
+  String get aUsersBusiness;
+
+  /// No description provided for @aUsersNoBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings yet.'**
+  String get aUsersNoBookings;
+
+  /// No description provided for @aUsersNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get aUsersNoReviews;
+
+  /// No description provided for @aUsersReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'User records are read-only. The schema has no account status field, and a provider account is tied to its business row — so deactivation and role changes have no endpoint to call.'**
+  String get aUsersReadOnly;
+
+  /// No description provided for @aProvidersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search businesses'**
+  String get aProvidersSearchHint;
+
+  /// No description provided for @aProvidersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get aProvidersAll;
+
+  /// No description provided for @aProvidersApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get aProvidersApproved;
+
+  /// No description provided for @aProvidersPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get aProvidersPending;
+
+  /// No description provided for @aProvidersNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No businesses match this filter.'**
+  String get aProvidersNoResults;
+
+  /// No description provided for @aProvidersOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get aProvidersOwner;
+
+  /// No description provided for @aProvidersServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get aProvidersServices;
+
+  /// No description provided for @aProvidersReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aProvidersReviews;
+
+  /// No description provided for @aProvidersQueueEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue entries'**
+  String get aProvidersQueueEntries;
+
+  /// No description provided for @aProvidersApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get aProvidersApprove;
+
+  /// No description provided for @aProvidersRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke approval'**
+  String get aProvidersRevoke;
+
+  /// No description provided for @aProvidersApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this business?'**
+  String get aProvidersApproveTitle;
+
+  /// No description provided for @aProvidersApproveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It becomes visible to customers and can accept bookings.'**
+  String get aProvidersApproveBody;
+
+  /// No description provided for @aProvidersRevokeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke approval?'**
+  String get aProvidersRevokeTitle;
+
+  /// No description provided for @aProvidersRevokeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears from customer discovery. Existing bookings are not cancelled.'**
+  String get aProvidersRevokeBody;
+
+  /// No description provided for @aProvidersDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Business details'**
+  String get aProvidersDetails;
+
+  /// No description provided for @aCategoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get aCategoriesTitle;
+
+  /// No description provided for @aCategoriesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get aCategoriesNew;
+
+  /// No description provided for @aCategoriesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get aCategoriesEdit;
+
+  /// No description provided for @aCategoriesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get aCategoriesActive;
+
+  /// No description provided for @aCategoriesInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get aCategoriesInactive;
+
+  /// No description provided for @aCategoriesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet.'**
+  String get aCategoriesNone;
+
+  /// No description provided for @aCategoriesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this category?'**
+  String get aCategoriesDeleteTitle;
+
+  /// No description provided for @aCategoriesDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A category still used by services cannot be deleted — deactivate it instead.'**
+  String get aCategoriesDeleteBody;
+
+  /// No description provided for @aCategoriesNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A category needs a name.'**
+  String get aCategoriesNameRequired;
+
+  /// No description provided for @aBookingsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customer, business or service'**
+  String get aBookingsSearchHint;
+
+  /// No description provided for @aBookingsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings match this filter.'**
+  String get aBookingsNoResults;
+
+  /// No description provided for @aBookingsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get aBookingsAll;
+
+  /// No description provided for @aBookingsCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get aBookingsCustomer;
+
+  /// No description provided for @aBookingsBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get aBookingsBusiness;
+
+  /// No description provided for @aBookingsReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins view bookings; the workflow belongs to the business that owns them.'**
+  String get aBookingsReadOnly;
+
+  /// No description provided for @aComplaintsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints match this filter.'**
+  String get aComplaintsNoResults;
+
+  /// No description provided for @aComplaintsAllStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get aComplaintsAllStatuses;
+
+  /// No description provided for @aComplaintsAllSeverities.
+  ///
+  /// In en, this message translates to:
+  /// **'All severities'**
+  String get aComplaintsAllSeverities;
+
+  /// No description provided for @aComplaintStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get aComplaintStatusOpen;
+
+  /// No description provided for @aComplaintStatusInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'In review'**
+  String get aComplaintStatusInReview;
+
+  /// No description provided for @aComplaintStatusResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get aComplaintStatusResolved;
+
+  /// No description provided for @aComplaintStatusDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismissed'**
+  String get aComplaintStatusDismissed;
+
+  /// No description provided for @aComplaintSeverityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get aComplaintSeverityLow;
+
+  /// No description provided for @aComplaintSeverityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get aComplaintSeverityMedium;
+
+  /// No description provided for @aComplaintSeverityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get aComplaintSeverityHigh;
+
+  /// No description provided for @aComplaintDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint'**
+  String get aComplaintDetails;
+
+  /// No description provided for @aComplaintAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aComplaintAbout;
+
+  /// No description provided for @aComplaintSubmittedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted by'**
+  String get aComplaintSubmittedBy;
+
+  /// No description provided for @aComplaintFiled.
+  ///
+  /// In en, this message translates to:
+  /// **'Filed'**
+  String get aComplaintFiled;
+
+  /// No description provided for @aComplaintClosedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get aComplaintClosedAt;
+
+  /// No description provided for @aComplaintUpdateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update status'**
+  String get aComplaintUpdateStatus;
+
+  /// No description provided for @aComplaintNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'No further details were given.'**
+  String get aComplaintNoDetails;
+
+  /// No description provided for @aComplaintReopenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopening a closed complaint clears its closing date.'**
+  String get aComplaintReopenNote;
+
+  /// No description provided for @aReviewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aReviewsTitle;
+
+  /// No description provided for @aReviewsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews match this filter.'**
+  String get aReviewsNoResults;
+
+  /// No description provided for @aReviewsAllProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'All businesses'**
+  String get aReviewsAllProviders;
+
+  /// No description provided for @aReviewsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this review?'**
+  String get aReviewsDeleteTitle;
+
+  /// No description provided for @aReviewsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed for everyone and the business\'s rating is recalculated. This cannot be undone.'**
+  String get aReviewsDeleteBody;
+
+  /// No description provided for @aReviewsNoComment.
+  ///
+  /// In en, this message translates to:
+  /// **'No comment was left.'**
+  String get aReviewsNoComment;
+
+  /// No description provided for @aReviewsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Review deleted'**
+  String get aReviewsDeleted;
+
+  /// No description provided for @aReviewsBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by'**
+  String get aReviewsBy;
+
+  /// No description provided for @aAnalyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform analytics'**
+  String get aAnalyticsTitle;
+
+  /// No description provided for @aAnalyticsBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get aAnalyticsBookings;
+
+  /// No description provided for @aAnalyticsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get aAnalyticsCompleted;
+
+  /// No description provided for @aAnalyticsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get aAnalyticsCancelled;
+
+  /// No description provided for @aAnalyticsCancelRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation rate'**
+  String get aAnalyticsCancelRate;
+
+  /// No description provided for @aAnalyticsNewCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'New customers'**
+  String get aAnalyticsNewCustomers;
+
+  /// No description provided for @aAnalyticsNewProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'New businesses'**
+  String get aAnalyticsNewProviders;
+
+  /// No description provided for @aAnalyticsReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aAnalyticsReviews;
+
+  /// No description provided for @aAnalyticsAvgRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get aAnalyticsAvgRating;
+
+  /// No description provided for @aAnalyticsBookingTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking trend'**
+  String get aAnalyticsBookingTrend;
+
+  /// No description provided for @aAnalyticsUserGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'User growth'**
+  String get aAnalyticsUserGrowth;
+
+  /// No description provided for @aAnalyticsStatusBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking status breakdown'**
+  String get aAnalyticsStatusBreakdown;
+
+  /// No description provided for @aAnalyticsPopularServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular services'**
+  String get aAnalyticsPopularServices;
+
+  /// No description provided for @aAnalyticsTopProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'Top businesses'**
+  String get aAnalyticsTopProviders;
+
+  /// No description provided for @aAnalyticsCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Businesses per category'**
+  String get aAnalyticsCategories;
+
+  /// No description provided for @aAnalyticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was recorded in this range.'**
+  String get aAnalyticsEmpty;
+
+  /// No description provided for @aAnalyticsSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Every figure comes from /admin/analytics. Revenue, AI and system-health metrics are absent because the platform does not record them.'**
+  String get aAnalyticsSource;
+
+  /// No description provided for @aAnalyticsCustomersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get aAnalyticsCustomersLabel;
+
+  /// No description provided for @aAnalyticsProvidersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Businesses'**
+  String get aAnalyticsProvidersLabel;
+
+  /// No description provided for @aMoreManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get aMoreManagement;
+
+  /// No description provided for @aMoreUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get aMoreUsers;
+
+  /// No description provided for @aMoreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get aMoreCategories;
+
+  /// No description provided for @aMoreReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get aMoreReviews;
+
+  /// No description provided for @aMoreAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get aMoreAnalytics;
+
+  /// No description provided for @aMoreAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get aMoreAccount;
+
+  /// No description provided for @aMorePreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get aMorePreferences;
+
+  /// No description provided for @aMoreUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get aMoreUnsupported;
+
+  /// No description provided for @aMoreNoPlatformSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.'**
+  String get aMoreNoPlatformSettings;
+
+  /// No description provided for @aMoreNoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications backend exists yet.'**
+  String get aMoreNoNotifications;
+
+  /// No description provided for @aMoreNoPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no change-password endpoint.'**
+  String get aMoreNoPassword;
+
+  /// No description provided for @aMoreNoAudit.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing records administrative actions, so there is no audit log to show.'**
+  String get aMoreNoAudit;
+
+  /// No description provided for @aMoreRealtimeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.'**
+  String get aMoreRealtimeNote;
+
+  /// No description provided for @aBookingNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get aBookingNotes;
+
+  /// No description provided for @aCategoriesNoToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen.'**
+  String get aCategoriesNoToggle;
 }
 
 class _AppLocalizationsDelegate

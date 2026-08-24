@@ -45,6 +45,7 @@ class AuthState extends ChangeNotifier {
   bool get isAuthenticated => _token != null;
 
   String? get displayName => _user?['name'] as String?;
+  String? get email => _user?['email'] as String?;
   UserRole? get role => UserRole.fromApi(_user?['role'] as String?);
 
   /// Read synchronously by the Dio interceptor on every request.

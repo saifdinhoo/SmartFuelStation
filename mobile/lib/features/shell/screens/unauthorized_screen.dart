@@ -52,7 +52,10 @@ class UnauthorizedScreen extends StatelessWidget {
               const SizedBox(height: 20),
               PrimaryButton(
                 label: l10n.unauthorizedGoBack,
-                onPressed: () => context.go(Routes.dashboard),
+                // Splash re-runs the redirect, which routes each role to its own
+                // home — a customer sent to an admin route would only bounce
+                // straight back here.
+                onPressed: () => context.go(Routes.splash),
               ),
             ],
           ),
