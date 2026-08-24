@@ -60,8 +60,17 @@ async function updateStatus(req, res, next) {
     // provider's decision only on its next manual refetch. The event and
     // its listener already exist (sockets/queueEvents.js and the web
     // SocketProvider) — this is the emit that was missing.
+    //
+    // The owning provider is read off the booking row the service just
+    // returned — never from the request — so a client cannot address
+    // someone else's room by forging a providerId.
     await safely(() =>
-      socketEvents.notifyBookingStatusChanged(booking.customerId, booking.id, booking.status),
+      socketEvents.notifyBookingStatusChanged(
+        booking.customerId,
+        booking.id,
+        booking.status,
+        booking.providerService?.provider?.id ?? null,
+      ),
     );
   } catch (err) {
     next(err);

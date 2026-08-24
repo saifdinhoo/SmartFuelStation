@@ -2,6 +2,19 @@ const providerService = require('../services/provider.service');
 const reviewService = require('../services/review.service');
 const profileService = require('../services/providerProfile.service');
 const analyticsService = require('../services/providerAnalytics.service');
+const socketEvents = require('../sockets/queueEvents');
+
+// Same contract as queue.controller.js and booking.controller.js: socket
+// pushes run only after the REST response has been sent, and a failed push
+// must never turn a request that already succeeded into a 500.
+async function safely(fn) {
+  try {
+    await fn();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Socket.IO notification failed:', err);
+  }
+}
 
 async function list(req, res, next) {
   try {
@@ -29,6 +42,19 @@ async function setApproval(req, res, next) {
       req.user.userId,
     );
     res.json({ success: true, data: provider });
+
+    // Approval is public availability too: revoking also forces isOpen to
+    // false and drops the business out of customer-facing listings, so a
+    // customer looking at it right now should see that immediately rather
+    // than on their next manual refresh.
+    await safely(() =>
+      socketEvents.notifyProviderStatusChanged({
+        providerId: provider.id,
+        isOpen: provider.isOpen,
+        estimatedWaitMinutes: provider.estimatedWaitMinutes,
+        isApproved: provider.isApproved,
+      }),
+    );
   } catch (err) {
     next(err);
   }
@@ -69,6 +95,24 @@ async function updateMe(req, res, next) {
   try {
     const profile = await profileService.updateOwnProfile(req.user.userId, req.body);
     res.json({ success: true, data: profile });
+
+    // Only announce when the request actually touched a publicly visible
+    // availability field. A provider editing their description or
+    // coordinates changes nothing a browsing customer's card shows, so
+    // broadcasting that would be pure noise.
+    const touchedPublicField =
+      req.body.isOpen !== undefined || req.body.estimatedWaitMinutes !== undefined;
+
+    if (touchedPublicField) {
+      await safely(() =>
+        socketEvents.notifyProviderStatusChanged({
+          providerId: profile.id,
+          isOpen: profile.isOpen,
+          estimatedWaitMinutes: profile.estimatedWaitMinutes,
+          isApproved: profile.isApproved,
+        }),
+      );
+    }
   } catch (err) {
     next(err);
   }

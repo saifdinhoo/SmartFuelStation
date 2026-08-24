@@ -32,6 +32,26 @@ interface BookingStatusChangedPayload {
   status: string;
 }
 
+// Public availability only — the same fields GET /providers already
+// exposes to any authenticated caller. Never carries owner identity,
+// address, approval trail, or queue entries.
+interface ProviderStatusChangedPayload {
+  providerId: number;
+  isOpen: boolean;
+  estimatedWaitMinutes: number;
+  isApproved: boolean;
+}
+
+// The shape of one row in the ['providers'] cache that this event can
+// touch. Everything else on the row is left exactly as it was.
+interface CachedProvider {
+  id: number;
+  isOpen: boolean;
+  estimatedWaitMinutes: number;
+  isApproved: boolean;
+  [key: string]: unknown;
+}
+
 export function SocketProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
@@ -67,6 +87,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // trust that nothing changed while disconnected.
       queryClient.invalidateQueries({ queryKey: ['queue'] });
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      // Provider availability can have changed while disconnected, and
+      // missed events are never replayed — REST is what makes a reconnect
+      // converge on the real state.
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
     }
 
     function onDisconnect() {
@@ -95,6 +119,27 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       queryClient.invalidateQueries({ queryKey: ['bookings', String(payload.bookingId)] });
     }
 
+    // Patched in place rather than invalidated: the payload carries every
+    // field it touches, so refetching the whole provider list to learn one
+    // boolean would be a wasted round trip. Discovery, provider details and
+    // the admin list all read this same ['providers'] key, so one write
+    // updates every screen showing that business.
+    function onProviderStatusChanged(payload: ProviderStatusChangedPayload) {
+      queryClient.setQueryData<CachedProvider[]>(['providers'], (current) => {
+        if (!current) return current;
+        return current.map((provider) =>
+          provider.id === payload.providerId
+            ? {
+                ...provider,
+                isOpen: payload.isOpen,
+                estimatedWaitMinutes: payload.estimatedWaitMinutes,
+                isApproved: payload.isApproved,
+              }
+            : provider,
+        );
+      });
+    }
+
     socket.off('connect', onConnect).on('connect', onConnect);
     socket.off('disconnect', onDisconnect).on('disconnect', onDisconnect);
     socket
@@ -104,6 +149,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket
       .off('booking:status_changed', onBookingStatusChanged)
       .on('booking:status_changed', onBookingStatusChanged);
+    socket
+      .off('provider:status_changed', onProviderStatusChanged)
+      .on('provider:status_changed', onProviderStatusChanged);
 
     return () => {
       socket.off('connect', onConnect);
@@ -111,6 +159,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('queue:provider_updated', onProviderUpdated);
       socket.off('queue:my_update', onMyUpdate);
       socket.off('booking:status_changed', onBookingStatusChanged);
+      socket.off('provider:status_changed', onProviderStatusChanged);
     };
   }, [queryClient]);
 

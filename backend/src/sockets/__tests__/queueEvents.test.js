@@ -11,10 +11,24 @@ const { getIO } = require('../index');
 const queueService = require('../../services/queue.service');
 const socketEvents = require('../queueEvents');
 
+// `.to()` is chainable in Socket.IO v4 and returns a new operator, so the
+// fake does too. `rooms` collects every room targeted across a chain,
+// which `io.to` alone cannot see once a second link is added.
 function fakeIo() {
   const emit = jest.fn();
-  const to = jest.fn(() => ({ emit }));
-  return { to, emit };
+  const rooms = [];
+  const operator = () => ({
+    to: jest.fn((room) => {
+      rooms.push(room);
+      return operator();
+    }),
+    emit,
+  });
+  const to = jest.fn((room) => {
+    rooms.push(room);
+    return operator();
+  });
+  return { to, emit, rooms };
 }
 
 beforeEach(() => {
@@ -82,8 +96,10 @@ describe('notifyCustomerEntry / notifyCustomerRemoved / notifyBookingStatusChang
       bookingId: 10,
       status: 'CANCELLED',
     });
-    // All three calls targeted the same single customer room — nothing else.
+    // All three calls targeted the same single customer room — nothing
+    // else, and no provider room was chained on.
     expect(io.to.mock.calls).toEqual([['user:33'], ['user:33'], ['user:33']]);
+    expect(io.rooms).toEqual(['user:33', 'user:33', 'user:33']);
   });
 
   it('all no-op silently when Socket.IO has not been initialized', () => {

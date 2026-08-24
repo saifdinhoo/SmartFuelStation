@@ -391,6 +391,1752 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page not found'**
   String get notFoundTitle;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get navExplore;
+
+  /// No description provided for @navBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get navBookings;
+
+  /// No description provided for @navQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get navQueue;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}'**
+  String homeGreeting(String name);
+
+  /// No description provided for @homeBrowseCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse by category'**
+  String get homeBrowseCategories;
+
+  /// No description provided for @homeOpenNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open now'**
+  String get homeOpenNow;
+
+  /// No description provided for @homeNoOpenProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'No businesses are open right now.'**
+  String get homeNoOpenProviders;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeActiveBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Your active booking'**
+  String get homeActiveBooking;
+
+  /// No description provided for @homeNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active bookings.'**
+  String get homeNoActivity;
+
+  /// No description provided for @homeFindService.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a service'**
+  String get homeFindService;
+
+  /// No description provided for @exploreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get exploreTitle;
+
+  /// No description provided for @exploreSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search businesses or services…'**
+  String get exploreSearchHint;
+
+  /// No description provided for @exploreNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No businesses match your search.'**
+  String get exploreNoResults;
+
+  /// No description provided for @exploreNoProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'No businesses are available yet.'**
+  String get exploreNoProviders;
+
+  /// No description provided for @exploreFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get exploreFilterAll;
+
+  /// No description provided for @exploreOpenOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Open only'**
+  String get exploreOpenOnly;
+
+  /// No description provided for @exploreSortDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest first'**
+  String get exploreSortDistance;
+
+  /// No description provided for @exploreSortPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest price'**
+  String get exploreSortPrice;
+
+  /// No description provided for @exploreSortRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest rated'**
+  String get exploreSortRating;
+
+  /// No description provided for @exploreSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get exploreSortLabel;
+
+  /// No description provided for @exploreUseLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get exploreUseLocation;
+
+  /// No description provided for @exploreLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location unavailable, so distance sorting is off.'**
+  String get exploreLocationDenied;
+
+  /// No description provided for @exploreResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No businesses} =1{1 business} other{{count} businesses}}'**
+  String exploreResultCount(int count);
+
+  /// No description provided for @providerOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get providerOpen;
+
+  /// No description provided for @providerClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get providerClosed;
+
+  /// No description provided for @providerDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km away'**
+  String providerDistanceKm(String km);
+
+  /// No description provided for @providerWaitMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'~{minutes} min wait'**
+  String providerWaitMinutes(int minutes);
+
+  /// No description provided for @providerReviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No reviews} =1{1 review} other{{count} reviews}}'**
+  String providerReviewCount(int count);
+
+  /// No description provided for @providerNoRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Not rated yet'**
+  String get providerNoRating;
+
+  /// No description provided for @providerServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get providerServices;
+
+  /// No description provided for @providerNoServices.
+  ///
+  /// In en, this message translates to:
+  /// **'This business has no bookable services right now.'**
+  String get providerNoServices;
+
+  /// No description provided for @providerReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get providerReviews;
+
+  /// No description provided for @providerNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get providerNoReviews;
+
+  /// No description provided for @providerAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get providerAbout;
+
+  /// No description provided for @providerQueueNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue right now'**
+  String get providerQueueNow;
+
+  /// No description provided for @providerInLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in line'**
+  String providerInLine(int count);
+
+  /// No description provided for @providerDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get providerDirections;
+
+  /// No description provided for @providerDirectionsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Maps aren\'t wired up yet.'**
+  String get providerDirectionsUnavailable;
+
+  /// No description provided for @providerFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get providerFavorite;
+
+  /// No description provided for @providerUnfavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get providerUnfavorite;
+
+  /// No description provided for @providerFavoriteLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device only.'**
+  String get providerFavoriteLocalOnly;
+
+  /// No description provided for @providerBookNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Book now'**
+  String get providerBookNow;
+
+  /// No description provided for @providerClosedCannotBook.
+  ///
+  /// In en, this message translates to:
+  /// **'This business is closed right now, but you can still request a booking.'**
+  String get providerClosedCannotBook;
+
+  /// No description provided for @serviceDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String serviceDuration(int minutes);
+
+  /// No description provided for @bookingCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book a service'**
+  String get bookingCreateTitle;
+
+  /// No description provided for @bookingSelectService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get bookingSelectService;
+
+  /// No description provided for @bookingSelectServiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a service…'**
+  String get bookingSelectServiceHint;
+
+  /// No description provided for @bookingDateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & time'**
+  String get bookingDateTime;
+
+  /// No description provided for @bookingPickDateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date and time'**
+  String get bookingPickDateTime;
+
+  /// No description provided for @bookingNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get bookingNotes;
+
+  /// No description provided for @bookingNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything the business should know…'**
+  String get bookingNotesHint;
+
+  /// No description provided for @bookingSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Request booking'**
+  String get bookingSubmit;
+
+  /// No description provided for @bookingCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking requested'**
+  String get bookingCreated;
+
+  /// No description provided for @bookingErrorSelectService.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a service'**
+  String get bookingErrorSelectService;
+
+  /// No description provided for @bookingErrorSelectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date and time'**
+  String get bookingErrorSelectTime;
+
+  /// No description provided for @bookingErrorFutureTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time in the future'**
+  String get bookingErrorFutureTime;
+
+  /// No description provided for @bookingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get bookingsTitle;
+
+  /// No description provided for @bookingsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get bookingsActive;
+
+  /// No description provided for @bookingsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get bookingsHistory;
+
+  /// No description provided for @bookingsNoneActive.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active bookings.'**
+  String get bookingsNoneActive;
+
+  /// No description provided for @bookingsNoneHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No past bookings yet.'**
+  String get bookingsNoneHistory;
+
+  /// No description provided for @bookingsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t booked anything yet.'**
+  String get bookingsNone;
+
+  /// No description provided for @bookingsFindProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a business'**
+  String get bookingsFindProvider;
+
+  /// No description provided for @bookingDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking details'**
+  String get bookingDetailsTitle;
+
+  /// No description provided for @bookingStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get bookingStatusLabel;
+
+  /// No description provided for @bookingDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get bookingDetailsSection;
+
+  /// No description provided for @bookingService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get bookingService;
+
+  /// No description provided for @bookingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get bookingCategory;
+
+  /// No description provided for @bookingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get bookingPrice;
+
+  /// No description provided for @bookingWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get bookingWhen;
+
+  /// No description provided for @bookingBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get bookingBusiness;
+
+  /// No description provided for @bookingCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get bookingCancel;
+
+  /// No description provided for @bookingCancelConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get bookingCancelConfirmTitle;
+
+  /// No description provided for @bookingCancelConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The business will be notified. This cannot be undone.'**
+  String get bookingCancelConfirmBody;
+
+  /// No description provided for @bookingCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking cancelled'**
+  String get bookingCancelled;
+
+  /// No description provided for @bookingNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This booking no longer exists.'**
+  String get bookingNotFound;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get statusConfirmed;
+
+  /// No description provided for @statusArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get statusArrived;
+
+  /// No description provided for @statusInQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'In queue'**
+  String get statusInQueue;
+
+  /// No description provided for @statusInService.
+  ///
+  /// In en, this message translates to:
+  /// **'In service'**
+  String get statusInService;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get statusRejected;
+
+  /// No description provided for @queueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get queueTitle;
+
+  /// No description provided for @queueNotInLine.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not in a queue right now.'**
+  String get queueNotInLine;
+
+  /// No description provided for @queueNotInLineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When a business adds you to their queue, your place appears here.'**
+  String get queueNotInLineBody;
+
+  /// No description provided for @queuePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'You are #{position} in line'**
+  String queuePosition(int position);
+
+  /// No description provided for @queueYoureNext.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re next'**
+  String get queueYoureNext;
+
+  /// No description provided for @queueAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nobody ahead of you} =1{1 customer ahead} other{{count} customers ahead}}'**
+  String queueAhead(int count);
+
+  /// No description provided for @queueEstimatedWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated wait: {minutes} min'**
+  String queueEstimatedWait(int minutes);
+
+  /// No description provided for @queueBeingServed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re being served now'**
+  String get queueBeingServed;
+
+  /// No description provided for @queueServedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy your service.'**
+  String get queueServedBody;
+
+  /// No description provided for @queueDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Service completed'**
+  String get queueDone;
+
+  /// No description provided for @queueRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the queue'**
+  String get queueRemoved;
+
+  /// No description provided for @queueStayNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Please stay nearby — you\'ll be called when it\'s your turn.'**
+  String get queueStayNearby;
+
+  /// No description provided for @queueWaitingToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be added to the queue'**
+  String get queueWaitingToJoin;
+
+  /// No description provided for @queueWaitingToJoinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Let the front desk know you\'ve arrived.'**
+  String get queueWaitingToJoinBody;
+
+  /// No description provided for @queueRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get queueRefresh;
+
+  /// No description provided for @queueLiveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers update when you refresh.'**
+  String get queueLiveNote;
+
+  /// No description provided for @reviewWriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a review'**
+  String get reviewWriteTitle;
+
+  /// No description provided for @reviewYourRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get reviewYourRating;
+
+  /// No description provided for @reviewComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get reviewComment;
+
+  /// No description provided for @reviewCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How was the service?'**
+  String get reviewCommentHint;
+
+  /// No description provided for @reviewSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit review'**
+  String get reviewSubmit;
+
+  /// No description provided for @reviewSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your review'**
+  String get reviewSubmitted;
+
+  /// No description provided for @reviewErrorRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a rating from 1 to 5'**
+  String get reviewErrorRating;
+
+  /// No description provided for @reviewLeaveOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a review'**
+  String get reviewLeaveOne;
+
+  /// No description provided for @reviewYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your review'**
+  String get reviewYours;
+
+  /// No description provided for @reviewDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete review'**
+  String get reviewDelete;
+
+  /// No description provided for @reviewDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your review?'**
+  String get reviewDeleteConfirmTitle;
+
+  /// No description provided for @reviewDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes it from the business\'s rating. This cannot be undone.'**
+  String get reviewDeleteConfirmBody;
+
+  /// No description provided for @reviewDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Review deleted'**
+  String get reviewDeleted;
+
+  /// No description provided for @reviewOnlyAfterCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'You can review a business after they complete your booking.'**
+  String get reviewOnlyAfterCompleted;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get profileAccount;
+
+  /// No description provided for @profilePreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get profilePreferences;
+
+  /// No description provided for @profileRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get profileRole;
+
+  /// No description provided for @profileNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileNotSet;
+
+  /// No description provided for @profileUnsupportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available yet'**
+  String get profileUnsupportedTitle;
+
+  /// No description provided for @profileEditUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing your profile needs a backend endpoint that doesn\'t exist yet.'**
+  String get profileEditUnsupported;
+
+  /// No description provided for @profilePasswordUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no change-password endpoint yet.'**
+  String get profilePasswordUnsupported;
+
+  /// No description provided for @profileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get profileUnavailable;
+
+  /// No description provided for @pNavOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get pNavOverview;
+
+  /// No description provided for @pNavBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get pNavBookings;
+
+  /// No description provided for @pNavQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get pNavQueue;
+
+  /// No description provided for @pNavServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get pNavServices;
+
+  /// No description provided for @pNavMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get pNavMore;
+
+  /// No description provided for @pOverviewWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}'**
+  String pOverviewWelcome(String name);
+
+  /// No description provided for @pOverviewApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get pOverviewApproved;
+
+  /// No description provided for @pOverviewPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending approval'**
+  String get pOverviewPending;
+
+  /// No description provided for @pOverviewPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers can\'t find your business until an administrator approves it.'**
+  String get pOverviewPendingBody;
+
+  /// No description provided for @pOverviewOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get pOverviewOpen;
+
+  /// No description provided for @pOverviewClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get pOverviewClosed;
+
+  /// No description provided for @pOverviewQueueLength.
+  ///
+  /// In en, this message translates to:
+  /// **'In line'**
+  String get pOverviewQueueLength;
+
+  /// No description provided for @pOverviewWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. wait'**
+  String get pOverviewWait;
+
+  /// No description provided for @pOverviewToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get pOverviewToday;
+
+  /// No description provided for @pOverviewCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get pOverviewCompleted;
+
+  /// No description provided for @pOverviewRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get pOverviewRating;
+
+  /// No description provided for @pOverviewReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get pOverviewReviews;
+
+  /// No description provided for @pOverviewRecentReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent reviews'**
+  String get pOverviewRecentReviews;
+
+  /// No description provided for @pOverviewNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get pOverviewNoReviews;
+
+  /// No description provided for @pOverviewQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get pOverviewQuickActions;
+
+  /// No description provided for @pOverviewNextCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Start next customer'**
+  String get pOverviewNextCustomer;
+
+  /// No description provided for @pOverviewAddWalkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add walk-in'**
+  String get pOverviewAddWalkIn;
+
+  /// No description provided for @pOverviewViewQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'View queue'**
+  String get pOverviewViewQueue;
+
+  /// No description provided for @pOverviewPendingBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No bookings need attention} =1{1 booking needs attention} other{{count} bookings need attention}}'**
+  String pOverviewPendingBookings(int count);
+
+  /// No description provided for @pBookingsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get pBookingsAll;
+
+  /// No description provided for @pBookingsNeedsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs action'**
+  String get pBookingsNeedsAction;
+
+  /// No description provided for @pBookingsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get pBookingsToday;
+
+  /// No description provided for @pBookingsUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get pBookingsUpcoming;
+
+  /// No description provided for @pBookingsPast.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get pBookingsPast;
+
+  /// No description provided for @pBookingsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings yet.'**
+  String get pBookingsNone;
+
+  /// No description provided for @pBookingsNoneMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookings match these filters.'**
+  String get pBookingsNoneMatch;
+
+  /// No description provided for @pBookingsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customer or service…'**
+  String get pBookingsSearchHint;
+
+  /// No description provided for @pBookingCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get pBookingCustomer;
+
+  /// No description provided for @pBookingContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get pBookingContact;
+
+  /// No description provided for @pBookingConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm booking'**
+  String get pBookingConfirm;
+
+  /// No description provided for @pBookingReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get pBookingReject;
+
+  /// No description provided for @pBookingMarkArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as arrived'**
+  String get pBookingMarkArrived;
+
+  /// No description provided for @pBookingAddToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to queue'**
+  String get pBookingAddToQueue;
+
+  /// No description provided for @pBookingStartService.
+  ///
+  /// In en, this message translates to:
+  /// **'Start service'**
+  String get pBookingStartService;
+
+  /// No description provided for @pBookingCompleteService.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete service'**
+  String get pBookingCompleteService;
+
+  /// No description provided for @pBookingRemoveFromQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from queue'**
+  String get pBookingRemoveFromQueue;
+
+  /// No description provided for @pBookingCancelBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get pBookingCancelBooking;
+
+  /// No description provided for @pBookingNextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next step'**
+  String get pBookingNextStep;
+
+  /// No description provided for @pBookingNoActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing left to do for this booking.'**
+  String get pBookingNoActions;
+
+  /// No description provided for @pBookingQueueEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue entry'**
+  String get pBookingQueueEntry;
+
+  /// No description provided for @pBookingPositionInLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Position in line'**
+  String get pBookingPositionInLine;
+
+  /// No description provided for @pConfirmRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this booking?'**
+  String get pConfirmRejectTitle;
+
+  /// No description provided for @pConfirmRejectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer will be told their request was declined. This cannot be undone.'**
+  String get pConfirmRejectBody;
+
+  /// No description provided for @pConfirmCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this booking?'**
+  String get pConfirmCancelTitle;
+
+  /// No description provided for @pConfirmCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer will be notified. This cannot be undone.'**
+  String get pConfirmCancelBody;
+
+  /// No description provided for @pConfirmRemoveQueueTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from queue?'**
+  String get pConfirmRemoveQueueTitle;
+
+  /// No description provided for @pConfirmRemoveQueueBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This drops the customer out of the line and cancels their booking.'**
+  String get pConfirmRemoveQueueBody;
+
+  /// No description provided for @pConfirmCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete service?'**
+  String get pConfirmCompleteTitle;
+
+  /// No description provided for @pConfirmCompleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This marks the service finished and closes the booking.'**
+  String get pConfirmCompleteBody;
+
+  /// No description provided for @pActionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get pActionDone;
+
+  /// No description provided for @pQueueWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get pQueueWaiting;
+
+  /// No description provided for @pQueueInService.
+  ///
+  /// In en, this message translates to:
+  /// **'In service'**
+  String get pQueueInService;
+
+  /// No description provided for @pQueueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The queue is empty.'**
+  String get pQueueEmpty;
+
+  /// No description provided for @pQueueEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a walk-in customer or check an arrived booking in.'**
+  String get pQueueEmptyBody;
+
+  /// No description provided for @pQueueNoneWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting.'**
+  String get pQueueNoneWaiting;
+
+  /// No description provided for @pQueueNoneInService.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is being served.'**
+  String get pQueueNoneInService;
+
+  /// No description provided for @pQueueCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Now serving'**
+  String get pQueueCurrent;
+
+  /// No description provided for @pQueueNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next up'**
+  String get pQueueNext;
+
+  /// No description provided for @pQueueMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get pQueueMoveUp;
+
+  /// No description provided for @pQueueMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get pQueueMoveDown;
+
+  /// No description provided for @pQueueReordered.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue order saved'**
+  String get pQueueReordered;
+
+  /// No description provided for @pWalkInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add walk-in customer'**
+  String get pWalkInTitle;
+
+  /// No description provided for @pWalkInName.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer name'**
+  String get pWalkInName;
+
+  /// No description provided for @pWalkInService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get pWalkInService;
+
+  /// No description provided for @pWalkInAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to queue'**
+  String get pWalkInAdd;
+
+  /// No description provided for @pWalkInNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the customer\'s name'**
+  String get pWalkInNameRequired;
+
+  /// No description provided for @pWalkInServiceRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a service'**
+  String get pWalkInServiceRequired;
+
+  /// No description provided for @pWalkInAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to the queue'**
+  String get pWalkInAdded;
+
+  /// No description provided for @pServicesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No services yet.'**
+  String get pServicesNone;
+
+  /// No description provided for @pServicesNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the services your business offers so customers can book them.'**
+  String get pServicesNoneBody;
+
+  /// No description provided for @pServicesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add service'**
+  String get pServicesAdd;
+
+  /// No description provided for @pServicesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit service'**
+  String get pServicesEdit;
+
+  /// No description provided for @pServiceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Service name'**
+  String get pServiceName;
+
+  /// No description provided for @pServiceCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get pServiceCategory;
+
+  /// No description provided for @pServicePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get pServicePrice;
+
+  /// No description provided for @pServiceDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (minutes)'**
+  String get pServiceDuration;
+
+  /// No description provided for @pServiceAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for booking'**
+  String get pServiceAvailable;
+
+  /// No description provided for @pServiceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Service saved'**
+  String get pServiceSaved;
+
+  /// No description provided for @pServiceDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Service deleted'**
+  String get pServiceDeleted;
+
+  /// No description provided for @pServiceDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this service?'**
+  String get pServiceDeleteTitle;
+
+  /// No description provided for @pServiceDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Services with bookings or queue history can\'t be deleted — mark them unavailable instead.'**
+  String get pServiceDeleteBody;
+
+  /// No description provided for @pServiceNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a service name'**
+  String get pServiceNameRequired;
+
+  /// No description provided for @pServicePriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price greater than 0'**
+  String get pServicePriceInvalid;
+
+  /// No description provided for @pServiceDurationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a duration greater than 0'**
+  String get pServiceDurationInvalid;
+
+  /// No description provided for @pServiceNoCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator needs to create a service category first.'**
+  String get pServiceNoCategories;
+
+  /// No description provided for @pProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Business profile'**
+  String get pProfileTitle;
+
+  /// No description provided for @pProfileBusinessDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Business details'**
+  String get pProfileBusinessDetails;
+
+  /// No description provided for @pProfileBusinessName.
+  ///
+  /// In en, this message translates to:
+  /// **'Business name'**
+  String get pProfileBusinessName;
+
+  /// No description provided for @pProfileDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get pProfileDescription;
+
+  /// No description provided for @pProfileDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell customers what your business does…'**
+  String get pProfileDescriptionHint;
+
+  /// No description provided for @pProfileAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get pProfileAddress;
+
+  /// No description provided for @pProfileContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get pProfileContact;
+
+  /// No description provided for @pProfilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get pProfilePhone;
+
+  /// No description provided for @pProfileContactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name'**
+  String get pProfileContactName;
+
+  /// No description provided for @pProfileEmailReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is your sign-in identity and can\'t be changed here.'**
+  String get pProfileEmailReadOnly;
+
+  /// No description provided for @pProfileLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get pProfileLocation;
+
+  /// No description provided for @pProfileLatitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude'**
+  String get pProfileLatitude;
+
+  /// No description provided for @pProfileLongitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitude'**
+  String get pProfileLongitude;
+
+  /// No description provided for @pProfileLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used to rank your business by distance in customer search.'**
+  String get pProfileLocationHint;
+
+  /// No description provided for @pProfileHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours aren\'t available'**
+  String get pProfileHoursTitle;
+
+  /// No description provided for @pProfileHoursBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no field for them in the database, so they can\'t be saved. Use Live Status to mark yourself open or closed right now.'**
+  String get pProfileHoursBody;
+
+  /// No description provided for @pProfileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get pProfileSave;
+
+  /// No description provided for @pProfileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get pProfileSaved;
+
+  /// No description provided for @pProfileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Business name is required'**
+  String get pProfileNameRequired;
+
+  /// No description provided for @pProfileAddressRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Address is required'**
+  String get pProfileAddressRequired;
+
+  /// No description provided for @pProfileCoordinateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid coordinate'**
+  String get pProfileCoordinateInvalid;
+
+  /// No description provided for @pLiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live status'**
+  String get pLiveTitle;
+
+  /// No description provided for @pLiveOpenForBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Open for business'**
+  String get pLiveOpenForBusiness;
+
+  /// No description provided for @pLiveOpenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers can find you in search and book your available services.'**
+  String get pLiveOpenBody;
+
+  /// No description provided for @pLiveClosedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are shown as closed. Existing bookings are unaffected.'**
+  String get pLiveClosedBody;
+
+  /// No description provided for @pLiveNotApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your business is still pending approval, so it won\'t appear in customer search yet.'**
+  String get pLiveNotApproved;
+
+  /// No description provided for @pLiveAdvertisedWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertised wait time'**
+  String get pLiveAdvertisedWait;
+
+  /// No description provided for @pLiveAdvertisedWaitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on your public profile. The live average is measured from your actual queue.'**
+  String get pLiveAdvertisedWaitBody;
+
+  /// No description provided for @pLiveMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get pLiveMinutes;
+
+  /// No description provided for @pLiveSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Live status updated'**
+  String get pLiveSaved;
+
+  /// No description provided for @pLiveNowOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re now open'**
+  String get pLiveNowOpen;
+
+  /// No description provided for @pLiveNowClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re now closed'**
+  String get pLiveNowClosed;
+
+  /// No description provided for @pLiveLiveAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Live average'**
+  String get pLiveLiveAverage;
+
+  /// No description provided for @pLiveBeingServed.
+  ///
+  /// In en, this message translates to:
+  /// **'Being served'**
+  String get pLiveBeingServed;
+
+  /// No description provided for @pReviewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get pReviewsTitle;
+
+  /// No description provided for @pReviewsAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get pReviewsAverage;
+
+  /// No description provided for @pReviewsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total reviews'**
+  String get pReviewsTotal;
+
+  /// No description provided for @pReviewsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get pReviewsNone;
+
+  /// No description provided for @pReviewsNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers can review you after you complete their booking.'**
+  String get pReviewsNoneBody;
+
+  /// No description provided for @pReviewsNoReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to reviews isn\'t available — the database has no field to store a response.'**
+  String get pReviewsNoReplies;
+
+  /// No description provided for @pReviewsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All ratings'**
+  String get pReviewsFilterAll;
+
+  /// No description provided for @pAnalyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get pAnalyticsTitle;
+
+  /// No description provided for @pAnalyticsRange7.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get pAnalyticsRange7;
+
+  /// No description provided for @pAnalyticsRange30.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get pAnalyticsRange30;
+
+  /// No description provided for @pAnalyticsRange90.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 90 days'**
+  String get pAnalyticsRange90;
+
+  /// No description provided for @pAnalyticsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get pAnalyticsTotal;
+
+  /// No description provided for @pAnalyticsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get pAnalyticsCompleted;
+
+  /// No description provided for @pAnalyticsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get pAnalyticsCancelled;
+
+  /// No description provided for @pAnalyticsCancelRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation rate'**
+  String get pAnalyticsCancelRate;
+
+  /// No description provided for @pAnalyticsAvgWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. wait'**
+  String get pAnalyticsAvgWait;
+
+  /// No description provided for @pAnalyticsAvgRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. rating'**
+  String get pAnalyticsAvgRating;
+
+  /// No description provided for @pAnalyticsQueueHandled.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue entries'**
+  String get pAnalyticsQueueHandled;
+
+  /// No description provided for @pAnalyticsPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular services'**
+  String get pAnalyticsPopular;
+
+  /// No description provided for @pAnalyticsBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy hours'**
+  String get pAnalyticsBusy;
+
+  /// No description provided for @pAnalyticsBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking status'**
+  String get pAnalyticsBreakdown;
+
+  /// No description provided for @pAnalyticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity in this range.'**
+  String get pAnalyticsEmpty;
+
+  /// No description provided for @pAnalyticsNoRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue isn\'t reported — nothing in the database tracks it.'**
+  String get pAnalyticsNoRevenue;
+
+  /// No description provided for @pMoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get pMoreTitle;
+
+  /// No description provided for @pMoreBusinessProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Business profile'**
+  String get pMoreBusinessProfile;
+
+  /// No description provided for @pMoreLiveStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Live status'**
+  String get pMoreLiveStatus;
+
+  /// No description provided for @pMoreReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get pMoreReviews;
+
+  /// No description provided for @pMoreAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get pMoreAnalytics;
+
+  /// No description provided for @pMoreAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get pMoreAccount;
+
+  /// No description provided for @pMorePreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get pMorePreferences;
+
+  /// No description provided for @pMoreUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available yet'**
+  String get pMoreUnsupported;
+
+  /// No description provided for @pMoreNoPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no change-password endpoint yet.'**
+  String get pMoreNoPassword;
+
+  /// No description provided for @pMoreNoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications backend exists yet.'**
+  String get pMoreNoNotifications;
+
+  /// No description provided for @realtimeLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get realtimeLive;
+
+  /// No description provided for @realtimeOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get realtimeOffline;
+
+  /// No description provided for @realtimeReconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting…'**
+  String get realtimeReconnecting;
+
+  /// No description provided for @queueLiveUpdating.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating automatically.'**
+  String get queueLiveUpdating;
+
+  /// No description provided for @commonKm.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get commonKm;
+
+  /// No description provided for @commonRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get commonRefresh;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// No description provided for @commonBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get commonBack;
 }
 
 class _AppLocalizationsDelegate
