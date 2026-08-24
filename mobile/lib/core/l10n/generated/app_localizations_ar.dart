@@ -1115,4 +1115,435 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonBack => 'رجوع';
+
+  @override
+  String get aNavOverview => 'نظرة عامة';
+
+  @override
+  String get aNavProviders => 'الأنشطة';
+
+  @override
+  String get aNavBookings => 'الحجوزات';
+
+  @override
+  String get aNavComplaints => 'الشكاوى';
+
+  @override
+  String get aNavMore => 'المزيد';
+
+  @override
+  String get aOverviewUsers => 'المستخدمون';
+
+  @override
+  String get aOverviewCustomers => 'العملاء';
+
+  @override
+  String get aOverviewProviderAccounts => 'حسابات مقدمي الخدمة';
+
+  @override
+  String get aOverviewAdmins => 'المشرفون';
+
+  @override
+  String get aOverviewBusinesses => 'الأنشطة';
+
+  @override
+  String get aOverviewApproved => 'معتمد';
+
+  @override
+  String get aOverviewPending => 'قيد الاعتماد';
+
+  @override
+  String get aOverviewOpenNow => 'مفتوح الآن';
+
+  @override
+  String get aOverviewBookings => 'الحجوزات';
+
+  @override
+  String get aOverviewActive => 'نشط';
+
+  @override
+  String get aOverviewCompleted => 'مكتمل';
+
+  @override
+  String get aOverviewCancelled => 'ملغى';
+
+  @override
+  String get aOverviewRejected => 'مرفوض';
+
+  @override
+  String get aOverviewQueueNow => 'في الطابور الآن';
+
+  @override
+  String get aOverviewReviews => 'التقييمات';
+
+  @override
+  String get aOverviewAvgRating => 'متوسط التقييم';
+
+  @override
+  String get aOverviewCatalog => 'الكتالوج';
+
+  @override
+  String get aOverviewCategories => 'الفئات';
+
+  @override
+  String get aOverviewServices => 'الخدمات';
+
+  @override
+  String get aOverviewComplaintsOpen => 'شكاوى مفتوحة';
+
+  @override
+  String get aOverviewComplaintsTotal => 'إجمالي الشكاوى';
+
+  @override
+  String get aOverviewRecentRegistrations => 'التسجيلات الأخيرة';
+
+  @override
+  String get aOverviewPendingApprovals => 'بانتظار الاعتماد';
+
+  @override
+  String get aOverviewRecentComplaints => 'الشكاوى الأخيرة';
+
+  @override
+  String get aOverviewNothingPending => 'لا يوجد ما ينتظر الاعتماد.';
+
+  @override
+  String get aOverviewNoComplaints => 'لم تُقدَّم أي شكاوى.';
+
+  @override
+  String get aOverviewNoRegistrations => 'لا توجد تسجيلات حديثة.';
+
+  @override
+  String get aOverviewQuickActions => 'إجراءات سريعة';
+
+  @override
+  String get aOverviewViewAll => 'عرض الكل';
+
+  @override
+  String get aUsersTitle => 'المستخدمون';
+
+  @override
+  String get aUsersSearchHint => 'ابحث بالاسم أو البريد الإلكتروني';
+
+  @override
+  String get aUsersAllRoles => 'كل الأدوار';
+
+  @override
+  String get aUsersNoResults => 'لا يوجد مستخدمون مطابقون لهذه التصفية.';
+
+  @override
+  String get aUsersJoined => 'تاريخ الانضمام';
+
+  @override
+  String get aUsersBookings => 'الحجوزات';
+
+  @override
+  String get aUsersReviews => 'التقييمات';
+
+  @override
+  String get aUsersComplaints => 'الشكاوى';
+
+  @override
+  String get aUsersDetails => 'تفاصيل المستخدم';
+
+  @override
+  String get aUsersRecentBookings => 'أحدث الحجوزات';
+
+  @override
+  String get aUsersRecentReviews => 'أحدث التقييمات';
+
+  @override
+  String get aUsersBusiness => 'النشاط المرتبط';
+
+  @override
+  String get aUsersNoBookings => 'لا توجد حجوزات بعد.';
+
+  @override
+  String get aUsersNoReviews => 'لا توجد تقييمات بعد.';
+
+  @override
+  String get aUsersReadOnly =>
+      'سجلات المستخدمين للقراءة فقط. لا يحتوي المخطط على حقل لحالة الحساب، وحساب مقدم الخدمة مرتبط بسجل نشاطه — لذلك لا يوجد إجراء للتعطيل أو تغيير الدور.';
+
+  @override
+  String get aProvidersSearchHint => 'ابحث في الأنشطة';
+
+  @override
+  String get aProvidersAll => 'الكل';
+
+  @override
+  String get aProvidersApproved => 'معتمد';
+
+  @override
+  String get aProvidersPending => 'قيد الاعتماد';
+
+  @override
+  String get aProvidersNoResults => 'لا توجد أنشطة مطابقة لهذه التصفية.';
+
+  @override
+  String get aProvidersOwner => 'المالك';
+
+  @override
+  String get aProvidersServices => 'الخدمات';
+
+  @override
+  String get aProvidersReviews => 'التقييمات';
+
+  @override
+  String get aProvidersQueueEntries => 'إدخالات الطابور';
+
+  @override
+  String get aProvidersApprove => 'اعتماد';
+
+  @override
+  String get aProvidersRevoke => 'سحب الاعتماد';
+
+  @override
+  String get aProvidersApproveTitle => 'اعتماد هذا النشاط؟';
+
+  @override
+  String get aProvidersApproveBody =>
+      'سيصبح مرئيًا للعملاء وقادرًا على قبول الحجوزات.';
+
+  @override
+  String get aProvidersRevokeTitle => 'سحب الاعتماد؟';
+
+  @override
+  String get aProvidersRevokeBody =>
+      'سيختفي من نتائج بحث العملاء. لن تُلغى الحجوزات الحالية.';
+
+  @override
+  String get aProvidersDetails => 'تفاصيل النشاط';
+
+  @override
+  String get aCategoriesTitle => 'الفئات';
+
+  @override
+  String get aCategoriesNew => 'فئة جديدة';
+
+  @override
+  String get aCategoriesEdit => 'تعديل الفئة';
+
+  @override
+  String get aCategoriesActive => 'مفعّلة';
+
+  @override
+  String get aCategoriesInactive => 'غير مفعّلة';
+
+  @override
+  String get aCategoriesNone => 'لا توجد فئات بعد.';
+
+  @override
+  String get aCategoriesDeleteTitle => 'حذف هذه الفئة؟';
+
+  @override
+  String get aCategoriesDeleteBody =>
+      'لا يمكن حذف فئة ما زالت مستخدمة في خدمات — عطّلها بدلًا من ذلك.';
+
+  @override
+  String get aCategoriesNameRequired => 'الفئة تحتاج إلى اسم.';
+
+  @override
+  String get aBookingsSearchHint => 'ابحث بالعميل أو النشاط أو الخدمة';
+
+  @override
+  String get aBookingsNoResults => 'لا توجد حجوزات مطابقة لهذه التصفية.';
+
+  @override
+  String get aBookingsAll => 'الكل';
+
+  @override
+  String get aBookingsCustomer => 'العميل';
+
+  @override
+  String get aBookingsBusiness => 'النشاط';
+
+  @override
+  String get aBookingsReadOnly =>
+      'يطّلع المشرف على الحجوزات؛ أما سير العمل فيخص النشاط المالك لها.';
+
+  @override
+  String get aComplaintsNoResults => 'لا توجد شكاوى مطابقة لهذه التصفية.';
+
+  @override
+  String get aComplaintsAllStatuses => 'كل الحالات';
+
+  @override
+  String get aComplaintsAllSeverities => 'كل المستويات';
+
+  @override
+  String get aComplaintStatusOpen => 'مفتوحة';
+
+  @override
+  String get aComplaintStatusInReview => 'قيد المراجعة';
+
+  @override
+  String get aComplaintStatusResolved => 'محلولة';
+
+  @override
+  String get aComplaintStatusDismissed => 'مرفوضة';
+
+  @override
+  String get aComplaintSeverityLow => 'منخفضة';
+
+  @override
+  String get aComplaintSeverityMedium => 'متوسطة';
+
+  @override
+  String get aComplaintSeverityHigh => 'عالية';
+
+  @override
+  String get aComplaintDetails => 'الشكوى';
+
+  @override
+  String get aComplaintAbout => 'بخصوص';
+
+  @override
+  String get aComplaintSubmittedBy => 'مقدَّمة من';
+
+  @override
+  String get aComplaintFiled => 'تاريخ التقديم';
+
+  @override
+  String get aComplaintClosedAt => 'تاريخ الإغلاق';
+
+  @override
+  String get aComplaintUpdateStatus => 'تحديث الحالة';
+
+  @override
+  String get aComplaintNoDetails => 'لم تُقدَّم تفاصيل إضافية.';
+
+  @override
+  String get aComplaintReopenNote => 'إعادة فتح شكوى مغلقة تمسح تاريخ إغلاقها.';
+
+  @override
+  String get aReviewsTitle => 'التقييمات';
+
+  @override
+  String get aReviewsNoResults => 'لا توجد تقييمات مطابقة لهذه التصفية.';
+
+  @override
+  String get aReviewsAllProviders => 'كل الأنشطة';
+
+  @override
+  String get aReviewsDeleteTitle => 'حذف هذا التقييم؟';
+
+  @override
+  String get aReviewsDeleteBody =>
+      'سيُحذف للجميع وسيُعاد حساب تقييم النشاط. لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get aReviewsNoComment => 'لم يُترك تعليق.';
+
+  @override
+  String get aReviewsDeleted => 'تم حذف التقييم';
+
+  @override
+  String get aReviewsBy => 'بواسطة';
+
+  @override
+  String get aAnalyticsTitle => 'تحليلات المنصة';
+
+  @override
+  String get aAnalyticsBookings => 'الحجوزات';
+
+  @override
+  String get aAnalyticsCompleted => 'مكتملة';
+
+  @override
+  String get aAnalyticsCancelled => 'ملغاة';
+
+  @override
+  String get aAnalyticsCancelRate => 'نسبة الإلغاء';
+
+  @override
+  String get aAnalyticsNewCustomers => 'عملاء جدد';
+
+  @override
+  String get aAnalyticsNewProviders => 'أنشطة جديدة';
+
+  @override
+  String get aAnalyticsReviews => 'التقييمات';
+
+  @override
+  String get aAnalyticsAvgRating => 'متوسط التقييم';
+
+  @override
+  String get aAnalyticsBookingTrend => 'اتجاه الحجوزات';
+
+  @override
+  String get aAnalyticsUserGrowth => 'نمو المستخدمين';
+
+  @override
+  String get aAnalyticsStatusBreakdown => 'توزيع حالات الحجز';
+
+  @override
+  String get aAnalyticsPopularServices => 'الخدمات الأكثر طلبًا';
+
+  @override
+  String get aAnalyticsTopProviders => 'أبرز الأنشطة';
+
+  @override
+  String get aAnalyticsCategories => 'الأنشطة حسب الفئة';
+
+  @override
+  String get aAnalyticsEmpty => 'لا توجد بيانات مسجّلة في هذه الفترة.';
+
+  @override
+  String get aAnalyticsSource =>
+      'كل رقم مصدره /admin/analytics. مؤشرات الإيرادات والذكاء الاصطناعي وصحة النظام غير موجودة لأن المنصة لا تسجّلها.';
+
+  @override
+  String get aAnalyticsCustomersLabel => 'العملاء';
+
+  @override
+  String get aAnalyticsProvidersLabel => 'الأنشطة';
+
+  @override
+  String get aMoreManagement => 'الإدارة';
+
+  @override
+  String get aMoreUsers => 'المستخدمون';
+
+  @override
+  String get aMoreCategories => 'الفئات';
+
+  @override
+  String get aMoreReviews => 'التقييمات';
+
+  @override
+  String get aMoreAnalytics => 'التحليلات';
+
+  @override
+  String get aMoreAccount => 'الحساب';
+
+  @override
+  String get aMorePreferences => 'التفضيلات';
+
+  @override
+  String get aMoreUnsupported => 'غير متاح';
+
+  @override
+  String get aMoreNoPlatformSettings =>
+      'لا يوجد جدول للإعدادات، لذلك لا مكان لتخزين نوافذ الحجز ونسب العمولة وما شابهها.';
+
+  @override
+  String get aMoreNoNotifications => 'لا توجد خدمة إشعارات بعد.';
+
+  @override
+  String get aMoreNoPassword => 'لا يوجد إجراء لتغيير كلمة المرور.';
+
+  @override
+  String get aMoreNoAudit =>
+      'لا يُسجَّل أي إجراء إداري، لذلك لا يوجد سجل تدقيق لعرضه.';
+
+  @override
+  String get aMoreRealtimeNote =>
+      'تُحدَّث قوائم المشرف عند الطلب: الحدث المباشر الوحيد الذي يرسله الخادم للمشرف هو فتح نشاط أو إغلاقه.';
+
+  @override
+  String get aBookingNotes => 'ملاحظات';
+
+  @override
+  String get aCategoriesNoToggle =>
+      'يقبل إجراء الفئات الاسم والوصف فقط. تُعرض حالة التفعيل هنا لكن لا يوجد إجراء لتغييرها — تُعطَّل الفئة في قاعدة البيانات وليس من هذه الشاشة.';
 }

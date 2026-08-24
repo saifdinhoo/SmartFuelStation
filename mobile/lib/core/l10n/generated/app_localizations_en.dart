@@ -1119,4 +1119,436 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonBack => 'Back';
+
+  @override
+  String get aNavOverview => 'Overview';
+
+  @override
+  String get aNavProviders => 'Businesses';
+
+  @override
+  String get aNavBookings => 'Bookings';
+
+  @override
+  String get aNavComplaints => 'Complaints';
+
+  @override
+  String get aNavMore => 'More';
+
+  @override
+  String get aOverviewUsers => 'Users';
+
+  @override
+  String get aOverviewCustomers => 'Customers';
+
+  @override
+  String get aOverviewProviderAccounts => 'Provider accounts';
+
+  @override
+  String get aOverviewAdmins => 'Admins';
+
+  @override
+  String get aOverviewBusinesses => 'Businesses';
+
+  @override
+  String get aOverviewApproved => 'Approved';
+
+  @override
+  String get aOverviewPending => 'Pending';
+
+  @override
+  String get aOverviewOpenNow => 'Open now';
+
+  @override
+  String get aOverviewBookings => 'Bookings';
+
+  @override
+  String get aOverviewActive => 'Active';
+
+  @override
+  String get aOverviewCompleted => 'Completed';
+
+  @override
+  String get aOverviewCancelled => 'Cancelled';
+
+  @override
+  String get aOverviewRejected => 'Rejected';
+
+  @override
+  String get aOverviewQueueNow => 'In queue now';
+
+  @override
+  String get aOverviewReviews => 'Reviews';
+
+  @override
+  String get aOverviewAvgRating => 'Average rating';
+
+  @override
+  String get aOverviewCatalog => 'Catalog';
+
+  @override
+  String get aOverviewCategories => 'Categories';
+
+  @override
+  String get aOverviewServices => 'Services';
+
+  @override
+  String get aOverviewComplaintsOpen => 'Open complaints';
+
+  @override
+  String get aOverviewComplaintsTotal => 'Total complaints';
+
+  @override
+  String get aOverviewRecentRegistrations => 'Recent registrations';
+
+  @override
+  String get aOverviewPendingApprovals => 'Pending approvals';
+
+  @override
+  String get aOverviewRecentComplaints => 'Recent complaints';
+
+  @override
+  String get aOverviewNothingPending => 'Nothing is waiting for approval.';
+
+  @override
+  String get aOverviewNoComplaints => 'No complaints have been filed.';
+
+  @override
+  String get aOverviewNoRegistrations => 'No recent registrations.';
+
+  @override
+  String get aOverviewQuickActions => 'Quick actions';
+
+  @override
+  String get aOverviewViewAll => 'View all';
+
+  @override
+  String get aUsersTitle => 'Users';
+
+  @override
+  String get aUsersSearchHint => 'Search by name or email';
+
+  @override
+  String get aUsersAllRoles => 'All roles';
+
+  @override
+  String get aUsersNoResults => 'No users match this filter.';
+
+  @override
+  String get aUsersJoined => 'Joined';
+
+  @override
+  String get aUsersBookings => 'Bookings';
+
+  @override
+  String get aUsersReviews => 'Reviews';
+
+  @override
+  String get aUsersComplaints => 'Complaints';
+
+  @override
+  String get aUsersDetails => 'User details';
+
+  @override
+  String get aUsersRecentBookings => 'Recent bookings';
+
+  @override
+  String get aUsersRecentReviews => 'Recent reviews';
+
+  @override
+  String get aUsersBusiness => 'Linked business';
+
+  @override
+  String get aUsersNoBookings => 'No bookings yet.';
+
+  @override
+  String get aUsersNoReviews => 'No reviews yet.';
+
+  @override
+  String get aUsersReadOnly =>
+      'User records are read-only. The schema has no account status field, and a provider account is tied to its business row — so deactivation and role changes have no endpoint to call.';
+
+  @override
+  String get aProvidersSearchHint => 'Search businesses';
+
+  @override
+  String get aProvidersAll => 'All';
+
+  @override
+  String get aProvidersApproved => 'Approved';
+
+  @override
+  String get aProvidersPending => 'Pending';
+
+  @override
+  String get aProvidersNoResults => 'No businesses match this filter.';
+
+  @override
+  String get aProvidersOwner => 'Owner';
+
+  @override
+  String get aProvidersServices => 'Services';
+
+  @override
+  String get aProvidersReviews => 'Reviews';
+
+  @override
+  String get aProvidersQueueEntries => 'Queue entries';
+
+  @override
+  String get aProvidersApprove => 'Approve';
+
+  @override
+  String get aProvidersRevoke => 'Revoke approval';
+
+  @override
+  String get aProvidersApproveTitle => 'Approve this business?';
+
+  @override
+  String get aProvidersApproveBody =>
+      'It becomes visible to customers and can accept bookings.';
+
+  @override
+  String get aProvidersRevokeTitle => 'Revoke approval?';
+
+  @override
+  String get aProvidersRevokeBody =>
+      'It disappears from customer discovery. Existing bookings are not cancelled.';
+
+  @override
+  String get aProvidersDetails => 'Business details';
+
+  @override
+  String get aCategoriesTitle => 'Categories';
+
+  @override
+  String get aCategoriesNew => 'New category';
+
+  @override
+  String get aCategoriesEdit => 'Edit category';
+
+  @override
+  String get aCategoriesActive => 'Active';
+
+  @override
+  String get aCategoriesInactive => 'Inactive';
+
+  @override
+  String get aCategoriesNone => 'No categories yet.';
+
+  @override
+  String get aCategoriesDeleteTitle => 'Delete this category?';
+
+  @override
+  String get aCategoriesDeleteBody =>
+      'A category still used by services cannot be deleted — deactivate it instead.';
+
+  @override
+  String get aCategoriesNameRequired => 'A category needs a name.';
+
+  @override
+  String get aBookingsSearchHint => 'Search customer, business or service';
+
+  @override
+  String get aBookingsNoResults => 'No bookings match this filter.';
+
+  @override
+  String get aBookingsAll => 'All';
+
+  @override
+  String get aBookingsCustomer => 'Customer';
+
+  @override
+  String get aBookingsBusiness => 'Business';
+
+  @override
+  String get aBookingsReadOnly =>
+      'Admins view bookings; the workflow belongs to the business that owns them.';
+
+  @override
+  String get aComplaintsNoResults => 'No complaints match this filter.';
+
+  @override
+  String get aComplaintsAllStatuses => 'All statuses';
+
+  @override
+  String get aComplaintsAllSeverities => 'All severities';
+
+  @override
+  String get aComplaintStatusOpen => 'Open';
+
+  @override
+  String get aComplaintStatusInReview => 'In review';
+
+  @override
+  String get aComplaintStatusResolved => 'Resolved';
+
+  @override
+  String get aComplaintStatusDismissed => 'Dismissed';
+
+  @override
+  String get aComplaintSeverityLow => 'Low';
+
+  @override
+  String get aComplaintSeverityMedium => 'Medium';
+
+  @override
+  String get aComplaintSeverityHigh => 'High';
+
+  @override
+  String get aComplaintDetails => 'Complaint';
+
+  @override
+  String get aComplaintAbout => 'About';
+
+  @override
+  String get aComplaintSubmittedBy => 'Submitted by';
+
+  @override
+  String get aComplaintFiled => 'Filed';
+
+  @override
+  String get aComplaintClosedAt => 'Closed';
+
+  @override
+  String get aComplaintUpdateStatus => 'Update status';
+
+  @override
+  String get aComplaintNoDetails => 'No further details were given.';
+
+  @override
+  String get aComplaintReopenNote =>
+      'Reopening a closed complaint clears its closing date.';
+
+  @override
+  String get aReviewsTitle => 'Reviews';
+
+  @override
+  String get aReviewsNoResults => 'No reviews match this filter.';
+
+  @override
+  String get aReviewsAllProviders => 'All businesses';
+
+  @override
+  String get aReviewsDeleteTitle => 'Delete this review?';
+
+  @override
+  String get aReviewsDeleteBody =>
+      'It is removed for everyone and the business\'s rating is recalculated. This cannot be undone.';
+
+  @override
+  String get aReviewsNoComment => 'No comment was left.';
+
+  @override
+  String get aReviewsDeleted => 'Review deleted';
+
+  @override
+  String get aReviewsBy => 'by';
+
+  @override
+  String get aAnalyticsTitle => 'Platform analytics';
+
+  @override
+  String get aAnalyticsBookings => 'Bookings';
+
+  @override
+  String get aAnalyticsCompleted => 'Completed';
+
+  @override
+  String get aAnalyticsCancelled => 'Cancelled';
+
+  @override
+  String get aAnalyticsCancelRate => 'Cancellation rate';
+
+  @override
+  String get aAnalyticsNewCustomers => 'New customers';
+
+  @override
+  String get aAnalyticsNewProviders => 'New businesses';
+
+  @override
+  String get aAnalyticsReviews => 'Reviews';
+
+  @override
+  String get aAnalyticsAvgRating => 'Average rating';
+
+  @override
+  String get aAnalyticsBookingTrend => 'Booking trend';
+
+  @override
+  String get aAnalyticsUserGrowth => 'User growth';
+
+  @override
+  String get aAnalyticsStatusBreakdown => 'Booking status breakdown';
+
+  @override
+  String get aAnalyticsPopularServices => 'Popular services';
+
+  @override
+  String get aAnalyticsTopProviders => 'Top businesses';
+
+  @override
+  String get aAnalyticsCategories => 'Businesses per category';
+
+  @override
+  String get aAnalyticsEmpty => 'Nothing was recorded in this range.';
+
+  @override
+  String get aAnalyticsSource =>
+      'Every figure comes from /admin/analytics. Revenue, AI and system-health metrics are absent because the platform does not record them.';
+
+  @override
+  String get aAnalyticsCustomersLabel => 'Customers';
+
+  @override
+  String get aAnalyticsProvidersLabel => 'Businesses';
+
+  @override
+  String get aMoreManagement => 'Management';
+
+  @override
+  String get aMoreUsers => 'Users';
+
+  @override
+  String get aMoreCategories => 'Categories';
+
+  @override
+  String get aMoreReviews => 'Reviews';
+
+  @override
+  String get aMoreAnalytics => 'Analytics';
+
+  @override
+  String get aMoreAccount => 'Account';
+
+  @override
+  String get aMorePreferences => 'Preferences';
+
+  @override
+  String get aMoreUnsupported => 'Not available';
+
+  @override
+  String get aMoreNoPlatformSettings =>
+      'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.';
+
+  @override
+  String get aMoreNoNotifications => 'No notifications backend exists yet.';
+
+  @override
+  String get aMoreNoPassword => 'There is no change-password endpoint.';
+
+  @override
+  String get aMoreNoAudit =>
+      'Nothing records administrative actions, so there is no audit log to show.';
+
+  @override
+  String get aMoreRealtimeNote =>
+      'Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.';
+
+  @override
+  String get aBookingNotes => 'Notes';
+
+  @override
+  String get aCategoriesNoToggle =>
+      'The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen.';
 }
