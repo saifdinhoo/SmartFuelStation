@@ -39,6 +39,7 @@ import { BusinessProfilePage } from '@/features/provider/profile/BusinessProfile
 import { LiveStatusPage } from '@/features/provider/livestatus/LiveStatusPage';
 import { ProviderReviewsPage } from '@/features/provider/reviews/ProviderReviewsPage';
 import { ProviderSettingsPage } from '@/features/provider/settings/ProviderSettingsPage';
+import { NotificationsPage } from '@/features/notifications/NotificationsPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
@@ -354,6 +355,18 @@ export function AppRoutes() {
               }
             />
           ))}
+          <Route
+            path="/notifications"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER', 'PROVIDER', 'ADMIN']}>
+                  <AuthenticatedDashboardLayout>
+                    <NotificationsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
           <Route
             path="/design-system"
             element={

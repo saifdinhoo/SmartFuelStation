@@ -21,6 +21,10 @@ class RealtimeEvents {
   /// to every authenticated socket. Public availability only; it carries
   /// nothing that GET /providers does not already return.
   static const providerStatusChanged = 'provider:status_changed';
+
+  /// The full created Notification row → the recipient's own room only.
+  /// Emitted by `backend/src/services/notification.service.js`.
+  static const notificationNew = 'notification:new';
 }
 
 /// What the socket layer does with an event, without knowing how.
@@ -42,4 +46,7 @@ abstract class RealtimeEventHandler {
   /// A provider's public availability changed. Received by every signed-in
   /// client, including customers browsing discovery.
   void onProviderStatusChanged(Map<String, dynamic> payload);
+
+  /// A new persistent notification was created for the signed-in user.
+  void onNotificationNew(Map<String, dynamic> payload);
 }

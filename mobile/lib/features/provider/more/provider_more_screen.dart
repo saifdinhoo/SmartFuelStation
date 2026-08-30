@@ -178,11 +178,6 @@ class ProviderMoreScreen extends StatelessWidget {
                   _Gap(icon: Icons.key_outlined, text: l10n.pMoreNoPassword),
                   const SizedBox(height: 12),
                   _Gap(
-                    icon: Icons.notifications_off_outlined,
-                    text: l10n.pMoreNoNotifications,
-                  ),
-                  const SizedBox(height: 12),
-                  _Gap(
                     icon: Icons.schedule_outlined,
                     text: l10n.pProfileHoursBody,
                   ),

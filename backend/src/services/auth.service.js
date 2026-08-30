@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { signToken } = require('../utils/jwt');
+const notificationService = require('./notification.service');
 
 // Roles a person can pick for themselves via public registration.
 // ADMIN accounts are never created through this endpoint.
@@ -50,6 +51,19 @@ async function register({ name, email, password, role, phone, businessName, addr
     },
     include: { provider: true },
   });
+
+  if (selectedRole === 'PROVIDER') {
+    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    await notificationService.createNotifications(
+      admins.map((admin) => ({
+        userId: admin.id,
+        type: 'PROVIDER_REGISTERED',
+        title: 'New provider registration',
+        message: `${businessName} has registered and is awaiting approval.`,
+        relatedProviderId: user.provider.id,
+      })),
+    );
+  }
 
   return buildAuthResult(user);
 }

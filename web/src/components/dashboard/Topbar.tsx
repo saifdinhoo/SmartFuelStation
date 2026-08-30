@@ -1,11 +1,12 @@
 import { Menu } from 'lucide-react';
 import type { NavItem } from '@/features/dashboard/navigation';
 import type { AuthUser } from '@/features/auth/authApi';
+import type { Notification } from '@/features/notifications/types';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { Breadcrumbs } from './Breadcrumbs';
-import { NotificationsDropdown, type NotificationData } from './NotificationsDropdown';
+import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserMenu } from './UserMenu';
 
 interface TopbarProps {
@@ -13,7 +14,10 @@ interface TopbarProps {
   homePath: string;
   settingsPath: string;
   user: AuthUser;
-  notifications: NotificationData[];
+  notifications: Notification[];
+  unreadCount: number;
+  onMarkNotificationRead: (id: number) => void;
+  onMarkAllNotificationsRead: () => void;
   onLogout: () => void;
   onOpenMobileDrawer: () => void;
 }
@@ -24,6 +28,9 @@ export function Topbar({
   settingsPath,
   user,
   notifications,
+  unreadCount,
+  onMarkNotificationRead,
+  onMarkAllNotificationsRead,
   onLogout,
   onOpenMobileDrawer,
 }: TopbarProps) {
@@ -47,7 +54,13 @@ export function Topbar({
       <div className="ms-auto flex items-center gap-1.5">
         <LanguageToggle />
         <ThemeToggle />
-        <NotificationsDropdown notifications={notifications} />
+        <NotificationsDropdown
+          notifications={notifications}
+          unreadCount={unreadCount}
+          role={user.role}
+          onMarkRead={onMarkNotificationRead}
+          onMarkAllRead={onMarkAllNotificationsRead}
+        />
         <UserMenu user={user} settingsPath={settingsPath} onLogout={onLogout} />
       </div>
     </header>

@@ -104,13 +104,15 @@ class SocketService extends ChangeNotifier {
       ..off(RealtimeEvents.queueMyUpdate)
       ..off(RealtimeEvents.queueProviderUpdated)
       ..off(RealtimeEvents.providerStatusChanged)
+      ..off(RealtimeEvents.notificationNew)
       ..on('connect', _onConnect)
       ..on('disconnect', _onDisconnect)
       ..on('connect_error', _onConnectError)
       ..on(RealtimeEvents.bookingStatusChanged, _onBookingStatusChanged)
       ..on(RealtimeEvents.queueMyUpdate, _onQueueMyUpdate)
       ..on(RealtimeEvents.queueProviderUpdated, _onProviderQueueUpdated)
-      ..on(RealtimeEvents.providerStatusChanged, _onProviderStatusChanged);
+      ..on(RealtimeEvents.providerStatusChanged, _onProviderStatusChanged)
+      ..on(RealtimeEvents.notificationNew, _onNotificationNew);
   }
 
   void _onConnect(dynamic _) {
@@ -166,6 +168,12 @@ class SocketService extends ChangeNotifier {
     final map = _asMap(payload);
     if (map == null) return;
     handler.onProviderStatusChanged(map);
+  }
+
+  void _onNotificationNew(dynamic payload) {
+    final map = _asMap(payload);
+    if (map == null) return;
+    handler.onNotificationNew(map);
   }
 
   Map<String, dynamic>? _asMap(dynamic payload) =>

@@ -7,6 +7,7 @@ const reviewRoutes = require('./review.routes');
 const bookingRoutes = require('./booking.routes');
 const queueRoutes = require('./queue.routes');
 const adminRoutes = require('./admin.routes');
+const notificationRoutes = require('./notification.routes');
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/reviews', reviewRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/queue', queueRoutes);
 router.use('/admin', adminRoutes);
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;

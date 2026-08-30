@@ -24,11 +24,12 @@ const PAST = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 function availableService(overrides = {}) {
   return {
     id: 5,
+    name: 'Oil Change',
     providerId: 2,
     durationMinutes: 30,
     price: 25,
     isAvailable: true,
-    provider: { id: 2, isApproved: true },
+    provider: { id: 2, isApproved: true, userId: 77 },
     ...overrides,
   };
 }
@@ -202,7 +203,8 @@ describe('updateBookingStatus', () => {
       id: 1,
       customerId: 33,
       status,
-      providerService: { provider: { userId: 77 } },
+      scheduledAt: new Date('2026-01-01T15:00:00Z'),
+      providerService: { provider: { userId: 77, businessName: 'Al-Nour Auto' } },
       ...overrides,
     };
   }

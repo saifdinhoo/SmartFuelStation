@@ -4,6 +4,8 @@ import 'package:smart_automotive_service_app/core/models/models.dart';
 import 'package:smart_automotive_service_app/core/state/query_cache.dart';
 import 'package:smart_automotive_service_app/features/customer/data/customer_realtime_handler.dart';
 import 'package:smart_automotive_service_app/features/customer/data/customer_repository.dart';
+import 'package:smart_automotive_service_app/features/notifications/data/notification_realtime_handler.dart';
+import 'package:smart_automotive_service_app/features/notifications/data/notification_repository.dart';
 
 /// Exercises the event → cache mapping without a socket, so the rules are
 /// pinned independently of transport behaviour.
@@ -390,5 +392,77 @@ void main() {
         expect(mine.map((e) => e.id), [1]);
       },
     );
+  });
+
+  group('notification:new', () {
+    late NotificationRealtimeHandler notificationHandler;
+
+    setUp(() {
+      notificationHandler = NotificationRealtimeHandler(cache);
+    });
+
+    Map<String, dynamic> notificationPayload({int id = 1, bool isRead = false}) => {
+      'id': id,
+      'type': 'NEW_REVIEW',
+      'title': 'New review',
+      'message': 'You received a new 5-star review.',
+      'isRead': isRead,
+      'createdAt': '2026-01-01T00:00:00.000Z',
+    };
+
+    test('prepends a pushed notification onto an already-cached list', () async {
+      await cache.refresh<List<AppNotification>>(
+        NotificationCacheKeys.notifications,
+        () async => [AppNotification.fromJson(notificationPayload(id: 1))],
+      );
+
+      notificationHandler.onNotificationNew(notificationPayload(id: 2));
+
+      final notifications = cache
+          .read<List<AppNotification>>(NotificationCacheKeys.notifications)
+          .valueOrNull!;
+      expect(notifications.map((n) => n.id), [2, 1]);
+      expect(notificationHandler.appliedEvents, 1);
+    });
+
+    test('falls back to invalidation when nothing was cached yet', () {
+      notificationHandler.onNotificationNew(notificationPayload());
+
+      // Nothing to patch — the key is left stale/absent so the next watch
+      // fetches it, rather than silently dropping the push.
+      expect(
+        cache.hasKey(NotificationCacheKeys.notifications),
+        isFalse,
+      );
+      expect(notificationHandler.appliedEvents, 1);
+    });
+
+    test('reconnect invalidates the notifications cache to resync from REST', () async {
+      await cache.refresh<List<AppNotification>>(
+        NotificationCacheKeys.notifications,
+        () async => [AppNotification.fromJson(notificationPayload())],
+      );
+
+      notificationHandler.onReconnected();
+
+      // Data survives (no blank screen) — invalidate() only marks the key
+      // stale so the next watch refetches, exactly like every other handler.
+      expect(
+        cache
+            .read<List<AppNotification>>(NotificationCacheKeys.notifications)
+            .valueOrNull,
+        isNotNull,
+      );
+      expect(cache.hasKey(NotificationCacheKeys.notifications), isTrue);
+    });
+
+    test('other events are no-ops for the notification handler', () {
+      notificationHandler.onBookingStatusChanged({'bookingId': 1, 'status': 'CONFIRMED'});
+      notificationHandler.onMyQueueUpdate({'id': 1});
+      notificationHandler.onProviderQueueUpdated({'providerId': 1});
+      notificationHandler.onProviderStatusChanged({'providerId': 1});
+
+      expect(notificationHandler.appliedEvents, 0);
+    });
   });
 }

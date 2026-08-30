@@ -84,4 +84,8 @@ class AdminRealtimeHandler implements RealtimeEventHandler {
   /// Sent to a customer's own room.
   @override
   void onMyQueueUpdate(Map<String, dynamic> payload) {}
+
+  /// Handled by NotificationRealtimeHandler, shared by every role.
+  @override
+  void onNotificationNew(Map<String, dynamic> payload) {}
 }

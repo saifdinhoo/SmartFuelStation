@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/widgets/live_indicator.dart';
+import '../../../core/widgets/notification_bell.dart';
 import '../../shell/widgets/settings_menu.dart';
 
 /// Bottom-navigation chrome for the customer area.
@@ -54,7 +55,7 @@ class CustomerShell extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(labels[selected]),
-        actions: const [LiveIndicator(), SettingsMenu()],
+        actions: const [LiveIndicator(), NotificationBell(), SettingsMenu()],
       ),
       body: child,
       bottomNavigationBar: NavigationBar(

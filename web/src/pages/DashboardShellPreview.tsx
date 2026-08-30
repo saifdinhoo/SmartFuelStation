@@ -9,12 +9,16 @@ import { useToast } from '@/app/providers/ToastProvider';
 function ShellPreviewContent() {
   const { role, user, notifications, setRole } = useMockDashboardAuth();
   const { showToast } = useToast();
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <DashboardLayout
       role={role}
       user={user}
       notifications={notifications}
+      unreadCount={unreadCount}
+      onMarkNotificationRead={() => showToast({ title: 'Mark read clicked (mock only)' })}
+      onMarkAllNotificationsRead={() => showToast({ title: 'Mark all read clicked (mock only)' })}
       onLogout={() => showToast({ title: 'Logout clicked (mock only)' })}
     >
       <div className="flex flex-col gap-6">

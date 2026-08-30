@@ -46,6 +46,21 @@ enum ComplaintStatus {
   DISMISSED
 }
 
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_CONFIRMED
+  BOOKING_REJECTED
+  BOOKING_CANCELLED
+  QUEUE_JOINED
+  QUEUE_ALMOST_TURN
+  SERVICE_STARTED
+  SERVICE_COMPLETED
+  NEW_REVIEW
+  PROVIDER_REGISTERED
+  PROVIDER_APPROVED
+  PROVIDER_REJECTED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -63,6 +78,7 @@ model User {
   complaints          Complaint[]
   queueEntries        QueueEntry[]
   passwordResetTokens PasswordResetToken[]
+  notifications       Notification[]
 
   @@index([role])
   @@index([createdAt])
@@ -84,12 +100,13 @@ model Provider {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  user         User              @relation(fields: [userId], references: [id])
-  approvedBy   User?             @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  services     ProviderService[]
-  reviews      Review[]
-  complaints   Complaint[]
-  queueEntries QueueEntry[]
+  user          User              @relation(fields: [userId], references: [id])
+  approvedBy    User?             @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  services      ProviderService[]
+  reviews       Review[]
+  complaints    Complaint[]
+  queueEntries  QueueEntry[]
+  notifications Notification[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
@@ -145,6 +162,7 @@ model Booking {
   providerService ProviderService @relation(fields: [providerServiceId], references: [id])
   review          Review?
   queueEntry      QueueEntry?
+  notifications   Notification[]
 
   @@index([customerId, scheduledAt])
   @@index([providerServiceId, scheduledAt])
@@ -166,9 +184,10 @@ model Review {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  booking  Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  customer User     @relation(fields: [customerId], references: [id])
-  provider Provider @relation(fields: [providerId], references: [id])
+  booking       Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  customer      User           @relation(fields: [customerId], references: [id])
+  provider      Provider       @relation(fields: [providerId], references: [id])
+  notifications Notification[]
 
   @@index([providerId, createdAt])
   @@index([customerId])
@@ -192,6 +211,7 @@ model QueueEntry {
   providerService ProviderService @relation(fields: [providerServiceId], references: [id])
   booking         Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   customer        User?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  notifications   Notification[]
 
   @@unique([providerId, position])
   @@index([providerId, status])
@@ -230,4 +250,27 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model Notification {
+  id                  Int              @id @default(autoincrement())
+  userId              Int
+  type                NotificationType
+  title               String
+  message             String
+  isRead              Boolean          @default(false)
+  relatedBookingId    Int?
+  relatedProviderId   Int?
+  relatedReviewId     Int?
+  relatedQueueEntryId Int?
+  createdAt           DateTime         @default(now())
+
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  relatedBooking    Booking?    @relation(fields: [relatedBookingId], references: [id], onDelete: SetNull)
+  relatedProvider   Provider?   @relation(fields: [relatedProviderId], references: [id], onDelete: SetNull)
+  relatedReview     Review?     @relation(fields: [relatedReviewId], references: [id], onDelete: SetNull)
+  relatedQueueEntry QueueEntry? @relation(fields: [relatedQueueEntryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
 }

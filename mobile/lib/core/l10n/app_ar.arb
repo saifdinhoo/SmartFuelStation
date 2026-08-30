@@ -387,7 +387,6 @@
   "pMorePreferences": "التفضيلات",
   "pMoreUnsupported": "غير متاح بعد",
   "pMoreNoPassword": "لا توجد واجهة لتغيير كلمة المرور بعد.",
-  "pMoreNoNotifications": "لا يوجد نظام إشعارات بعد.",
 
   "realtimeLive": "مباشر",
   "realtimeOffline": "غير متصل",
@@ -533,10 +532,17 @@
   "aMorePreferences": "التفضيلات",
   "aMoreUnsupported": "غير متاح",
   "aMoreNoPlatformSettings": "لا يوجد جدول للإعدادات، لذلك لا مكان لتخزين نوافذ الحجز ونسب العمولة وما شابهها.",
-  "aMoreNoNotifications": "لا توجد خدمة إشعارات بعد.",
   "aMoreNoPassword": "لا يوجد إجراء لتغيير كلمة المرور.",
   "aMoreNoAudit": "لا يُسجَّل أي إجراء إداري، لذلك لا يوجد سجل تدقيق لعرضه.",
   "aMoreRealtimeNote": "تُحدَّث قوائم المشرف عند الطلب: الحدث المباشر الوحيد الذي يرسله الخادم للمشرف هو فتح نشاط أو إغلاقه.",
   "aBookingNotes": "ملاحظات",
-  "aCategoriesNoToggle": "يقبل إجراء الفئات الاسم والوصف فقط. تُعرض حالة التفعيل هنا لكن لا يوجد إجراء لتغييرها — تُعطَّل الفئة في قاعدة البيانات وليس من هذه الشاشة."
+  "aCategoriesNoToggle": "يقبل إجراء الفئات الاسم والوصف فقط. تُعرض حالة التفعيل هنا لكن لا يوجد إجراء لتغييرها — تُعطَّل الفئة في قاعدة البيانات وليس من هذه الشاشة.",
+
+  "notifTitle": "الإشعارات",
+  "notifMarkAllRead": "تحديد الكل كمقروء",
+  "notifEmpty": "لا توجد إشعارات بعد.",
+  "notifUnreadSummary": "{count, plural, =0{لا توجد إشعارات غير مقروءة} =1{إشعار واحد غير مقروء} other{{count} إشعارات غير مقروءة}}",
+  "@notifUnreadSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

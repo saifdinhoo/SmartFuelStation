@@ -1,5 +1,26 @@
 const queueService = require('../services/queue.service');
 const socketEvents = require('../sockets/queueEvents');
+const notificationService = require('../services/notification.service');
+const { bookingStatusNotification } = require('../services/shared/bookingStatusNotification');
+
+// Shared by every handler below that syncs a Queue transition onto its
+// linked Booking — mirrors the same helper booking.controller.js uses for
+// direct booking-status changes, so the customer gets exactly one
+// notification for a status change regardless of which surface drove it.
+function notifyBookingSync(entry, actingRole) {
+  if (!(entry.bookingId && entry.customerId && entry.booking)) return null;
+  return bookingStatusNotification(
+    {
+      id: entry.bookingId,
+      status: entry.booking.status,
+      scheduledAt: entry.booking.scheduledAt,
+      customerId: entry.booking.customerId,
+      businessName: entry.provider.businessName,
+      providerUserId: entry.provider.userId,
+    },
+    actingRole,
+  );
+}
 
 // Socket pushes always run after the REST response has already been sent
 // — the response is the source of truth for the caller who made the
@@ -22,7 +43,7 @@ async function create(req, res, next) {
     res.status(201).json({ success: true, data: entry });
 
     await safely(async () => {
-      await socketEvents.broadcastProviderQueueUpdate(entry.providerId);
+      const snapshot = await socketEvents.broadcastProviderQueueUpdate(entry.providerId);
       if (entry.bookingId && entry.customerId && entry.booking) {
         await socketEvents.notifyBookingStatusChanged(
           entry.customerId,
@@ -30,6 +51,17 @@ async function create(req, res, next) {
           entry.booking.status,
         );
       }
+      // Walk-ins with no linked customer account have no inbox to notify.
+      if (entry.customerId) {
+        await notificationService.createNotification({
+          userId: entry.customerId,
+          type: 'QUEUE_JOINED',
+          title: 'Added to queue',
+          message: `You've been added to the queue at ${entry.provider.businessName}.`,
+          relatedQueueEntryId: entry.id,
+        });
+      }
+      if (snapshot) await notificationService.notifyAlmostTurnIfNeeded(snapshot);
     });
   } catch (err) {
     next(err);
@@ -73,7 +105,7 @@ async function updateStatus(req, res, next) {
     res.json({ success: true, data: entry });
 
     await safely(async () => {
-      await socketEvents.broadcastProviderQueueUpdate(entry.providerId);
+      const snapshot = await socketEvents.broadcastProviderQueueUpdate(entry.providerId);
       if (entry.customerId) {
         await socketEvents.notifyCustomerEntry(entry.customerId, entry);
       }
@@ -84,6 +116,9 @@ async function updateStatus(req, res, next) {
           entry.booking.status,
         );
       }
+      const notification = notifyBookingSync(entry, req.user.role);
+      if (notification) await notificationService.createNotification(notification);
+      if (snapshot) await notificationService.notifyAlmostTurnIfNeeded(snapshot);
     });
   } catch (err) {
     next(err);
@@ -96,13 +131,25 @@ async function remove(req, res, next) {
     res.status(204).send();
 
     await safely(async () => {
-      await socketEvents.broadcastProviderQueueUpdate(removed.providerId);
+      const snapshot = await socketEvents.broadcastProviderQueueUpdate(removed.providerId);
       if (removed.customerId) {
         await socketEvents.notifyCustomerRemoved(removed.customerId, removed.id);
       }
       if (removed.bookingId && removed.customerId) {
         await socketEvents.notifyBookingStatusChanged(removed.customerId, removed.bookingId, 'CANCELLED');
+        // removeQueueEntry's return is deliberately minimal (the row is
+        // gone, nothing left to re-fetch — see queue.service.js), so this
+        // is a simpler message than bookingStatusNotification's, which
+        // needs schedule/business-name fields this shape doesn't have.
+        await notificationService.createNotification({
+          userId: removed.customerId,
+          type: 'BOOKING_CANCELLED',
+          title: 'Booking cancelled',
+          message: 'Your booking was cancelled.',
+          relatedBookingId: removed.bookingId,
+        });
       }
+      if (snapshot) await notificationService.notifyAlmostTurnIfNeeded(snapshot);
     });
   } catch (err) {
     next(err);
@@ -115,7 +162,10 @@ async function reorder(req, res, next) {
     res.json({ success: true, data: entries });
 
     if (entries[0]) {
-      await safely(() => socketEvents.broadcastProviderQueueUpdate(entries[0].providerId));
+      await safely(async () => {
+        const snapshot = await socketEvents.broadcastProviderQueueUpdate(entries[0].providerId);
+        if (snapshot) await notificationService.notifyAlmostTurnIfNeeded(snapshot);
+      });
     }
   } catch (err) {
     next(err);

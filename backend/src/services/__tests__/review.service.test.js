@@ -9,8 +9,12 @@ jest.mock('../../config/prisma', () => ({
     delete: jest.fn(),
   },
 }));
+jest.mock('../notification.service', () => ({
+  createNotification: jest.fn(),
+}));
 
 const prisma = require('../../config/prisma');
+const notificationService = require('../notification.service');
 const reviewService = require('../review.service');
 
 const CUSTOMER = { userId: 33, role: 'CUSTOMER' };
@@ -23,7 +27,7 @@ function completedBooking(overrides = {}) {
     customerId: 33,
     status: 'COMPLETED',
     review: null,
-    providerService: { providerId: 2 },
+    providerService: { providerId: 2, provider: { userId: 77, businessName: 'Al-Nour Auto' } },
     ...overrides,
   };
 }
@@ -91,6 +95,13 @@ describe('createReview', () => {
       }),
     );
     expect(result).toEqual({ id: 10, rating: 5 });
+    expect(notificationService.createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 77,
+        type: 'NEW_REVIEW',
+        relatedReviewId: 10,
+      }),
+    );
   });
 
   it('converts a raw unique-constraint race into a 409', async () => {

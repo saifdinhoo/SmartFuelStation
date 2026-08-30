@@ -1,23 +1,41 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Bell } from 'lucide-react';
-
-export interface NotificationData {
-  id: string;
-  title: string;
-  time: string;
-  read: boolean;
-}
+import { Bell, CheckCheck } from 'lucide-react';
+import type { Notification } from '@/features/notifications/types';
 
 interface NotificationsDropdownProps {
-  notifications: NotificationData[];
+  notifications: Notification[];
+  unreadCount: number;
+  role: string;
+  onMarkRead: (id: number) => void;
+  onMarkAllRead: () => void;
 }
 
-export function NotificationsDropdown({ notifications }: NotificationsDropdownProps) {
+// Only deep-link to routes that actually exist for the current role —
+// otherwise the notification is shown as plain text with no navigation.
+// There is no booking-detail route for ADMIN and no single-complaint
+// route at all (AdminComplaintsPage is a list with inline actions), so
+// those cases fall through to null on purpose.
+function notificationTarget(notification: Notification, role: string): string | null {
+  if (notification.relatedBookingId) {
+    if (role === 'CUSTOMER') return `/customer/bookings/${notification.relatedBookingId}`;
+    if (role === 'PROVIDER') return `/provider/bookings/${notification.relatedBookingId}`;
+  }
+  return null;
+}
+
+export function NotificationsDropdown({
+  notifications,
+  unreadCount,
+  role,
+  onMarkRead,
+  onMarkAllRead,
+}: NotificationsDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!open) return;
@@ -36,6 +54,17 @@ export function NotificationsDropdown({ notifications }: NotificationsDropdownPr
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [open]);
+
+  function handleItemClick(notification: Notification) {
+    if (!notification.isRead) onMarkRead(notification.id);
+    const target = notificationTarget(notification, role);
+    if (target) {
+      setOpen(false);
+      navigate(target);
+    }
+  }
+
+  const preview = notifications.slice(0, 6);
 
   return (
     <div ref={containerRef} className="relative">
@@ -58,33 +87,53 @@ export function NotificationsDropdown({ notifications }: NotificationsDropdownPr
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -4 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
-            className="absolute end-0 z-20 mt-2 w-72 rounded-md border border-border bg-card shadow-[var(--shadow-md)]"
+            className="absolute end-0 z-20 mt-2 w-80 rounded-md border border-border bg-card shadow-[var(--shadow-md)]"
           >
-            <div className="border-b border-border px-4 py-2 text-sm font-medium">
-              Notifications
+            <div className="flex items-center justify-between border-b border-border px-4 py-2">
+              <span className="text-sm font-medium">Notifications</span>
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={onMarkAllRead}
+                  className="flex items-center gap-1 text-caption text-muted-foreground hover:text-foreground"
+                >
+                  <CheckCheck className="h-3.5 w-3.5" />
+                  Mark all read
+                </button>
+              )}
             </div>
-            {notifications.length === 0 ? (
+            {preview.length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">You&apos;re all caught up.</p>
             ) : (
               <ul>
-                {notifications.map((notification) => (
-                  <li
-                    key={notification.id}
-                    className="flex items-start gap-2 border-b border-border px-4 py-2.5 text-sm last:border-0"
-                  >
-                    <span
-                      className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
-                        notification.read ? 'bg-transparent' : 'bg-primary'
-                      }`}
-                    />
-                    <div>
-                      <p className="text-foreground">{notification.title}</p>
-                      <p className="text-caption">{notification.time}</p>
-                    </div>
+                {preview.map((notification) => (
+                  <li key={notification.id} className="border-b border-border last:border-0">
+                    <button
+                      type="button"
+                      onClick={() => handleItemClick(notification)}
+                      className="flex w-full items-start gap-2 px-4 py-2.5 text-start text-sm hover:bg-muted"
+                    >
+                      <span
+                        className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
+                          notification.isRead ? 'bg-transparent' : 'bg-primary'
+                        }`}
+                      />
+                      <div>
+                        <p className="text-foreground">{notification.title}</p>
+                        <p className="text-caption line-clamp-2">{notification.message}</p>
+                      </div>
+                    </button>
                   </li>
                 ))}
               </ul>
             )}
+            <Link
+              to="/notifications"
+              onClick={() => setOpen(false)}
+              className="block border-t border-border px-4 py-2 text-center text-caption text-primary hover:underline"
+            >
+              See all
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

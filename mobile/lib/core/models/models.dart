@@ -614,6 +614,98 @@ class ProviderAnalytics {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+enum NotificationType {
+  bookingCreated,
+  bookingConfirmed,
+  bookingRejected,
+  bookingCancelled,
+  queueJoined,
+  queueAlmostTurn,
+  serviceStarted,
+  serviceCompleted,
+  newReview,
+  providerRegistered,
+  providerApproved,
+  providerRejected,
+  unknown;
+
+  static NotificationType fromApi(String? value) => switch (value) {
+    'BOOKING_CREATED' => NotificationType.bookingCreated,
+    'BOOKING_CONFIRMED' => NotificationType.bookingConfirmed,
+    'BOOKING_REJECTED' => NotificationType.bookingRejected,
+    'BOOKING_CANCELLED' => NotificationType.bookingCancelled,
+    'QUEUE_JOINED' => NotificationType.queueJoined,
+    'QUEUE_ALMOST_TURN' => NotificationType.queueAlmostTurn,
+    'SERVICE_STARTED' => NotificationType.serviceStarted,
+    'SERVICE_COMPLETED' => NotificationType.serviceCompleted,
+    'NEW_REVIEW' => NotificationType.newReview,
+    'PROVIDER_REGISTERED' => NotificationType.providerRegistered,
+    'PROVIDER_APPROVED' => NotificationType.providerApproved,
+    'PROVIDER_REJECTED' => NotificationType.providerRejected,
+    _ => NotificationType.unknown,
+  };
+}
+
+/// A row from GET /notifications. The title/message text is generated
+/// server-side per business event — this model never re-derives copy from
+/// [type] itself, it just renders what the backend already wrote.
+class AppNotification {
+  const AppNotification({
+    required this.id,
+    required this.type,
+    required this.title,
+    required this.message,
+    required this.isRead,
+    required this.createdAt,
+    this.relatedBookingId,
+    this.relatedProviderId,
+    this.relatedReviewId,
+    this.relatedQueueEntryId,
+  });
+
+  final int id;
+  final NotificationType type;
+  final String title;
+  final String message;
+  final bool isRead;
+  final DateTime createdAt;
+  final int? relatedBookingId;
+  final int? relatedProviderId;
+  final int? relatedReviewId;
+  final int? relatedQueueEntryId;
+
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      AppNotification(
+        id: asInt(json['id']),
+        type: NotificationType.fromApi(asStringOrNull(json['type'])),
+        title: asString(json['title']),
+        message: asString(json['message']),
+        isRead: asBool(json['isRead']),
+        createdAt: asDate(json['createdAt']),
+        relatedBookingId: asIntOrNull(json['relatedBookingId']),
+        relatedProviderId: asIntOrNull(json['relatedProviderId']),
+        relatedReviewId: asIntOrNull(json['relatedReviewId']),
+        relatedQueueEntryId: asIntOrNull(json['relatedQueueEntryId']),
+      );
+
+  AppNotification copyWithRead(bool read) => AppNotification(
+    id: id,
+    type: type,
+    title: title,
+    message: message,
+    isRead: read,
+    createdAt: createdAt,
+    relatedBookingId: relatedBookingId,
+    relatedProviderId: relatedProviderId,
+    relatedReviewId: relatedReviewId,
+    relatedQueueEntryId: relatedQueueEntryId,
+  );
+}
+
 /// GET /queue/summary/:providerId — aggregate only, safe for any browsing
 /// customer (no entry-level detail, no other customer's identity).
 class QueueSummary {

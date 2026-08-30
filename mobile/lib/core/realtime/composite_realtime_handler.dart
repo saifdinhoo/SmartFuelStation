@@ -50,4 +50,11 @@ class CompositeRealtimeHandler implements RealtimeEventHandler {
       handler.onProviderStatusChanged(payload);
     }
   }
+
+  @override
+  void onNotificationNew(Map<String, dynamic> payload) {
+    for (final handler in _handlers) {
+      handler.onNotificationNew(payload);
+    }
+  }
 }

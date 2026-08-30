@@ -16,6 +16,8 @@ import '../features/auth/data/auth_api.dart';
 import '../features/auth/state/auth_state.dart';
 import '../features/customer/data/customer_realtime_handler.dart';
 import '../features/customer/data/customer_repository.dart';
+import '../features/notifications/data/notification_realtime_handler.dart';
+import '../features/notifications/data/notification_repository.dart';
 import '../features/provider/data/provider_realtime_handler.dart';
 import '../features/provider/data/provider_repository.dart';
 
@@ -43,6 +45,7 @@ class _AppProvidersState extends State<AppProviders> {
   late final QueryCache _queryCache;
   late final CustomerRepository _customerRepo;
   late final ProviderRepository _providerRepo;
+  late final NotificationRepository _notificationRepo;
   late final LocationService _location;
   late final SocketService _socket;
   late final ThemeController _theme;
@@ -67,6 +70,7 @@ class _AppProvidersState extends State<AppProviders> {
     _adminRepo = AdminRepository(_apiClient, _queryCache);
     _customerRepo = CustomerRepository(_apiClient, _queryCache);
     _providerRepo = ProviderRepository(_apiClient, _queryCache);
+    _notificationRepo = NotificationRepository(_apiClient, _queryCache);
     _location = LocationService();
     _theme = ThemeController(prefs);
     _locale = LocaleController(prefs);
@@ -81,6 +85,7 @@ class _AppProvidersState extends State<AppProviders> {
         CustomerRealtimeHandler(_queryCache),
         ProviderRealtimeHandler(_queryCache),
         AdminRealtimeHandler(_queryCache),
+        NotificationRealtimeHandler(_queryCache),
       ]),
     );
 
@@ -136,6 +141,7 @@ class _AppProvidersState extends State<AppProviders> {
         Provider<AdminRepository>.value(value: _adminRepo),
         Provider<CustomerRepository>.value(value: _customerRepo),
         Provider<ProviderRepository>.value(value: _providerRepo),
+        Provider<NotificationRepository>.value(value: _notificationRepo),
       ],
       child: widget.child,
     );

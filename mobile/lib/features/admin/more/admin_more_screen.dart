@@ -170,11 +170,6 @@ class AdminMoreScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   AdminGapNote(
-                    icon: Icons.notifications_off_outlined,
-                    text: l10n.aMoreNoNotifications,
-                  ),
-                  const SizedBox(height: 12),
-                  AdminGapNote(
                     icon: Icons.key_outlined,
                     text: l10n.aMoreNoPassword,
                   ),

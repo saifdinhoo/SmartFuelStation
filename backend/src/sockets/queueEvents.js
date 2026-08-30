@@ -14,9 +14,12 @@ const queueService = require('../services/queue.service');
 // for that provider — add, reorder, remove, or status change all shift
 // position/customersAhead/estimatedWaitMinutes for other people in the
 // same line, not just the entry that was directly touched.
+// Returns the snapshot it just broadcast so a caller that also wants to
+// react to it (e.g. queue.controller.js checking for an "almost your turn"
+// notification) doesn't need a second, separate query for the same data.
 async function broadcastProviderQueueUpdate(providerId) {
   const io = getIO();
-  if (!io) return; // sockets not initialized (e.g. under Jest) — no-op
+  if (!io) return null; // sockets not initialized (e.g. under Jest) — no-op
 
   const snapshot = await queueService.getProviderQueueSnapshot(providerId);
   io.to(roomForProvider(providerId)).emit('queue:provider_updated', snapshot);
@@ -26,6 +29,8 @@ async function broadcastProviderQueueUpdate(providerId) {
       io.to(roomForUser(entry.customerId)).emit('queue:my_update', entry);
     }
   }
+
+  return snapshot;
 }
 
 // Direct push of one entry to its own customer — used for the terminal

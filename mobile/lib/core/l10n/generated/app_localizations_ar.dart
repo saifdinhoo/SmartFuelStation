@@ -1090,9 +1090,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pMoreNoPassword => 'لا توجد واجهة لتغيير كلمة المرور بعد.';
 
   @override
-  String get pMoreNoNotifications => 'لا يوجد نظام إشعارات بعد.';
-
-  @override
   String get realtimeLive => 'مباشر';
 
   @override
@@ -1527,9 +1524,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يوجد جدول للإعدادات، لذلك لا مكان لتخزين نوافذ الحجز ونسب العمولة وما شابهها.';
 
   @override
-  String get aMoreNoNotifications => 'لا توجد خدمة إشعارات بعد.';
-
-  @override
   String get aMoreNoPassword => 'لا يوجد إجراء لتغيير كلمة المرور.';
 
   @override
@@ -1546,4 +1540,25 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get aCategoriesNoToggle =>
       'يقبل إجراء الفئات الاسم والوصف فقط. تُعرض حالة التفعيل هنا لكن لا يوجد إجراء لتغييرها — تُعطَّل الفئة في قاعدة البيانات وليس من هذه الشاشة.';
+
+  @override
+  String get notifTitle => 'الإشعارات';
+
+  @override
+  String get notifMarkAllRead => 'تحديد الكل كمقروء';
+
+  @override
+  String get notifEmpty => 'لا توجد إشعارات بعد.';
+
+  @override
+  String notifUnreadSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count إشعارات غير مقروءة',
+      one: 'إشعار واحد غير مقروء',
+      zero: 'لا توجد إشعارات غير مقروءة',
+    );
+    return '$_temp0';
+  }
 }

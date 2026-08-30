@@ -1094,9 +1094,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pMoreNoPassword => 'There\'s no change-password endpoint yet.';
 
   @override
-  String get pMoreNoNotifications => 'No notifications backend exists yet.';
-
-  @override
   String get realtimeLive => 'Live';
 
   @override
@@ -1532,9 +1529,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.';
 
   @override
-  String get aMoreNoNotifications => 'No notifications backend exists yet.';
-
-  @override
   String get aMoreNoPassword => 'There is no change-password endpoint.';
 
   @override
@@ -1551,4 +1545,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aCategoriesNoToggle =>
       'The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen.';
+
+  @override
+  String get notifTitle => 'Notifications';
+
+  @override
+  String get notifMarkAllRead => 'Mark all read';
+
+  @override
+  String get notifEmpty => 'No notifications yet.';
+
+  @override
+  String notifUnreadSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread',
+      one: '1 unread',
+      zero: 'You\'re all caught up',
+    );
+    return '$_temp0';
+  }
 }

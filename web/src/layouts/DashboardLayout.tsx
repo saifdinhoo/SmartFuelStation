@@ -1,18 +1,21 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { AuthUser } from '@/features/auth/authApi';
+import type { Notification } from '@/features/notifications/types';
 import { getNavForRole } from '@/features/dashboard/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { MobileDrawer } from '@/components/dashboard/MobileDrawer';
 import { Topbar } from '@/components/dashboard/Topbar';
-import type { NotificationData } from '@/components/dashboard/NotificationsDropdown';
 
 const SIDEBAR_COLLAPSED_KEY = 'dashboard-sidebar-collapsed';
 
 interface DashboardLayoutProps {
   role: AuthUser['role'];
   user: AuthUser;
-  notifications: NotificationData[];
+  notifications: Notification[];
+  unreadCount: number;
+  onMarkNotificationRead: (id: number) => void;
+  onMarkAllNotificationsRead: () => void;
   onLogout: () => void;
   children: ReactNode;
 }
@@ -21,6 +24,9 @@ export function DashboardLayout({
   role,
   user,
   notifications,
+  unreadCount,
+  onMarkNotificationRead,
+  onMarkAllNotificationsRead,
   onLogout,
   children,
 }: DashboardLayoutProps) {
@@ -67,6 +73,9 @@ export function DashboardLayout({
           settingsPath={settingsPath}
           user={user}
           notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkNotificationRead={onMarkNotificationRead}
+          onMarkAllNotificationsRead={onMarkAllNotificationsRead}
           onLogout={onLogout}
           onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
         />

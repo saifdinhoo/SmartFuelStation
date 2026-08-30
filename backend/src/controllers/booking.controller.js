@@ -1,5 +1,7 @@
 const bookingService = require('../services/booking.service');
 const socketEvents = require('../sockets/queueEvents');
+const notificationService = require('../services/notification.service');
+const { bookingStatusNotification } = require('../services/shared/bookingStatusNotification');
 
 // Same contract as queue.controller.js's `safely`: socket pushes run only
 // after the REST response has already been sent, and a failed push must
@@ -22,6 +24,21 @@ async function create(req, res, next) {
       notes: req.body.notes,
     });
     res.status(201).json({ success: true, data: booking });
+
+    // The owning provider's user id comes off the booking the service just
+    // returned (via its own providerService->provider include) — never
+    // from the request — so a client cannot address someone else's inbox.
+    await safely(() =>
+      notificationService.createNotification({
+        userId: booking.providerService.provider.userId,
+        type: 'BOOKING_CREATED',
+        title: 'New booking',
+        message: `A customer requested ${booking.providerService.name} for ${new Date(
+          booking.scheduledAt,
+        ).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}.`,
+        relatedBookingId: booking.id,
+      }),
+    );
   } catch (err) {
     next(err);
   }
@@ -72,6 +89,21 @@ async function updateStatus(req, res, next) {
         booking.providerService?.provider?.id ?? null,
       ),
     );
+
+    const notification = bookingStatusNotification(
+      {
+        id: booking.id,
+        status: booking.status,
+        scheduledAt: booking.scheduledAt,
+        customerId: booking.customerId,
+        businessName: booking.providerService.provider.businessName,
+        providerUserId: booking.providerService.provider.userId,
+      },
+      req.user.role,
+    );
+    if (notification) {
+      await safely(() => notificationService.createNotification(notification));
+    }
   } catch (err) {
     next(err);
   }

@@ -158,4 +158,9 @@ class CustomerRealtimeHandler implements RealtimeEventHandler {
 
     appliedEvents++;
   }
+
+  /// Notifications are handled by NotificationRealtimeHandler, shared by
+  /// every role — nothing customer-specific to do here.
+  @override
+  void onNotificationNew(Map<String, dynamic> payload) {}
 }

@@ -2084,12 +2084,6 @@ abstract class AppLocalizations {
   /// **'There\'s no change-password endpoint yet.'**
   String get pMoreNoPassword;
 
-  /// No description provided for @pMoreNoNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'No notifications backend exists yet.'**
-  String get pMoreNoNotifications;
-
   /// No description provided for @realtimeLive.
   ///
   /// In en, this message translates to:
@@ -2942,12 +2936,6 @@ abstract class AppLocalizations {
   /// **'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.'**
   String get aMoreNoPlatformSettings;
 
-  /// No description provided for @aMoreNoNotifications.
-  ///
-  /// In en, this message translates to:
-  /// **'No notifications backend exists yet.'**
-  String get aMoreNoNotifications;
-
   /// No description provided for @aMoreNoPassword.
   ///
   /// In en, this message translates to:
@@ -2977,6 +2965,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen.'**
   String get aCategoriesNoToggle;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifTitle;
+
+  /// No description provided for @notifMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notifMarkAllRead;
+
+  /// No description provided for @notifEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet.'**
+  String get notifEmpty;
+
+  /// No description provided for @notifUnreadSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{You\'re all caught up} =1{1 unread} other{{count} unread}}'**
+  String notifUnreadSummary(int count);
 }
 
 class _AppLocalizationsDelegate

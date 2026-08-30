@@ -387,7 +387,6 @@
   "pMorePreferences": "Preferences",
   "pMoreUnsupported": "Not available yet",
   "pMoreNoPassword": "There's no change-password endpoint yet.",
-  "pMoreNoNotifications": "No notifications backend exists yet.",
 
   "realtimeLive": "Live",
   "realtimeOffline": "Offline",
@@ -533,10 +532,17 @@
   "aMorePreferences": "Preferences",
   "aMoreUnsupported": "Not available",
   "aMoreNoPlatformSettings": "No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.",
-  "aMoreNoNotifications": "No notifications backend exists yet.",
   "aMoreNoPassword": "There is no change-password endpoint.",
   "aMoreNoAudit": "Nothing records administrative actions, so there is no audit log to show.",
   "aMoreRealtimeNote": "Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.",
   "aBookingNotes": "Notes",
-  "aCategoriesNoToggle": "The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen."
+  "aCategoriesNoToggle": "The categories endpoint accepts a name and description only. Active state is shown here but has no endpoint to change it — a category is deactivated in the database, not from this screen.",
+
+  "notifTitle": "Notifications",
+  "notifMarkAllRead": "Mark all read",
+  "notifEmpty": "No notifications yet.",
+  "notifUnreadSummary": "{count, plural, =0{You're all caught up} =1{1 unread} other{{count} unread}}",
+  "@notifUnreadSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

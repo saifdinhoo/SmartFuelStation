@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const notificationService = require('./notification.service');
 
 function badRequest(message) {
   const err = new Error(message);
@@ -43,7 +44,7 @@ async function createReview({ customerId, bookingId, rating, comment }) {
 
   const booking = await prisma.booking.findUnique({
     where: { id: parsedBookingId },
-    include: { providerService: true, review: true },
+    include: { providerService: { include: { provider: true } }, review: true },
   });
   if (!booking) {
     throw notFound('Booking not found');
@@ -59,7 +60,7 @@ async function createReview({ customerId, bookingId, rating, comment }) {
   }
 
   try {
-    return await prisma.review.create({
+    const review = await prisma.review.create({
       data: {
         bookingId: booking.id,
         customerId,
@@ -69,6 +70,16 @@ async function createReview({ customerId, bookingId, rating, comment }) {
       },
       include: WITH_CUSTOMER,
     });
+
+    await notificationService.createNotification({
+      userId: booking.providerService.provider.userId,
+      type: 'NEW_REVIEW',
+      title: 'New review',
+      message: `You received a new ${rating}-star review.`,
+      relatedReviewId: review.id,
+    });
+
+    return review;
   } catch (err) {
     // Race condition fallback: two simultaneous requests both passed the
     // check above before either had committed. The unique index on

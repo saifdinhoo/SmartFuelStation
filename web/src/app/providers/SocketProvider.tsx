@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { socket, connectSocketWithToken, disconnectSocket } from '@/services/socketClient';
 import { tokenStorage } from '@/services/tokenStorage';
 import { useAuth } from './AuthProvider';
+import type { Notification } from '@/features/notifications/types';
 
 interface SocketContextValue {
   connected: boolean;
@@ -64,6 +65,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated) {
       disconnectSocket();
+      // Logout (or never having logged in) — drop any previous session's
+      // notifications rather than let them linger in the cache for
+      // whoever logs in next on this device.
+      queryClient.removeQueries({ queryKey: ['notifications'] });
+      queryClient.removeQueries({ queryKey: ['notifications', 'unread-count'] });
       return;
     }
     const token = tokenStorage.get();
@@ -72,7 +78,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     return () => {
       disconnectSocket();
     };
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, queryClient]);
 
   // The single place every Queue-related socket event is handled for the
   // whole app — pages never register their own copies of these listeners,
@@ -91,6 +97,12 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // missed events are never replayed — REST is what makes a reconnect
       // converge on the real state.
       queryClient.invalidateQueries({ queryKey: ['providers'] });
+      // Same reasoning for notifications — a notification created while
+      // this client was offline was never pushed, so a fresh connect (or
+      // reconnect) always resyncs from REST rather than trusting the
+      // socket alone.
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
     }
 
     function onDisconnect() {
@@ -140,6 +152,17 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       });
     }
 
+    // A pushed notification is prepended straight into the list cache and
+    // bumps the unread badge immediately — the reconnect/onConnect handler
+    // above is what covers anything created while this client was offline.
+    function onNotificationNew(notification: Notification) {
+      queryClient.setQueryData<Notification[]>(['notifications'], (current) => [
+        notification,
+        ...(current ?? []),
+      ]);
+      queryClient.setQueryData<number>(['notifications', 'unread-count'], (current) => (current ?? 0) + 1);
+    }
+
     socket.off('connect', onConnect).on('connect', onConnect);
     socket.off('disconnect', onDisconnect).on('disconnect', onDisconnect);
     socket
@@ -152,6 +175,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket
       .off('provider:status_changed', onProviderStatusChanged)
       .on('provider:status_changed', onProviderStatusChanged);
+    socket.off('notification:new', onNotificationNew).on('notification:new', onNotificationNew);
 
     return () => {
       socket.off('connect', onConnect);
@@ -160,6 +184,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('queue:my_update', onMyUpdate);
       socket.off('booking:status_changed', onBookingStatusChanged);
       socket.off('provider:status_changed', onProviderStatusChanged);
+      socket.off('notification:new', onNotificationNew);
     };
   }, [queryClient]);
 

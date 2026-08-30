@@ -91,4 +91,8 @@ class ProviderRealtimeHandler implements RealtimeEventHandler {
   /// Sent to a customer's own room, not a provider's.
   @override
   void onMyQueueUpdate(Map<String, dynamic> payload) {}
+
+  /// Handled by NotificationRealtimeHandler, shared by every role.
+  @override
+  void onNotificationNew(Map<String, dynamic> payload) {}
 }

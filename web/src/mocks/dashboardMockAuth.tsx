@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { AuthUser } from '@/features/auth/authApi';
-import type { NotificationData } from '@/components/dashboard/NotificationsDropdown';
+import type { Notification } from '@/features/notifications/types';
 
 // Dev-only mock so the dashboard shell (sidebar/topbar/nav) can be built
 // and previewed without a real login. The shell components themselves take
@@ -14,16 +14,52 @@ const mockUsers: Record<'PROVIDER' | 'ADMIN', AuthUser> = {
   ADMIN: { id: 2, name: 'Sara Ahmed', email: 'admin@smartfuelstation.com', role: 'ADMIN' },
 };
 
-const mockNotifications: NotificationData[] = [
-  { id: '1', title: 'New booking request', time: '5 minutes ago', read: false },
-  { id: '2', title: 'Provider approval pending', time: '1 hour ago', read: false },
-  { id: '3', title: 'Weekly summary is ready', time: 'Yesterday', read: true },
+const mockNotifications: Notification[] = [
+  {
+    id: 1,
+    userId: 1,
+    type: 'BOOKING_CREATED',
+    title: 'New booking request',
+    message: 'A customer requested Oil Change for 3:00 PM.',
+    isRead: false,
+    relatedBookingId: null,
+    relatedProviderId: null,
+    relatedReviewId: null,
+    relatedQueueEntryId: null,
+    createdAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+  },
+  {
+    id: 2,
+    userId: 1,
+    type: 'PROVIDER_REGISTERED',
+    title: 'Provider approval pending',
+    message: 'Al-Nour Auto Service has registered and is awaiting approval.',
+    isRead: false,
+    relatedBookingId: null,
+    relatedProviderId: null,
+    relatedReviewId: null,
+    relatedQueueEntryId: null,
+    createdAt: new Date(Date.now() - 60 * 60_000).toISOString(),
+  },
+  {
+    id: 3,
+    userId: 1,
+    type: 'NEW_REVIEW',
+    title: 'New review',
+    message: 'You received a new 5-star review.',
+    isRead: true,
+    relatedBookingId: null,
+    relatedProviderId: null,
+    relatedReviewId: null,
+    relatedQueueEntryId: null,
+    createdAt: new Date(Date.now() - 24 * 60 * 60_000).toISOString(),
+  },
 ];
 
 interface MockDashboardAuthValue {
   role: 'PROVIDER' | 'ADMIN';
   user: AuthUser;
-  notifications: NotificationData[];
+  notifications: Notification[];
   setRole: (role: 'PROVIDER' | 'ADMIN') => void;
 }
 

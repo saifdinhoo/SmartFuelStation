@@ -3,6 +3,7 @@ const reviewService = require('../services/review.service');
 const profileService = require('../services/providerProfile.service');
 const analyticsService = require('../services/providerAnalytics.service');
 const socketEvents = require('../sockets/queueEvents');
+const notificationService = require('../services/notification.service');
 
 // Same contract as queue.controller.js and booking.controller.js: socket
 // pushes run only after the REST response has been sent, and a failed push
@@ -54,6 +55,26 @@ async function setApproval(req, res, next) {
         estimatedWaitMinutes: provider.estimatedWaitMinutes,
         isApproved: provider.isApproved,
       }),
+    );
+
+    await safely(() =>
+      notificationService.createNotification(
+        provider.isApproved
+          ? {
+              userId: provider.userId,
+              type: 'PROVIDER_APPROVED',
+              title: 'Business approved',
+              message: `${provider.businessName} has been approved and is now visible to customers.`,
+              relatedProviderId: provider.id,
+            }
+          : {
+              userId: provider.userId,
+              type: 'PROVIDER_REJECTED',
+              title: 'Business approval revoked',
+              message: `${provider.businessName} is no longer approved.`,
+              relatedProviderId: provider.id,
+            },
+      ),
     );
   } catch (err) {
     next(err);
