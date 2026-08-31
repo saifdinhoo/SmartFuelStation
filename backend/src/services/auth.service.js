@@ -13,10 +13,25 @@ function badRequest(message) {
   return err;
 }
 
+// Email is matched case-insensitively everywhere in this file — a real
+// account creation problem this phase found and fixed: without this,
+// registering "Layla@SmartAuto.Local" while "layla@smartauto.local"
+// already existed silently created a second, disconnected account (no
+// unique-constraint conflict, since Postgres's default index is
+// case-sensitive), and typing an email in a different case than it was
+// registered with at login always failed as "Invalid email or password"
+// with no indication why. Applied only to the *input* here — no existing
+// stored row is ever rewritten, and every account already in this database
+// happens to already be lowercase, so this is fully backward-compatible.
+function normalizeEmail(email) {
+  return typeof email === 'string' ? email.trim().toLowerCase() : email;
+}
+
 async function register({ name, email, password, role, phone, businessName, address, description }) {
   if (!name || !email || !password) {
     throw badRequest('name, email and password are required');
   }
+  const normalizedEmail = normalizeEmail(email);
 
   const selectedRole = role || 'CUSTOMER';
   if (!REGISTERABLE_ROLES.includes(selectedRole)) {
@@ -27,7 +42,7 @@ async function register({ name, email, password, role, phone, businessName, addr
     throw badRequest('businessName and address are required to register as a provider');
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (existing) {
     const err = new Error('Email already registered');
     err.statusCode = 409;
@@ -39,7 +54,7 @@ async function register({ name, email, password, role, phone, businessName, addr
   const user = await prisma.user.create({
     data: {
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role: selectedRole,
       phone,
@@ -74,7 +89,7 @@ async function login({ email, password }) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizeEmail(email) },
     include: { provider: true },
   });
 

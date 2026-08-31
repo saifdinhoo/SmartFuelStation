@@ -1,0 +1,15 @@
+-- Phase E: application-level normalization (trim + lowercase, in
+-- auth.service.js) already prevents new case/whitespace-variant duplicate
+-- accounts. This adds the matching database-level guarantee, so a future
+-- write path that bypasses auth.service.js (a script, a direct SQL client,
+-- a future admin tool) can never create "user@test.com" and
+-- "  USER@Test.com  " as two separate accounts either.
+--
+-- A plain CITEXT column was deliberately not used: it would change the
+-- column type and require touching every existing row, for no benefit
+-- over a normalized expression index, which needs neither.
+--
+-- Verified before this migration was written: zero existing rows collide
+-- under LOWER(BTRIM(email)), and zero existing rows differ from their own
+-- normalized form, so this is a pure guardrail with no data impact.
+CREATE UNIQUE INDEX "User_email_normalized_key" ON "User" (LOWER(BTRIM(email)));
