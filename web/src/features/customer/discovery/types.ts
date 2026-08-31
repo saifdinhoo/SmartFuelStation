@@ -35,6 +35,10 @@ export interface RawProvider {
   updatedAt: string;
   services: RawProviderService[];
   _count: { reviews: number; queueEntries: number };
+  // Phase F — whether this business has an authorized live camera at all.
+  // Non-sensitive (mirrors isOpen); the real stream address/credentials
+  // never appear here or anywhere else in this response.
+  liveCameraEnabled: boolean;
 }
 
 // Display-ready shapes, after parsing + distance computation.
@@ -62,6 +66,7 @@ export interface Provider {
   // From GET /providers/:id/rating-summary — undefined while that request
   // is still in flight, null once loaded if the provider has no reviews.
   averageRating: number | null | undefined;
+  liveCameraEnabled: boolean;
 }
 
 export interface Category {

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { LiveStationCard } from '@/features/liveStation/LiveStationCard';
 import { useNearbyProviders } from './useNearbyProviders';
 import { DiscoveryFilters } from './DiscoveryFilters';
 import { ProviderCard } from './ProviderCard';
@@ -28,6 +29,11 @@ export function DiscoveryPage() {
     setOpenNowOnly,
   } = useNearbyProviders();
 
+  // At most one provider is expected to carry this flag for this proof of
+  // concept, but nothing here assumes it — the card is entirely
+  // provider-based and would keep working if a second one were enabled.
+  const liveStationProvider = providers.find((p) => p.liveCameraEnabled);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -51,6 +57,13 @@ export function DiscoveryPage() {
           </Button>
         </div>
       </div>
+
+      {liveStationProvider && (
+        <LiveStationCard
+          providerId={liveStationProvider.id}
+          businessName={liveStationProvider.businessName}
+        />
+      )}
 
       {(locationStatus === 'denied' || locationStatus === 'unsupported') && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 p-4">

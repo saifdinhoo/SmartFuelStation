@@ -12,6 +12,7 @@ import '../../auth/state/auth_state.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
 import '../widgets/booking_card.dart';
+import '../widgets/live_station_card.dart';
 import '../widgets/provider_card.dart';
 
 /// Landing screen: what's open now, categories to jump into, and the
@@ -48,6 +49,16 @@ class CustomerHomeScreen extends StatelessWidget {
             final active = (bookingsState.valueOrNull ?? const <Booking>[])
                 .where((b) => !b.status.isTerminal)
                 .toList();
+            // At most one provider is expected to have a camera in this
+            // proof of concept, but nothing here assumes that — the first
+            // one found is used, and the architecture supports more being
+            // enabled later with no UI change.
+            final cameraProvider = providers
+                .where((p) => p.liveCameraEnabled)
+                .firstOrNull;
+            final cameraState = cameraProvider == null
+                ? null
+                : repo.watchLiveCameraStatus(cameraProvider.id);
 
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -100,6 +111,22 @@ class CustomerHomeScreen extends StatelessWidget {
                       ),
 
                 const SizedBox(height: 24),
+
+                // --- live station (Phase F) ---
+                // No card at all when no provider has a camera enabled —
+                // never an empty/placeholder card.
+                if (cameraProvider != null) ...[
+                  _SectionHeader(title: l10n.homeLiveStationSection),
+                  const SizedBox(height: 8),
+                  LiveStationCard(
+                    businessName: cameraProvider.businessName,
+                    status: cameraState?.valueOrNull?.status,
+                    onWatchLive: () => context.push(
+                      Routes.customerLiveStation(cameraProvider.id),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
                 // --- categories ---
                 if (categories.isNotEmpty) ...[

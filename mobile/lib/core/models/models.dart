@@ -127,6 +127,7 @@ class ServiceProvider {
     this.longitude,
     this.phone,
     this.distanceKm,
+    this.liveCameraEnabled = false,
   });
 
   final int id;
@@ -140,6 +141,12 @@ class ServiceProvider {
   final List<ProviderService> services;
   final int reviewCount;
   final String? phone;
+
+  /// Whether this provider has a live camera at all (GET /providers
+  /// includes the raw column). Does not mean a stream is actually
+  /// watchable right now — that is what GET /providers/:id/live-camera's
+  /// `status` is for, fetched separately once a customer opens the feature.
+  final bool liveCameraEnabled;
 
   /// Filled in client-side once device location is known; null when
   /// location is unavailable or the provider has no coordinates.
@@ -172,6 +179,7 @@ class ServiceProvider {
       ).map(ProviderService.fromJson).toList(),
       reviewCount: asInt(count?['reviews']),
       phone: asStringOrNull(user?['phone']),
+      liveCameraEnabled: asBool(json['liveCameraEnabled']),
     );
   }
 
@@ -193,6 +201,7 @@ class ServiceProvider {
     reviewCount: reviewCount,
     phone: phone,
     distanceKm: distanceKm,
+    liveCameraEnabled: liveCameraEnabled,
   );
 
   ServiceProvider copyWithDistance(double? km) => ServiceProvider(
@@ -208,6 +217,7 @@ class ServiceProvider {
     reviewCount: reviewCount,
     phone: phone,
     distanceKm: km,
+    liveCameraEnabled: liveCameraEnabled,
   );
 }
 

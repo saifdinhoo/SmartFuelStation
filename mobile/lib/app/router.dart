@@ -26,6 +26,7 @@ import '../features/customer/booking/bookings_screen.dart';
 import '../features/customer/discovery/explore_screen.dart';
 import '../features/customer/discovery/provider_details_screen.dart';
 import '../features/customer/home/customer_home_screen.dart';
+import '../features/customer/live_station/live_station_screen.dart';
 import '../features/customer/profile/customer_profile_screen.dart';
 import '../features/customer/queue/queue_screen.dart';
 import '../features/customer/shell/customer_shell.dart';
@@ -80,6 +81,8 @@ class Routes {
 
   static String customerProviderDetails(int id) => '/customer/providers/$id';
   static String customerBookingDetails(int id) => '/customer/bookings/$id';
+  static String customerLiveStation(int providerId) =>
+      '/customer/live-station/$providerId';
 
   // Provider area.
   static const providerOverview = '/provider/overview';
@@ -185,6 +188,12 @@ GoRouter createRouter(AuthState auth) {
         path: '/customer/bookings/:id',
         builder: (_, state) => BookingDetailsScreen(
           bookingId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/customer/live-station/:id',
+        builder: (_, state) => LiveStationScreen(
+          providerId: int.parse(state.pathParameters['id']!),
         ),
       ),
       GoRoute(

@@ -1858,4 +1858,33 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get homeLiveStationSection => 'المحطة المباشرة';
+
+  @override
+  String get homeLiveStationBody =>
+      'اطّلع على وضع المحطة الحالي قبل التوجه إليها.';
+
+  @override
+  String get homeWatchLive => 'مشاهدة البث المباشر';
+
+  @override
+  String get liveCameraLive => 'مباشر';
+
+  @override
+  String get liveCameraOffline => 'الكاميرا غير متصلة';
+
+  @override
+  String get liveCameraUnavailableMessage => 'البث المباشر غير متاح حاليًا';
+
+  @override
+  String get liveCameraPrivacyNote =>
+      'البث المباشر مقدَّم من المحطة لعرض الوضع الحالي فقط.';
+
+  @override
+  String get liveStationAppBarTitle => 'المحطة المباشرة';
+
+  @override
+  String get liveStationNotAvailable => 'البث المباشر غير متاح لهذا النشاط.';
 }

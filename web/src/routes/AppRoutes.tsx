@@ -25,6 +25,7 @@ import { ProviderFinancePage } from '@/features/provider/finance/ProviderFinance
 import { AdminFinancePage } from '@/features/admin/finance/AdminFinancePage';
 import { DiscoveryPage } from '@/features/customer/discovery/DiscoveryPage';
 import { ProviderDetailsPage } from '@/features/customer/discovery/ProviderDetailsPage';
+import { LiveStationPage } from '@/features/liveStation/LiveStationPage';
 import { CategoriesPage } from '@/features/admin/categories/CategoriesPage';
 import { AdminProvidersPage } from '@/features/admin/providers/AdminProvidersPage';
 import { AdminUsersPage } from '@/features/admin/users/AdminUsersPage';
@@ -328,6 +329,18 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER']}>
                   <AuthenticatedDashboardLayout>
                     <ProviderDetailsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/live-station/:providerId"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <LiveStationPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

@@ -13,6 +13,7 @@ function providerRow(overrides = {}) {
     commissionRate: '10.00',
     commissionUpdatedAt: new Date('2026-08-30T00:00:00.000Z'),
     commissionUpdatedByAdminId: 1,
+    liveCameraEnabled: true,
     ...overrides,
   };
 }
@@ -36,6 +37,14 @@ describe('listProviders', () => {
       expect(result.businessName).toBe('Cedars Auto Care');
     },
   );
+
+  it('exposes liveCameraEnabled publicly (Phase F) — it carries no credential, unlike commission', async () => {
+    prisma.provider.findMany.mockResolvedValue([providerRow()]);
+
+    const [result] = await providerService.listProviders('CUSTOMER');
+
+    expect(result.liveCameraEnabled).toBe(true);
+  });
 
   it('scopes non-admin callers to approved providers only, admin to everything', async () => {
     prisma.provider.findMany.mockResolvedValue([]);

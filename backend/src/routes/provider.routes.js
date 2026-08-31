@@ -1,6 +1,6 @@
 const express = require('express');
 const providerController = require('../controllers/provider.controller');
-const { authenticate, authorize } = require('../middleware/auth');
+const { authenticate, authorize, authenticateForMedia } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -52,5 +52,15 @@ router.get('/:id/hours', authenticate, providerController.getHours);
 router.get('/:id/availability', authenticate, providerController.getAvailability);
 router.get('/:id/fuel', authenticate, providerController.getFuel);
 router.get('/:id/fuel/history', authenticate, providerController.getFuelHistory);
+
+// Live camera (Phase F). The status endpoint is a normal JSON request, so
+// it uses the same authenticate() as every other provider sub-resource.
+// The stream endpoint is loaded by a native <video> element or by hls.js's
+// internal segment requests, neither of which can attach a custom
+// Authorization header — see authenticateForMedia's own doc comment for
+// why this one route accepts the token via `?token=` as a fallback.
+router.get('/:id/live-camera', authenticate, providerController.getLiveCameraStatus);
+router.get('/:id/live-camera/stream', authenticateForMedia, providerController.streamLiveCamera);
+router.get('/:id/live-camera/stream/*', authenticateForMedia, providerController.streamLiveCamera);
 
 module.exports = router;

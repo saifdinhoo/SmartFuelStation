@@ -6,6 +6,7 @@ const hoursService = require('../services/providerHours.service');
 const availabilityService = require('../services/availability.service');
 const fuelService = require('../services/fuelInventory.service');
 const financeService = require('../services/finance.service');
+const liveCameraService = require('../services/liveCamera.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
 
@@ -297,6 +298,35 @@ async function myCommission(req, res, next) {
   }
 }
 
+// --- live camera (Phase F — read-only, customer-safe) -----------------------
+
+async function getLiveCameraStatus(req, res, next) {
+  try {
+    const status = await liveCameraService.getStatus(req.params.id);
+    res.json({ success: true, data: status });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Streams bytes directly to the response rather than returning JSON — the
+// one deliberate exception to this controller's usual res.json() shape.
+// If the upstream fetch fails after headers are already written, the
+// connection is simply torn down rather than trying to send a second,
+// conflicting response.
+async function streamLiveCamera(req, res, next) {
+  try {
+    const subPath = req.params[0] || '';
+    await liveCameraService.proxyStream(req.params.id, subPath, res);
+  } catch (err) {
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   approve,
@@ -319,4 +349,6 @@ module.exports = {
   myFinanceSummary,
   myFinanceTransactions,
   myCommission,
+  getLiveCameraStatus,
+  streamLiveCamera,
 };

@@ -1867,4 +1867,35 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get homeLiveStationSection => 'Live Station';
+
+  @override
+  String get homeLiveStationBody =>
+      'See the current station situation before you go.';
+
+  @override
+  String get homeWatchLive => 'Watch Live';
+
+  @override
+  String get liveCameraLive => 'LIVE';
+
+  @override
+  String get liveCameraOffline => 'Camera Offline';
+
+  @override
+  String get liveCameraUnavailableMessage =>
+      'Live view is currently unavailable';
+
+  @override
+  String get liveCameraPrivacyNote =>
+      'Live view is provided by the station for current conditions.';
+
+  @override
+  String get liveStationAppBarTitle => 'Live Station';
+
+  @override
+  String get liveStationNotAvailable =>
+      'Live camera is not available for this business.';
 }

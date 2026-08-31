@@ -1,4 +1,4 @@
-import '../../../core/models/models.dart';
+import '../../../core/models/live_camera_models.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/state/async_value.dart';
 import '../../../core/state/query_cache.dart';
@@ -23,6 +23,8 @@ class CacheKeys {
   static String fuel(int providerId) => 'provider/$providerId/fuel';
   static String fuelHistory(int providerId, String fuelType, String range) =>
       'provider/$providerId/fuel/history/$fuelType/$range';
+  static String liveCamera(int providerId) =>
+      'provider/$providerId/live-camera';
 
   /// Everything scoped to a single provider, for bulk invalidation.
   static const providerPrefix = 'provider/';
@@ -107,6 +109,16 @@ class CustomerRepository {
       _cache.watch(CacheKeys.queueSummary(providerId), () async {
         final json = await _api.get('/queue/summary/$providerId') as Map;
         return QueueSummary.fromJson(Map<String, dynamic>.from(json));
+      });
+
+  /// GET /providers/:id/live-camera. Only meaningful for a provider whose
+  /// [ServiceProvider.liveCameraEnabled] is true — callers should not fetch
+  /// this otherwise. Never fabricates LIVE: the backend itself only ever
+  /// reports it when a real upstream is currently configured.
+  AsyncValue<LiveCameraStatus> watchLiveCameraStatus(int providerId) =>
+      _cache.watch(CacheKeys.liveCamera(providerId), () async {
+        final json = await _api.get('/providers/$providerId/live-camera') as Map;
+        return LiveCameraStatus.fromJson(Map<String, dynamic>.from(json));
       });
 
   // --- operating hours & availability ---------------------------------------

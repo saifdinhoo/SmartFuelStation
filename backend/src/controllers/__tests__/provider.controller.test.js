@@ -6,6 +6,7 @@ jest.mock('../../services/providerHours.service');
 jest.mock('../../services/availability.service');
 jest.mock('../../services/fuelInventory.service');
 jest.mock('../../services/finance.service');
+jest.mock('../../services/liveCamera.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
 
@@ -14,6 +15,7 @@ const hoursService = require('../../services/providerHours.service');
 const availabilityService = require('../../services/availability.service');
 const fuelService = require('../../services/fuelInventory.service');
 const financeService = require('../../services/finance.service');
+const liveCameraService = require('../../services/liveCamera.service');
 const socketEvents = require('../../sockets/queueEvents');
 const notificationService = require('../../services/notification.service');
 const providerController = require('../provider.controller');
@@ -316,5 +318,78 @@ describe('finance (read-only from this controller — Phase D)', () => {
     await providerController.myFinanceSummary({ user: PROVIDER, query: {} }, fakeRes(), next);
 
     expect(next).toHaveBeenCalledWith(err);
+  });
+});
+
+describe('live camera (Phase F)', () => {
+  it('getLiveCameraStatus forwards the route param and returns the service result', async () => {
+    const status = { providerId: 2, available: true, status: 'OFFLINE', playbackUrl: null };
+    liveCameraService.getStatus.mockResolvedValue(status);
+    const res = fakeRes();
+
+    await providerController.getLiveCameraStatus({ params: { id: '2' } }, res, jest.fn());
+
+    expect(liveCameraService.getStatus).toHaveBeenCalledWith('2');
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: status });
+  });
+
+  it('getLiveCameraStatus passes a service error (e.g. invalid provider) to next()', async () => {
+    const err = new Error('Provider not found');
+    err.statusCode = 404;
+    liveCameraService.getStatus.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.getLiveCameraStatus({ params: { id: '999' } }, fakeRes(), next);
+
+    expect(next).toHaveBeenCalledWith(err);
+  });
+
+  it('streamLiveCamera forwards the provider id and trailing wildcard path to the proxy', async () => {
+    liveCameraService.proxyStream.mockResolvedValue(undefined);
+    const res = fakeRes();
+
+    await providerController.streamLiveCamera(
+      { params: { id: '2', 0: 'segment3.ts' } },
+      res,
+      jest.fn(),
+    );
+
+    expect(liveCameraService.proxyStream).toHaveBeenCalledWith('2', 'segment3.ts', res);
+  });
+
+  it('streamLiveCamera defaults the trailing path to empty for the master playlist request', async () => {
+    liveCameraService.proxyStream.mockResolvedValue(undefined);
+    const res = fakeRes();
+
+    await providerController.streamLiveCamera({ params: { id: '2' } }, res, jest.fn());
+
+    expect(liveCameraService.proxyStream).toHaveBeenCalledWith('2', '', res);
+  });
+
+  it('streamLiveCamera passes a pre-stream error (e.g. not configured) to next()', async () => {
+    const err = new Error('Live view is currently unavailable');
+    err.statusCode = 503;
+    liveCameraService.proxyStream.mockRejectedValue(err);
+    const next = jest.fn();
+    const res = fakeRes();
+    res.headersSent = false;
+
+    await providerController.streamLiveCamera({ params: { id: '2' } }, res, next);
+
+    expect(next).toHaveBeenCalledWith(err);
+  });
+
+  it('streamLiveCamera never calls next() once headers were already sent — it just tears down the connection', async () => {
+    const err = new Error('upstream dropped mid-stream');
+    liveCameraService.proxyStream.mockRejectedValue(err);
+    const next = jest.fn();
+    const res = fakeRes();
+    res.headersSent = true;
+    res.destroy = jest.fn();
+
+    await providerController.streamLiveCamera({ params: { id: '2' } }, res, next);
+
+    expect(next).not.toHaveBeenCalled();
+    expect(res.destroy).toHaveBeenCalled();
   });
 });

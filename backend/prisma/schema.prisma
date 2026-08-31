@@ -114,6 +114,15 @@ model Provider {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
+  // Phase F — whether this business has an authorized live camera at all.
+  // Non-sensitive and safe to expose publicly (mirrors isOpen). The actual
+  // upstream stream URL/credentials are never stored here or anywhere in
+  // Postgres — see liveCamera.service.js, which reads a single
+  // LIVE_CAMERA_STREAM_URL from the server's own environment. A boolean is
+  // enough for this one-camera proof of concept; if a second camera is
+  // added later, this is the field a ProviderCamera table would replace.
+  liveCameraEnabled Boolean @default(false)
+
   // Platform commission percentage applied to this provider's COMPLETED
   // bookings — e.g. 10.00 = 10%. Defaulted to 10.00 for every existing and
   // new provider (see the Phase D migration note). Read by

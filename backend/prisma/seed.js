@@ -108,6 +108,10 @@ async function main() {
       estimatedWaitMinutes: 15,
       approvedAt: new Date(),
       approvedById: admin.id,
+      // Phase F proof of concept — this is the one demonstration business
+      // with a live camera. Actual playback still depends on
+      // LIVE_CAMERA_STREAM_URL being configured server-side; see .env.example.
+      liveCameraEnabled: true,
     },
     create: {
       userId: providerUser.id,
@@ -121,6 +125,7 @@ async function main() {
       estimatedWaitMinutes: 15,
       approvedAt: new Date(),
       approvedById: admin.id,
+      liveCameraEnabled: true,
     },
   });
 

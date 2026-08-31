@@ -3559,6 +3559,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{You\'re all caught up} =1{1 unread} other{{count} unread}}'**
   String notifUnreadSummary(int count);
+
+  /// No description provided for @homeLiveStationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Station'**
+  String get homeLiveStationSection;
+
+  /// No description provided for @homeLiveStationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See the current station situation before you go.'**
+  String get homeLiveStationBody;
+
+  /// No description provided for @homeWatchLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Live'**
+  String get homeWatchLive;
+
+  /// No description provided for @liveCameraLive.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get liveCameraLive;
+
+  /// No description provided for @liveCameraOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera Offline'**
+  String get liveCameraOffline;
+
+  /// No description provided for @liveCameraUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Live view is currently unavailable'**
+  String get liveCameraUnavailableMessage;
+
+  /// No description provided for @liveCameraPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Live view is provided by the station for current conditions.'**
+  String get liveCameraPrivacyNote;
+
+  /// No description provided for @liveStationAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Station'**
+  String get liveStationAppBarTitle;
+
+  /// No description provided for @liveStationNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Live camera is not available for this business.'**
+  String get liveStationNotAvailable;
 }
 
 class _AppLocalizationsDelegate

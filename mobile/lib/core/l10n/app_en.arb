@@ -649,5 +649,15 @@
   "notifUnreadSummary": "{count, plural, =0{You're all caught up} =1{1 unread} other{{count} unread}}",
   "@notifUnreadSummary": {
     "placeholders": { "count": { "type": "int" } }
-  }
+  },
+
+  "homeLiveStationSection": "Live Station",
+  "homeLiveStationBody": "See the current station situation before you go.",
+  "homeWatchLive": "Watch Live",
+  "liveCameraLive": "LIVE",
+  "liveCameraOffline": "Camera Offline",
+  "liveCameraUnavailableMessage": "Live view is currently unavailable",
+  "liveCameraPrivacyNote": "Live view is provided by the station for current conditions.",
+  "liveStationAppBarTitle": "Live Station",
+  "liveStationNotAvailable": "Live camera is not available for this business."
 }
