@@ -16,6 +16,7 @@ import {
   Heart,
   Car,
   Fuel,
+  Banknote,
   type LucideIcon,
 } from 'lucide-react';
 import type { AuthUser } from '@/features/auth/authApi';
@@ -44,6 +45,7 @@ const providerNav: NavItem[] = [
   { label: 'Bookings', path: '/provider/bookings', icon: CalendarCheck },
   { label: 'Reviews', path: '/provider/reviews', icon: Star },
   { label: 'Analytics', path: '/provider/analytics', icon: BarChart3 },
+  { label: 'Finance', path: '/provider/finance', icon: Banknote },
   { label: 'Settings', path: '/provider/settings', icon: Settings },
 ];
 
@@ -57,6 +59,7 @@ const adminNav: NavItem[] = [
   { label: 'Complaints', path: '/admin/complaints', icon: MessageSquareWarning },
   { label: 'Reviews', path: '/admin/reviews', icon: Star },
   { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+  { label: 'Finance', path: '/admin/finance', icon: Banknote },
   { label: 'System Settings', path: '/admin/system-settings', icon: Settings },
 ];
 

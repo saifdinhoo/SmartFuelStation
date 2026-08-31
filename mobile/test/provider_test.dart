@@ -329,6 +329,57 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(loads, 2, reason: 'reconnect must resync from REST');
     });
+
+    group('onFinanceUpdated (Phase D)', () {
+      test('invalidates own finance summary, transactions and commission', () async {
+        var summaryLoads = 0;
+        var txLoads = 0;
+        var commissionLoads = 0;
+        await cache.refresh<int>(
+          ProviderKeys.financeSummaryFor('30d'),
+          () async {
+            summaryLoads++;
+            return 0;
+          },
+        );
+        await cache.refresh<int>(ProviderKeys.financeTransactions, () async {
+          txLoads++;
+          return 0;
+        });
+        await cache.refresh<int>(ProviderKeys.commission, () async {
+          commissionLoads++;
+          return 0;
+        });
+
+        handler.onFinanceUpdated({'providerId': 2});
+
+        cache.watch<int>(ProviderKeys.financeSummaryFor('30d'), () async {
+          summaryLoads++;
+          return 0;
+        });
+        cache.watch<int>(ProviderKeys.financeTransactions, () async {
+          txLoads++;
+          return 0;
+        });
+        cache.watch<int>(ProviderKeys.commission, () async {
+          commissionLoads++;
+          return 0;
+        });
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(summaryLoads, 2);
+        expect(txLoads, 2);
+        expect(commissionLoads, 2);
+        expect(handler.appliedEvents, 1);
+      });
+
+      test('always invalidates — a broadcast payload has no id to match against "is this me"', () {
+        // Mirrors onProviderFuelUpdated's own reasoning: there is no way to
+        // locally tell whether the event was about this session's own
+        // business, so it is always treated as relevant.
+        handler.onFinanceUpdated({'providerId': 999});
+        expect(handler.appliedEvents, 1);
+      });
+    });
   });
 
   group('provider models', () {

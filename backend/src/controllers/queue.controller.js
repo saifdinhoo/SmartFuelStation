@@ -119,6 +119,14 @@ async function updateStatus(req, res, next) {
       const notification = notifyBookingSync(entry, req.user.role);
       if (notification) await notificationService.createNotification(notification);
       if (snapshot) await notificationService.notifyAlmostTurnIfNeeded(snapshot);
+
+      // A queue completion syncs the linked booking to COMPLETED inside
+      // the same transaction that atomically created its
+      // FinancialTransaction (see booking.service.js's updateBookingStatus)
+      // — the ledger row is already committed by the time this runs.
+      if (entry.booking?.status === 'COMPLETED') {
+        await socketEvents.notifyFinanceUpdated({ providerId: entry.providerId });
+      }
     });
   } catch (err) {
     next(err);

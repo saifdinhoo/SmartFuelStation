@@ -1191,7 +1191,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pAnalyticsNoRevenue =>
-      'لا يتم عرض الإيرادات — لا يوجد ما يتتبعها في قاعدة البيانات.';
+      'تُعرض الإيرادات بشكل منفصل — راجع صفحة المالية لأرقام العمولة والأرباح الفعلية.';
+
+  @override
+  String get pFinanceTitle => 'أرباحي';
+
+  @override
+  String get pFinanceCommissionLabel => 'عمولة المنصة';
+
+  @override
+  String get pFinanceCommissionPaid => 'رسوم المنصة';
+
+  @override
+  String get pFinanceNetEarnings => 'صافي الأرباح';
+
+  @override
+  String get pFinancePending => 'قيد التسوية';
+
+  @override
+  String get pFinanceSettled => 'مُسوّى';
+
+  @override
+  String get pFinanceTrend => 'صافي الأرباح عبر الزمن';
+
+  @override
+  String get pFinanceTransactions => 'سجل المعاملات';
+
+  @override
+  String get pFinanceNoTransactions => 'لا توجد أرباح بعد';
+
+  @override
+  String get pFinanceReadOnlyNote =>
+      'تُحدَّد من قِبل مشرف المنصة. لا يمكنك تعديل هذه النسبة — أي تغيير ينطبق فقط على الحجوزات المكتملة مستقبلًا.';
 
   @override
   String get pMoreTitle => 'المزيد';
@@ -1207,6 +1238,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pMoreAnalytics => 'التحليلات';
+
+  @override
+  String get pMoreFinance => 'المالية';
 
   @override
   String get pMoreAccount => 'الحساب';
@@ -1465,6 +1499,96 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aFuelPriceInvalid => 'يجب ألا يكون السعر بالسالب';
 
   @override
+  String get financeGross => 'الإجمالي';
+
+  @override
+  String get financeCommission => 'العمولة';
+
+  @override
+  String get financeNet => 'الصافي';
+
+  @override
+  String get financeCommissionRateField => 'نسبة العمولة';
+
+  @override
+  String get financeStatusAll => 'كل الحالات';
+
+  @override
+  String get financeStatusPending => 'قيد التسوية';
+
+  @override
+  String get financeStatusSettled => 'مُسوّى';
+
+  @override
+  String get financeTrendEmpty =>
+      'لا توجد حجوزات مكتملة مسجَّلة في هذه الفترة بعد.';
+
+  @override
+  String get financeTrendSinglePoint =>
+      'سيظهر المزيد من السجل مع اكتمال الحجوزات.';
+
+  @override
+  String get financeUnknownService => 'حجز';
+
+  @override
+  String get commonCreated => 'تاريخ الإنشاء';
+
+  @override
+  String get aFinanceTitle => 'المالية';
+
+  @override
+  String get aFinanceCommissionRevenue => 'إيرادات المنصة';
+
+  @override
+  String get aFinanceProviderNet => 'صافي مستحقات المزوّد';
+
+  @override
+  String get aFinancePending => 'التسويات المعلّقة';
+
+  @override
+  String get aFinanceSettled => 'المُسوّى';
+
+  @override
+  String get aFinanceTransactionCount => 'عدد المعاملات';
+
+  @override
+  String get aFinanceTrend => 'الإيرادات عبر الزمن';
+
+  @override
+  String get aFinanceTransactions => 'المعاملات';
+
+  @override
+  String get aFinanceProviderFilter => 'المزوّد';
+
+  @override
+  String get aFinanceAllProviders => 'كل المزوّدين';
+
+  @override
+  String get aFinanceNoTransactions =>
+      'لا توجد معاملات مطابقة لهذا الفلتر بعد.';
+
+  @override
+  String get aFinanceMarkSettled => 'تحديد كمُسوّى';
+
+  @override
+  String get aFinanceSettleSuccess => 'تم تحديد المعاملة كمُسوّاة';
+
+  @override
+  String get aFinanceSettledAt => 'تمت التسوية';
+
+  @override
+  String get aFinanceCommissionEdit => 'إدارة العمولة';
+
+  @override
+  String get aFinanceCommissionTitle => 'عمولة المنصة';
+
+  @override
+  String get aFinanceCommissionInvalid => 'يجب أن تكون نسبة العمولة بين 0 و100';
+
+  @override
+  String get aFinanceCommissionSaved => 'تم تحديث نسبة العمولة';
+
+  @override
   String get aProvidersApproveTitle => 'اعتماد هذا النشاط؟';
 
   @override
@@ -1681,6 +1805,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aMoreAnalytics => 'التحليلات';
 
   @override
+  String get aMoreFinance => 'المالية';
+
+  @override
   String get aMoreAccount => 'الحساب';
 
   @override
@@ -1691,7 +1818,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aMoreNoPlatformSettings =>
-      'لا يوجد جدول للإعدادات، لذلك لا مكان لتخزين نوافذ الحجز ونسب العمولة وما شابهها.';
+      'لا يوجد جدول لإعدادات نوافذ الحجز أو ما شابهها من قيم الجدولة — أما نسب العمولة فهي مخزَّنة وقابلة للتعديل من صفحة المالية.';
 
   @override
   String get aMoreNoPassword => 'لا يوجد إجراء لتغيير كلمة المرور.';

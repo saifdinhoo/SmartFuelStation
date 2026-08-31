@@ -96,6 +96,12 @@ class AdminMoreScreen extends StatelessWidget {
                   label: l10n.aMoreAnalytics,
                   onTap: () => context.push(Routes.adminAnalytics),
                 ),
+                const Divider(height: 1),
+                _NavTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: l10n.aMoreFinance,
+                  onTap: () => context.push(Routes.adminFinance),
+                ),
               ],
             ),
           ),

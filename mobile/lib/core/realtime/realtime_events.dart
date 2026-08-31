@@ -38,6 +38,13 @@ class RealtimeEvents {
   /// /providers/:id/fuel does not already expose to any authenticated
   /// caller — never the acting admin's identity.
   static const providerFuelUpdated = 'provider:fuel_updated';
+
+  /// `{ providerId }` → broadcast to every authenticated socket, same
+  /// pattern as [providerFuelUpdated]. Fired when a booking's commission
+  /// transaction is created/settled or an Admin changes a provider's
+  /// commission rate. Only admin and provider sockets act on it — a
+  /// customer has no finance access at all.
+  static const financeUpdated = 'finance:updated';
 }
 
 /// What the socket layer does with an event, without knowing how.
@@ -70,4 +77,8 @@ abstract class RealtimeEventHandler {
   /// A provider's fuel inventory changed. Received by every signed-in
   /// client, including customers browsing discovery.
   void onProviderFuelUpdated(Map<String, dynamic> payload);
+
+  /// A provider's commission/settlement ledger changed. Received by every
+  /// signed-in client; only the admin and provider handlers act on it.
+  void onFinanceUpdated(Map<String, dynamic> payload);
 }

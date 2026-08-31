@@ -61,6 +61,16 @@ enum NotificationType {
   PROVIDER_REJECTED
 }
 
+// PENDING: the provider has earned this money but the platform/provider
+// settlement is not yet reconciled. SETTLED: an admin has marked it paid /
+// accounted for. Deliberately no CANCELLED/VOID — Booking has no
+// COMPLETED -> anything edge (see shared/bookingTransitions.js), so a
+// settled-or-pending FinancialTransaction never needs to be reversed.
+enum SettlementStatus {
+  PENDING
+  SETTLED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -81,6 +91,8 @@ model User {
   notifications        Notification[]
   fuelInventoryUpdates ProviderFuelInventory[] @relation("FuelInventoryUpdatedBy")
   fuelHistoryChanges   FuelInventoryHistory[]  @relation("FuelHistoryChangedBy")
+  commissionUpdates    Provider[]              @relation("ProviderCommissionUpdatedBy")
+  settledTransactions  FinancialTransaction[]  @relation("FinanceSettledBy")
 
   @@index([role])
   @@index([createdAt])
@@ -102,16 +114,29 @@ model Provider {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  user           User                    @relation(fields: [userId], references: [id])
-  approvedBy     User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  services       ProviderService[]
-  reviews        Review[]
-  complaints     Complaint[]
-  queueEntries   QueueEntry[]
-  notifications  Notification[]
-  operatingHours ProviderOperatingHour[]
-  fuelInventory  ProviderFuelInventory[]
-  fuelHistory    FuelInventoryHistory[]
+  // Platform commission percentage applied to this provider's COMPLETED
+  // bookings — e.g. 10.00 = 10%. Defaulted to 10.00 for every existing and
+  // new provider (see the Phase D migration note). Read by
+  // finance.service.js at the moment a booking completes and snapshotted
+  // onto the resulting FinancialTransaction — changing this value here
+  // only ever affects transactions created *after* the change; every
+  // existing FinancialTransaction keeps the rate it was created with.
+  commissionRate             Decimal  @default(10.00) @db.Decimal(5, 2)
+  commissionUpdatedAt        DateTime?
+  commissionUpdatedByAdminId Int?
+
+  user                    User                    @relation(fields: [userId], references: [id])
+  approvedBy              User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  commissionUpdatedByAdmin User?                  @relation("ProviderCommissionUpdatedBy", fields: [commissionUpdatedByAdminId], references: [id], onDelete: SetNull)
+  services                ProviderService[]
+  reviews                 Review[]
+  complaints              Complaint[]
+  queueEntries            QueueEntry[]
+  notifications           Notification[]
+  operatingHours          ProviderOperatingHour[]
+  fuelInventory           ProviderFuelInventory[]
+  fuelHistory             FuelInventoryHistory[]
+  financialTransactions   FinancialTransaction[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
@@ -198,11 +223,12 @@ model Booking {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  customer        User            @relation(fields: [customerId], references: [id])
-  providerService ProviderService @relation(fields: [providerServiceId], references: [id])
-  review          Review?
-  queueEntry      QueueEntry?
-  notifications   Notification[]
+  customer            User                   @relation(fields: [customerId], references: [id])
+  providerService     ProviderService        @relation(fields: [providerServiceId], references: [id])
+  review              Review?
+  queueEntry          QueueEntry?
+  notifications       Notification[]
+  financialTransaction FinancialTransaction?
 
   @@index([customerId, scheduledAt])
   @@index([providerServiceId, scheduledAt])
@@ -381,4 +407,48 @@ model FuelInventoryHistory {
 
   @@index([inventoryId, createdAt])
   @@index([providerId, fuelType, createdAt])
+}
+
+// Phase D — the internal Provider <-> Admin/Platform accounting ledger.
+//
+// One immutable row per COMPLETED booking (see finance.service.js's
+// createTransactionForCompletedBooking, called atomically from
+// booking.service.js's updateBookingStatus when a booking reaches
+// COMPLETED — never for any other status). Every money field is a
+// snapshot taken at that moment: grossAmount comes from
+// Booking.priceAtBooking (itself already immutable at booking-creation
+// time) and commissionRate/commissionAmount/providerNetAmount are derived
+// from Provider.commissionRate as it stood *at completion time*. A later
+// change to Provider.commissionRate never rewrites any existing row here
+// — see the Phase D report's "commission configuration" section.
+//
+// Finance begins from the migration that introduced this table forward
+// only. Bookings that were already COMPLETED before this feature existed
+// have no historical commissionRate to snapshot honestly, so no row is
+// backfilled for them — see the Phase D report's "existing-booking
+// strategy" section for the full reasoning.
+model FinancialTransaction {
+  id         Int      @id @default(autoincrement())
+  bookingId  Int      @unique
+  providerId Int
+
+  grossAmount       Decimal @db.Decimal(10, 2)
+  commissionRate    Decimal @db.Decimal(5, 2)
+  commissionAmount  Decimal @db.Decimal(10, 2)
+  providerNetAmount Decimal @db.Decimal(10, 2)
+
+  settlementStatus SettlementStatus @default(PENDING)
+  settledAt        DateTime?
+  settledByAdminId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+  provider       Provider @relation(fields: [providerId], references: [id])
+  settledByAdmin User?    @relation("FinanceSettledBy", fields: [settledByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, settlementStatus])
+  @@index([providerId, createdAt])
+  @@index([settlementStatus])
 }

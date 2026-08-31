@@ -2273,8 +2273,68 @@ abstract class AppLocalizations {
   /// No description provided for @pAnalyticsNoRevenue.
   ///
   /// In en, this message translates to:
-  /// **'Revenue isn\'t reported — nothing in the database tracks it.'**
+  /// **'Revenue is tracked separately — see Finance for real commission and earnings figures.'**
   String get pAnalyticsNoRevenue;
+
+  /// No description provided for @pFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Earnings'**
+  String get pFinanceTitle;
+
+  /// No description provided for @pFinanceCommissionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform commission'**
+  String get pFinanceCommissionLabel;
+
+  /// No description provided for @pFinanceCommissionPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fees'**
+  String get pFinanceCommissionPaid;
+
+  /// No description provided for @pFinanceNetEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Earnings'**
+  String get pFinanceNetEarnings;
+
+  /// No description provided for @pFinancePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pFinancePending;
+
+  /// No description provided for @pFinanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get pFinanceSettled;
+
+  /// No description provided for @pFinanceTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Earnings Over Time'**
+  String get pFinanceTrend;
+
+  /// No description provided for @pFinanceTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction History'**
+  String get pFinanceTransactions;
+
+  /// No description provided for @pFinanceNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No earnings yet'**
+  String get pFinanceNoTransactions;
+
+  /// No description provided for @pFinanceReadOnlyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Set by the platform admin. You cannot edit this — changes only ever apply to future completed bookings.'**
+  String get pFinanceReadOnlyNote;
 
   /// No description provided for @pMoreTitle.
   ///
@@ -2305,6 +2365,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Analytics'**
   String get pMoreAnalytics;
+
+  /// No description provided for @pMoreFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get pMoreFinance;
 
   /// No description provided for @pMoreAccount.
   ///
@@ -2816,6 +2882,180 @@ abstract class AppLocalizations {
   /// **'Price must not be negative'**
   String get aFuelPriceInvalid;
 
+  /// No description provided for @financeGross.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross'**
+  String get financeGross;
+
+  /// No description provided for @financeCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission'**
+  String get financeCommission;
+
+  /// No description provided for @financeNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get financeNet;
+
+  /// No description provided for @financeCommissionRateField.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate'**
+  String get financeCommissionRateField;
+
+  /// No description provided for @financeStatusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get financeStatusAll;
+
+  /// No description provided for @financeStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get financeStatusPending;
+
+  /// No description provided for @financeStatusSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get financeStatusSettled;
+
+  /// No description provided for @financeTrendEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed bookings recorded in this range yet.'**
+  String get financeTrendEmpty;
+
+  /// No description provided for @financeTrendSinglePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'More history will appear as bookings complete.'**
+  String get financeTrendSinglePoint;
+
+  /// No description provided for @financeUnknownService.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking'**
+  String get financeUnknownService;
+
+  /// No description provided for @commonCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get commonCreated;
+
+  /// No description provided for @aFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get aFinanceTitle;
+
+  /// No description provided for @aFinanceCommissionRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Revenue'**
+  String get aFinanceCommissionRevenue;
+
+  /// No description provided for @aFinanceProviderNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Net'**
+  String get aFinanceProviderNet;
+
+  /// No description provided for @aFinancePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Settlement'**
+  String get aFinancePending;
+
+  /// No description provided for @aFinanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get aFinanceSettled;
+
+  /// No description provided for @aFinanceTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get aFinanceTransactionCount;
+
+  /// No description provided for @aFinanceTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue Over Time'**
+  String get aFinanceTrend;
+
+  /// No description provided for @aFinanceTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get aFinanceTransactions;
+
+  /// No description provided for @aFinanceProviderFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get aFinanceProviderFilter;
+
+  /// No description provided for @aFinanceAllProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'All providers'**
+  String get aFinanceAllProviders;
+
+  /// No description provided for @aFinanceNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match this filter yet.'**
+  String get aFinanceNoTransactions;
+
+  /// No description provided for @aFinanceMarkSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Settled'**
+  String get aFinanceMarkSettled;
+
+  /// No description provided for @aFinanceSettleSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction marked as settled'**
+  String get aFinanceSettleSuccess;
+
+  /// No description provided for @aFinanceSettledAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get aFinanceSettledAt;
+
+  /// No description provided for @aFinanceCommissionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage commission'**
+  String get aFinanceCommissionEdit;
+
+  /// No description provided for @aFinanceCommissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform commission'**
+  String get aFinanceCommissionTitle;
+
+  /// No description provided for @aFinanceCommissionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate must be between 0 and 100'**
+  String get aFinanceCommissionInvalid;
+
+  /// No description provided for @aFinanceCommissionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate updated'**
+  String get aFinanceCommissionSaved;
+
   /// No description provided for @aProvidersApproveTitle.
   ///
   /// In en, this message translates to:
@@ -3236,6 +3476,12 @@ abstract class AppLocalizations {
   /// **'Analytics'**
   String get aMoreAnalytics;
 
+  /// No description provided for @aMoreFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get aMoreFinance;
+
   /// No description provided for @aMoreAccount.
   ///
   /// In en, this message translates to:
@@ -3257,7 +3503,7 @@ abstract class AppLocalizations {
   /// No description provided for @aMoreNoPlatformSettings.
   ///
   /// In en, this message translates to:
-  /// **'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.'**
+  /// **'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.'**
   String get aMoreNoPlatformSettings;
 
   /// No description provided for @aMoreNoPassword.

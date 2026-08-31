@@ -110,6 +110,16 @@ async function updateStatus(req, res, next) {
       );
     }
 
+    // A COMPLETED transition atomically created (or found — idempotent)
+    // this booking's FinancialTransaction inside booking.service.js, so by
+    // the time this response has already been sent, the ledger row is
+    // already committed — safe to announce it now.
+    if (booking.status === 'COMPLETED' && booking.providerService?.provider?.id != null) {
+      await safely(() =>
+        socketEvents.notifyFinanceUpdated({ providerId: booking.providerService.provider.id }),
+      );
+    }
+
     const notification = bookingStatusNotification(
       {
         id: booking.id,

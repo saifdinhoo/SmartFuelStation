@@ -1048,3 +1048,289 @@ class QueueSummary {
     estimatedWaitMinutes: asInt(json['estimatedWaitMinutes']),
   );
 }
+
+// ---------------------------------------------------------------------------
+// Finance / commission ledger (Phase D)
+// ---------------------------------------------------------------------------
+//
+// Every money field below is a real Prisma Decimal computed server-side from
+// completed bookings — there is no client-side arithmetic on money anywhere
+// in this app, only formatting.
+
+/// One point of GET .../finance/summary's `trend` array — real recorded
+/// figures for one day in the requested window, never interpolated.
+class FinanceTrendPoint {
+  const FinanceTrendPoint({
+    required this.label,
+    required this.gross,
+    required this.commission,
+    required this.net,
+  });
+
+  /// "YYYY-MM-DD".
+  final String label;
+  final double gross;
+  final double commission;
+  final double net;
+
+  factory FinanceTrendPoint.fromJson(Map<String, dynamic> json) =>
+      FinanceTrendPoint(
+        label: asString(json['label']),
+        gross: asDouble(json['gross']),
+        commission: asDouble(json['commission']),
+        net: asDouble(json['net']),
+      );
+}
+
+/// One flexible shape covering all three summary endpoints
+/// (GET /admin/finance/summary, GET /admin/finance/providers/:id,
+/// GET /providers/me/finance/summary) rather than three near-identical
+/// classes: [transactionCount] is set only by the platform-wide admin
+/// summary, and [providerId]/[commissionRate] only when the summary is
+/// scoped to one provider ([providerName] additionally only on the admin
+/// side, since a provider's own summary already knows who it is). Every
+/// other field — including [trend] — is shared by all three.
+///
+/// Every total except [trend] is all-time; only [trend] is windowed by
+/// [range].
+class FinanceSummary {
+  const FinanceSummary({
+    required this.range,
+    required this.grossServiceValue,
+    required this.platformCommissionRevenue,
+    required this.providerNetEarnings,
+    required this.pendingSettlementAmount,
+    required this.settledAmount,
+    required this.trend,
+    this.transactionCount,
+    this.providerId,
+    this.providerName,
+    this.commissionRate,
+  });
+
+  final String range;
+  final double grossServiceValue;
+  final double platformCommissionRevenue;
+  final double providerNetEarnings;
+  final double pendingSettlementAmount;
+  final double settledAmount;
+  final List<FinanceTrendPoint> trend;
+
+  /// Platform-wide admin summary only.
+  final int? transactionCount;
+
+  /// Set when this summary is scoped to one provider.
+  final int? providerId;
+
+  /// Admin per-provider summary only.
+  final String? providerName;
+  final double? commissionRate;
+
+  factory FinanceSummary.fromJson(Map<String, dynamic> json) =>
+      FinanceSummary(
+        range: asString(json['range'], fallback: '30d'),
+        grossServiceValue: asDouble(json['grossServiceValue']),
+        platformCommissionRevenue: asDouble(json['platformCommissionRevenue']),
+        providerNetEarnings: asDouble(json['providerNetEarnings']),
+        pendingSettlementAmount: asDouble(json['pendingSettlementAmount']),
+        settledAmount: asDouble(json['settledAmount']),
+        trend: asMapList(
+          json['trend'],
+        ).map(FinanceTrendPoint.fromJson).toList(),
+        transactionCount: asIntOrNull(json['transactionCount']),
+        providerId: asIntOrNull(json['providerId']),
+        providerName: asStringOrNull(json['providerName']),
+        commissionRate: asDoubleOrNull(json['commissionRate']),
+      );
+}
+
+enum SettlementStatusModel {
+  pending,
+  settled;
+
+  static SettlementStatusModel fromApi(String? value) => switch (value) {
+    'SETTLED' => settled,
+    _ => pending,
+  };
+
+  String get api => switch (this) {
+    pending => 'PENDING',
+    settled => 'SETTLED',
+  };
+}
+
+/// The linked booking, trimmed to what a transaction row displays — never
+/// the full [Booking] graph, which this payload does not carry.
+class FinanceBookingRef {
+  const FinanceBookingRef({
+    required this.id,
+    required this.status,
+    required this.scheduledAt,
+    required this.serviceName,
+  });
+
+  final int id;
+  final BookingStatus status;
+  final DateTime scheduledAt;
+  final String serviceName;
+
+  factory FinanceBookingRef.fromJson(Map<String, dynamic> json) =>
+      FinanceBookingRef(
+        id: asInt(json['id']),
+        status: BookingStatus.fromApi(asStringOrNull(json['status'])),
+        scheduledAt: asDate(json['scheduledAt']),
+        serviceName: asString(json['serviceName']),
+      );
+}
+
+/// Provider-safe shape from GET /providers/me/finance/transactions. Never
+/// carries providerId/providerName (a provider's own list already implies
+/// whose it is) or settledByAdminId/settledByAdminName — a provider must
+/// never see internal admin identity. See [AdminFinanceTransaction] for the
+/// admin shape, exactly the split [FuelInventoryItem]/[AdminFuelInventoryItem]
+/// already draw.
+class FinanceTransaction {
+  const FinanceTransaction({
+    required this.id,
+    required this.bookingId,
+    required this.grossAmount,
+    required this.commissionRate,
+    required this.commissionAmount,
+    required this.providerNetAmount,
+    required this.settlementStatus,
+    required this.createdAt,
+    this.settledAt,
+    this.updatedAt,
+    this.booking,
+  });
+
+  final int id;
+  final int bookingId;
+  final double grossAmount;
+  final double commissionRate;
+  final double commissionAmount;
+  final double providerNetAmount;
+  final SettlementStatusModel settlementStatus;
+  final DateTime? settledAt;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final FinanceBookingRef? booking;
+
+  factory FinanceTransaction.fromJson(Map<String, dynamic> json) {
+    final booking = asMapOrNull(json['booking']);
+    return FinanceTransaction(
+      id: asInt(json['id']),
+      bookingId: asInt(json['bookingId']),
+      grossAmount: asDouble(json['grossAmount']),
+      commissionRate: asDouble(json['commissionRate']),
+      commissionAmount: asDouble(json['commissionAmount']),
+      providerNetAmount: asDouble(json['providerNetAmount']),
+      settlementStatus: SettlementStatusModel.fromApi(
+        asStringOrNull(json['settlementStatus']),
+      ),
+      settledAt: asDateOrNull(json['settledAt']),
+      createdAt: asDate(json['createdAt']),
+      updatedAt: asDateOrNull(json['updatedAt']),
+      booking: booking == null ? null : FinanceBookingRef.fromJson(booking),
+    );
+  }
+}
+
+/// Admin-only shape from GET /admin/finance/transactions and the settlement
+/// PATCH response — the same fields plus which business it belongs to and
+/// who settled it, if anyone yet.
+class AdminFinanceTransaction extends FinanceTransaction {
+  const AdminFinanceTransaction({
+    required super.id,
+    required super.bookingId,
+    required super.grossAmount,
+    required super.commissionRate,
+    required super.commissionAmount,
+    required super.providerNetAmount,
+    required super.settlementStatus,
+    required super.createdAt,
+    required this.providerId,
+    required this.providerName,
+    super.settledAt,
+    super.updatedAt,
+    super.booking,
+    this.settledByAdminId,
+    this.settledByAdminName,
+  });
+
+  final int providerId;
+  final String providerName;
+  final int? settledByAdminId;
+  final String? settledByAdminName;
+
+  factory AdminFinanceTransaction.fromJson(Map<String, dynamic> json) {
+    final booking = asMapOrNull(json['booking']);
+    return AdminFinanceTransaction(
+      id: asInt(json['id']),
+      bookingId: asInt(json['bookingId']),
+      providerId: asInt(json['providerId']),
+      providerName: asString(json['providerName']),
+      grossAmount: asDouble(json['grossAmount']),
+      commissionRate: asDouble(json['commissionRate']),
+      commissionAmount: asDouble(json['commissionAmount']),
+      providerNetAmount: asDouble(json['providerNetAmount']),
+      settlementStatus: SettlementStatusModel.fromApi(
+        asStringOrNull(json['settlementStatus']),
+      ),
+      settledAt: asDateOrNull(json['settledAt']),
+      settledByAdminId: asIntOrNull(json['settledByAdminId']),
+      settledByAdminName: asStringOrNull(json['settledByAdminName']),
+      createdAt: asDate(json['createdAt']),
+      updatedAt: asDateOrNull(json['updatedAt']),
+      booking: booking == null ? null : FinanceBookingRef.fromJson(booking),
+    );
+  }
+}
+
+/// GET /admin/finance/providers/:id — a [FinanceSummary] scoped to one
+/// provider, plus that provider's complete (all-time) transaction list.
+/// Kept as a thin wrapper rather than folding `transactions` into
+/// [FinanceSummary] itself, since neither the platform-wide nor the
+/// provider's-own summary endpoint carries a transaction list at all.
+class AdminProviderFinance {
+  const AdminProviderFinance({
+    required this.summary,
+    required this.transactions,
+  });
+
+  final FinanceSummary summary;
+  final List<AdminFinanceTransaction> transactions;
+
+  factory AdminProviderFinance.fromJson(Map<String, dynamic> json) =>
+      AdminProviderFinance(
+        summary: FinanceSummary.fromJson(json),
+        transactions: asMapList(
+          json['transactions'],
+        ).map(AdminFinanceTransaction.fromJson).toList(),
+      );
+}
+
+/// GET/PUT .../commission. The same shape for both the admin's read/write
+/// endpoints and the provider's read-only one — none of them ever return
+/// who last changed it by name, only by id.
+class ProviderCommission {
+  const ProviderCommission({
+    required this.providerId,
+    required this.commissionRate,
+    this.updatedAt,
+    this.updatedByAdminId,
+  });
+
+  final int providerId;
+  final double commissionRate;
+  final DateTime? updatedAt;
+  final int? updatedByAdminId;
+
+  factory ProviderCommission.fromJson(Map<String, dynamic> json) =>
+      ProviderCommission(
+        providerId: asInt(json['providerId']),
+        commissionRate: asDouble(json['commissionRate']),
+        updatedAt: asDateOrNull(json['updatedAt']),
+        updatedByAdminId: asIntOrNull(json['updatedByAdminId']),
+      );
+}

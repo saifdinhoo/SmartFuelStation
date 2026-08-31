@@ -189,4 +189,8 @@ class CustomerRealtimeHandler implements RealtimeEventHandler {
     _cache.invalidatePrefix(CacheKeys.fuelHistoryPrefix(providerId));
     appliedEvents++;
   }
+
+  /// A customer has no finance access at all — no-op.
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {}
 }

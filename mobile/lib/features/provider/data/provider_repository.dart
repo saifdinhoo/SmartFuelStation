@@ -25,6 +25,14 @@ class ProviderKeys {
 
   static String reviews(int providerId) => 'provider/$providerId/reviews';
   static String analyticsFor(String range) => 'provider/me/analytics/$range';
+
+  // --- finance (Phase D, read-only — see AdminRepository for writes) ------
+  static const financeSummary = 'provider/me/finance/summary';
+  static const financeTransactions = 'provider/me/finance/transactions';
+  static const commission = 'provider/me/commission';
+
+  static String financeSummaryFor(String range) =>
+      'provider/me/finance/summary/$range';
 }
 
 /// Everything the provider area reads and writes.
@@ -319,5 +327,62 @@ class ProviderRepository {
             await _api.get('/providers/me/analytics', query: {'range': range})
                 as Map;
         return ProviderAnalytics.fromJson(Map<String, dynamic>.from(json));
+      });
+
+  // --- finance / commission (Phase D, read-only) ---------------------------
+  //
+  // Identity is always resolved server-side from the JWT on every route
+  // below — there is deliberately no providerId parameter anywhere in this
+  // section, so a provider can never address another business's ledger even
+  // by mistake. Nothing here writes: only /admin/providers/:id/commission
+  // may set a rate, and only /admin/finance/transactions/:id/settlement may
+  // settle a transaction, both enforced server-side.
+
+  Future<FinanceSummary> _loadFinanceSummary(String range) async {
+    final json =
+        await _api.get('/providers/me/finance/summary', query: {'range': range})
+            as Map;
+    return FinanceSummary.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<FinanceSummary> watchFinanceSummary(String range) => _cache.watch(
+    ProviderKeys.financeSummaryFor(range),
+    () => _loadFinanceSummary(range),
+  );
+
+  Future<FinanceSummary> refreshFinanceSummary(String range) => _cache.refresh(
+    ProviderKeys.financeSummaryFor(range),
+    () => _loadFinanceSummary(range),
+  );
+
+  AsyncValue<List<FinanceTransaction>> watchFinanceTransactions() =>
+      _cache.watch(ProviderKeys.financeTransactions, () async {
+        final raw =
+            await _api.get('/providers/me/finance/transactions')
+                as List<dynamic>;
+        return raw
+            .whereType<Map>()
+            .map((j) => FinanceTransaction.fromJson(Map<String, dynamic>.from(j)))
+            .toList();
+      });
+
+  Future<List<FinanceTransaction>> refreshFinanceTransactions() =>
+      _cache.refresh(ProviderKeys.financeTransactions, () async {
+        final raw =
+            await _api.get('/providers/me/finance/transactions')
+                as List<dynamic>;
+        return raw
+            .whereType<Map>()
+            .map((j) => FinanceTransaction.fromJson(Map<String, dynamic>.from(j)))
+            .toList();
+      });
+
+  /// GET /providers/me/commission. Read-only: there is deliberately no write
+  /// method here — a provider cannot edit its own commission rate, only an
+  /// Admin can (see [AdminRepository.setCommission]).
+  AsyncValue<ProviderCommission> watchCommission() =>
+      _cache.watch(ProviderKeys.commission, () async {
+        final json = await _api.get('/providers/me/commission') as Map;
+        return ProviderCommission.fromJson(Map<String, dynamic>.from(json));
       });
 }

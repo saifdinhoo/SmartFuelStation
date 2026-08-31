@@ -5,6 +5,7 @@ const analyticsService = require('../services/providerAnalytics.service');
 const hoursService = require('../services/providerHours.service');
 const availabilityService = require('../services/availability.service');
 const fuelService = require('../services/fuelInventory.service');
+const financeService = require('../services/finance.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
 
@@ -263,6 +264,39 @@ async function getFuelHistory(req, res, next) {
   }
 }
 
+// --- finance (read-only — Phase D) ------------------------------------------
+// Every handler resolves the provider from req.user.userId inside the
+// service layer (financeService.*'s requireOwnProvider), so none of these
+// accept a provider id from the client — a provider can never address
+// another business's ledger.
+
+async function myFinanceSummary(req, res, next) {
+  try {
+    const summary = await financeService.getOwnSummary(req.user.userId, req.query.range);
+    res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function myFinanceTransactions(req, res, next) {
+  try {
+    const transactions = await financeService.listOwnTransactions(req.user.userId);
+    res.json({ success: true, data: transactions });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function myCommission(req, res, next) {
+  try {
+    const commission = await financeService.getOwnCommission(req.user.userId);
+    res.json({ success: true, data: commission });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   approve,
@@ -282,4 +316,7 @@ module.exports = {
   getMyFuel,
   getFuel,
   getFuelHistory,
+  myFinanceSummary,
+  myFinanceTransactions,
+  myCommission,
 };

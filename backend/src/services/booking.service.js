@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const financeService = require('./finance.service');
 const { ACTIVE_STATUSES, ALL_STATUSES, TRANSITIONS } = require('./shared/bookingTransitions');
 const {
   parseTimeOnly,
@@ -229,6 +230,14 @@ async function getBookingById(idParam, requestingUser) {
 // a queue mutation and the booking-status sync it triggers commit or roll
 // back together (see the Queue audit — booking sync must never "silently
 // create an impossible Booking state").
+//
+// A transition to COMPLETED must additionally create the booking's
+// FinancialTransaction atomically with the status flip (Phase D) — if the
+// caller already opened a transaction (tx !== prisma, e.g. queue.service.js
+// syncing a queue completion), the work below simply runs inside it; if
+// not, one is opened here so the status update and the ledger row commit
+// or roll back together either way. Every other transition is a single
+// statement and gains nothing from the wrapper but harmless consistency.
 async function updateBookingStatus(idParam, nextStatus, requestingUser, tx = prisma) {
   const id = toId(idParam, 'booking id');
 
@@ -236,24 +245,35 @@ async function updateBookingStatus(idParam, nextStatus, requestingUser, tx = pri
     throw badRequest('status is not a recognized booking status');
   }
 
-  const booking = await tx.booking.findUnique({ where: { id }, include: WITH_DETAILS });
-  if (!booking) throw notFound('Booking not found');
+  async function run(client) {
+    const booking = await client.booking.findUnique({ where: { id }, include: WITH_DETAILS });
+    if (!booking) throw notFound('Booking not found');
 
-  await assertBookingAccess(booking, requestingUser);
+    await assertBookingAccess(booking, requestingUser);
 
-  const edge = TRANSITIONS[booking.status]?.[nextStatus];
-  if (!edge) {
-    throw badRequest(`Cannot move a booking from ${booking.status} to ${nextStatus}`);
+    const edge = TRANSITIONS[booking.status]?.[nextStatus];
+    if (!edge) {
+      throw badRequest(`Cannot move a booking from ${booking.status} to ${nextStatus}`);
+    }
+    if (!edge.roles.includes(requestingUser.role)) {
+      throw forbidden(`Your role cannot move a booking from ${booking.status} to ${nextStatus}`);
+    }
+
+    const data = { status: nextStatus };
+    if (edge.sets === 'cancelledAt') data.cancelledAt = new Date();
+    if (edge.sets === 'completedAt') data.completedAt = new Date();
+
+    const updated = await client.booking.update({ where: { id }, data, include: WITH_DETAILS });
+
+    if (nextStatus === 'COMPLETED') {
+      await financeService.createTransactionForCompletedBooking(updated, client);
+    }
+
+    return updated;
   }
-  if (!edge.roles.includes(requestingUser.role)) {
-    throw forbidden(`Your role cannot move a booking from ${booking.status} to ${nextStatus}`);
-  }
 
-  const data = { status: nextStatus };
-  if (edge.sets === 'cancelledAt') data.cancelledAt = new Date();
-  if (edge.sets === 'completedAt') data.completedAt = new Date();
-
-  return tx.booking.update({ where: { id }, data, include: WITH_DETAILS });
+  if (tx !== prisma) return run(tx);
+  return prisma.$transaction((txClient) => run(txClient));
 }
 
 async function deleteBooking(idParam, requestingUser) {

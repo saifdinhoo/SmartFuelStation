@@ -101,6 +101,12 @@ class ProviderMoreScreen extends StatelessWidget {
                   label: l10n.pMoreAnalytics,
                   onTap: () => context.push(Routes.providerAnalytics),
                 ),
+                const Divider(height: 1),
+                _NavTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: l10n.pMoreFinance,
+                  onTap: () => context.push(Routes.providerFinance),
+                ),
               ],
             ),
           ),

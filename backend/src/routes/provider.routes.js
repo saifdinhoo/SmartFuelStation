@@ -16,6 +16,17 @@ router.put('/me/hours', authenticate, authorize('PROVIDER'), providerController.
 // Read-only — there is deliberately no PATCH/PUT for a provider's own fuel
 // inventory anywhere in this file. Only /admin/providers/:id/fuel writes it.
 router.get('/me/fuel', authenticate, authorize('PROVIDER'), providerController.getMyFuel);
+// Read-only — there is deliberately no PATCH/PUT for finance or commission
+// anywhere in this file. Only /admin/finance/* and
+// /admin/providers/:id/commission may write those (Phase D).
+router.get('/me/finance/summary', authenticate, authorize('PROVIDER'), providerController.myFinanceSummary);
+router.get(
+  '/me/finance/transactions',
+  authenticate,
+  authorize('PROVIDER'),
+  providerController.myFinanceTransactions,
+);
+router.get('/me/commission', authenticate, authorize('PROVIDER'), providerController.myCommission);
 router.post('/me/services', authenticate, authorize('PROVIDER'), providerController.createMyService);
 router.patch(
   '/me/services/:serviceId',

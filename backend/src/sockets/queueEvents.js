@@ -143,6 +143,20 @@ function notifyProviderFuelUpdated({ providerId }) {
   io.emit('provider:fuel_updated', { providerId });
 }
 
+// A booking completed (creating/finding its FinancialTransaction), a
+// settlement status changed, or a provider's commission rate changed.
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderFuelUpdated: the payload is strictly less than what the
+// finance endpoints already return to any authenticated, authorized
+// caller — just the provider id, never a money figure or the acting
+// admin's identity (see the Phase D report's "Socket.IO behavior"
+// section).
+function notifyFinanceUpdated({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('finance:updated', { providerId });
+}
+
 module.exports = {
   broadcastProviderQueueUpdate,
   notifyCustomerEntry,
@@ -151,4 +165,5 @@ module.exports = {
   notifyProviderStatusChanged,
   notifyProviderAvailabilityChanged,
   notifyProviderFuelUpdated,
+  notifyFinanceUpdated,
 };

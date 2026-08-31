@@ -102,6 +102,51 @@ describe('getAnalytics', () => {
     const { providerCategories } = await admin.getAnalytics('7d');
     expect(providerCategories).toEqual([{ category: 'Oil', count: 2 }]);
   });
+
+  describe('day-bucketing (timezone regression)', () => {
+    // A live Phase D verification found the same bug in
+    // finance.service.js's day-bucketing: a local-time window boundary
+    // combined with UTC-sliced bucket keys silently dropped "today"'s rows
+    // on a server whose local timezone runs ahead of UTC (e.g. UTC+3).
+    // This service used the exact same pattern for bookingTrend and
+    // userGrowth — fixed the same way (UTC throughout, inclusive of today).
+
+    it("a booking scheduled right now lands in today's bookingTrend bucket", async () => {
+      prisma.booking.findMany.mockResolvedValue([
+        {
+          status: 'PENDING',
+          scheduledAt: new Date(),
+          providerService: { name: 'A', category: { name: 'C' }, provider: { id: 1, businessName: 'P' } },
+        },
+      ]);
+      const { bookingTrend } = await admin.getAnalytics('7d');
+      expect(bookingTrend[bookingTrend.length - 1].bookings).toBe(1);
+    });
+
+    it("a signup right now lands in today's userGrowth bucket", async () => {
+      prisma.user.findMany.mockResolvedValue([{ role: 'CUSTOMER', createdAt: new Date() }]);
+      const { userGrowth } = await admin.getAnalytics('7d');
+      expect(userGrowth[userGrowth.length - 1].customers).toBe(1);
+    });
+
+    it('bookingTrend and userGrowth both always include today as their last bucket', async () => {
+      const { bookingTrend, userGrowth } = await admin.getAnalytics('7d');
+      const todayKey = new Date().toISOString().slice(0, 10);
+      expect(bookingTrend[bookingTrend.length - 1].label).toBe(todayKey);
+      expect(userGrowth[userGrowth.length - 1].label).toBe(todayKey);
+    });
+
+    it('no off-by-one: exactly `days` distinct labels, each one calendar day apart', async () => {
+      const { bookingTrend } = await admin.getAnalytics('30d');
+      expect(bookingTrend).toHaveLength(30);
+      expect(new Set(bookingTrend.map((p) => p.label)).size).toBe(30);
+      for (let i = 1; i < bookingTrend.length; i += 1) {
+        const prev = new Date(`${bookingTrend[i - 1].label}T00:00:00.000Z`);
+        const curr = new Date(`${bookingTrend[i].label}T00:00:00.000Z`);
+        expect(curr.getTime() - prev.getTime()).toBe(24 * 60 * 60 * 1000);
+      }
+    });
+  });
 });
 
 describe('listUsers', () => {

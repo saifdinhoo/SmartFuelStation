@@ -8,6 +8,7 @@ import '../features/admin/bookings/admin_booking_details_screen.dart';
 import '../features/admin/bookings/admin_bookings_screen.dart';
 import '../features/admin/categories/admin_categories_screen.dart';
 import '../features/admin/complaints/admin_complaints_screen.dart';
+import '../features/admin/finance/admin_finance_screen.dart';
 import '../features/admin/more/admin_more_screen.dart';
 import '../features/admin/overview/admin_overview_screen.dart';
 import '../features/admin/fuel/admin_fuel_screen.dart';
@@ -32,6 +33,7 @@ import '../features/notifications/screens/notifications_screen.dart';
 import '../features/provider/analytics/provider_analytics_screen.dart';
 import '../features/provider/bookings/provider_booking_details_screen.dart';
 import '../features/provider/bookings/provider_bookings_screen.dart';
+import '../features/provider/finance/provider_finance_screen.dart';
 import '../features/provider/livestatus/live_status_screen.dart';
 import '../features/provider/more/provider_more_screen.dart';
 import '../features/provider/overview/provider_overview_screen.dart';
@@ -61,6 +63,7 @@ class Routes {
   static const adminCategories = '/admin/categories';
   static const adminReviews = '/admin/reviews';
   static const adminAnalytics = '/admin/analytics';
+  static const adminFinance = '/admin/finance';
 
   static String adminUserDetails(int id) => '/admin/users/$id';
   static String adminProviderDetails(int id) => '/admin/providers/$id';
@@ -88,6 +91,7 @@ class Routes {
   static const providerLiveStatus = '/provider/live-status';
   static const providerReviews = '/provider/reviews';
   static const providerAnalytics = '/provider/analytics';
+  static const providerFinance = '/provider/finance';
   static const providerNotifications = '/provider/notifications';
 
   static String providerBookingDetails(int id) => '/provider/bookings/$id';
@@ -241,6 +245,10 @@ GoRouter createRouter(AuthState auth) {
         builder: (_, _) => const ProviderAnalyticsScreen(),
       ),
       GoRoute(
+        path: Routes.providerFinance,
+        builder: (_, _) => const ProviderFinanceScreen(),
+      ),
+      GoRoute(
         path: Routes.providerNotifications,
         builder: (_, _) => const NotificationsScreen(),
       ),
@@ -312,6 +320,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: Routes.adminAnalytics,
         builder: (_, _) => const AdminAnalyticsScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminFinance,
+        builder: (_, _) => const AdminFinanceScreen(),
       ),
       GoRoute(
         path: Routes.adminNotifications,

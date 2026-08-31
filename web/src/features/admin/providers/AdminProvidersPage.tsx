@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Building2, CheckCircle2, MapPin, Star, XCircle } from 'lucide-react';
+import { Building2, CheckCircle2, MapPin, Percent, Star, XCircle } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { buildViewLocationUrl, openExternalUrl } from '@/utils/location';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -12,6 +12,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { CommissionEditModal } from '@/features/admin/finance/CommissionEditModal';
+import {
+  useProviderCommission,
+  useUpdateProviderCommission,
+} from '@/features/admin/finance/useAdminFinance';
 import { useProviderApprovals } from './useProviderApprovals';
 import type { AdminProvider } from './types';
 
@@ -39,6 +44,9 @@ export function AdminProvidersPage() {
   const [approvalFilter, setApprovalFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [action, setAction] = useState<PendingAction>(null);
+  const [commissionTarget, setCommissionTarget] = useState<AdminProvider | null>(null);
+  const { commission: targetCommission } = useProviderCommission(commissionTarget?.id);
+  const { save: saveCommission, isSaving: isSavingCommission } = useUpdateProviderCommission();
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -191,6 +199,14 @@ export function AdminProvidersPage() {
                           </Button>
                         );
                       })()}
+                      <Button
+                        variant="ghost"
+                        className="h-8 px-3 text-xs"
+                        onClick={() => setCommissionTarget(p)}
+                      >
+                        <Percent className="h-3.5 w-3.5" />
+                        Manage commission
+                      </Button>
                       {p.isApproved ? (
                         <Button
                           variant="destructive"
@@ -242,6 +258,20 @@ export function AdminProvidersPage() {
         danger={!action?.approve}
         isLoading={isMutating}
       />
+
+      {commissionTarget && (
+        <CommissionEditModal
+          open={commissionTarget !== null}
+          onClose={() => setCommissionTarget(null)}
+          providerName={commissionTarget.businessName}
+          currentRate={targetCommission?.commissionRate}
+          onSubmit={async (values) => {
+            if (!commissionTarget) return;
+            await saveCommission(commissionTarget.id, values.commissionRate);
+          }}
+          isSaving={isSavingCommission}
+        />
+      )}
     </div>
   );
 }

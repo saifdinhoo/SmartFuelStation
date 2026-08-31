@@ -11,6 +11,7 @@ import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/location_action_buttons.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../data/admin_repository.dart';
+import '../finance/admin_commission_sheet.dart';
 import '../widgets/admin_widgets.dart';
 import 'admin_providers_screen.dart';
 
@@ -148,6 +149,16 @@ class AdminProviderDetailsScreen extends StatelessWidget {
                   onPressed: () => context.push(Routes.adminProviderFuel(providerId)),
                   icon: const Icon(Icons.local_gas_station_outlined, size: 18),
                   label: Text(l10n.aFuelManageButton),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => showAdminCommissionSheet(
+                    context,
+                    providerId: providerId,
+                    providerName: row.businessName,
+                  ),
+                  icon: const Icon(Icons.percent, size: 18),
+                  label: Text(l10n.aFinanceCommissionEdit),
                 ),
 
                 const SizedBox(height: 24),

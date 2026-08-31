@@ -18,8 +18,12 @@ jest.mock('../../config/prisma', () => {
   prisma.$transaction = jest.fn((cb) => cb(prisma));
   return prisma;
 });
+jest.mock('../finance.service', () => ({
+  createTransactionForCompletedBooking: jest.fn(),
+}));
 
 const prisma = require('../../config/prisma');
+const financeService = require('../finance.service');
 const queueService = require('../queue.service');
 
 const PROVIDER_USER = { userId: 77, role: 'PROVIDER' };
@@ -596,6 +600,14 @@ describe('updateQueueEntryStatus', () => {
       expect.objectContaining({
         data: expect.objectContaining({ status: 'COMPLETED', completedAt: expect.any(Date) }),
       }),
+    );
+    // A queue-driven completion reaches the same finance hook a direct
+    // booking completion does (see booking.service.js's updateBookingStatus)
+    // — the FinancialTransaction is created inside the same transaction as
+    // both the queue entry and booking status updates.
+    expect(financeService.createTransactionForCompletedBooking).toHaveBeenCalledWith(
+      { id: 10, status: 'COMPLETED' },
+      prisma,
     );
   });
 

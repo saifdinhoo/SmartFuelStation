@@ -111,4 +111,18 @@ class ProviderRealtimeHandler implements RealtimeEventHandler {
     _cache.invalidate(ProviderKeys.fuel);
     appliedEvents++;
   }
+
+  /// `{ providerId }` is broadcast rather than room-targeted, for the same
+  /// reason [onProviderFuelUpdated] above documents: there is no numeric id
+  /// here that can be locally matched against "is this me" without an extra
+  /// lookup, so the own finance and commission keys are simply always
+  /// invalidated — cheap and harmless even on the sessions it did not
+  /// actually concern.
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {
+    _cache.invalidatePrefix(ProviderKeys.financeSummary);
+    _cache.invalidate(ProviderKeys.financeTransactions);
+    _cache.invalidate(ProviderKeys.commission);
+    appliedEvents++;
+  }
 }

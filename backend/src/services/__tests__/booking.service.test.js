@@ -11,8 +11,12 @@ jest.mock('../../config/prisma', () => ({
   provider: { findUnique: jest.fn() },
   $transaction: jest.fn(),
 }));
+jest.mock('../finance.service', () => ({
+  createTransactionForCompletedBooking: jest.fn(),
+}));
 
 const prisma = require('../../config/prisma');
+const financeService = require('../finance.service');
 const bookingService = require('../booking.service');
 
 const CUSTOMER = { userId: 33, role: 'CUSTOMER' };
@@ -473,6 +477,58 @@ describe('updateBookingStatus', () => {
         data: expect.objectContaining({ status: 'COMPLETED', completedAt: expect.any(Date) }),
       }),
     );
+  });
+
+  describe('finance ledger integration (Phase D)', () => {
+    it('creates a financial transaction atomically when a booking completes', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('IN_SERVICE'));
+      const updated = { id: 1, status: 'COMPLETED' };
+      prisma.booking.update.mockResolvedValue(updated);
+
+      await bookingService.updateBookingStatus(1, 'COMPLETED', PROVIDER_USER);
+
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(financeService.createTransactionForCompletedBooking).toHaveBeenCalledWith(
+        updated,
+        prisma,
+      );
+    });
+
+    it('never creates a financial transaction for a non-COMPLETED transition', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('PENDING'));
+      prisma.booking.update.mockResolvedValue({ id: 1, status: 'CONFIRMED' });
+
+      await bookingService.updateBookingStatus(1, 'CONFIRMED', PROVIDER_USER);
+
+      expect(financeService.createTransactionForCompletedBooking).not.toHaveBeenCalled();
+    });
+
+    it('does not create a financial transaction when the transition is rejected', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('PENDING'));
+
+      await expect(
+        bookingService.updateBookingStatus(1, 'IN_SERVICE', PROVIDER_USER),
+      ).rejects.toMatchObject({ statusCode: 400 });
+
+      expect(financeService.createTransactionForCompletedBooking).not.toHaveBeenCalled();
+    });
+
+    it('reuses the caller-supplied transaction client instead of opening a new one', async () => {
+      const txClient = {
+        booking: {
+          findUnique: jest.fn().mockResolvedValue(booking('IN_SERVICE')),
+          update: jest.fn().mockResolvedValue({ id: 1, status: 'COMPLETED' }),
+        },
+      };
+
+      await bookingService.updateBookingStatus(1, 'COMPLETED', PROVIDER_USER, txClient);
+
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(financeService.createTransactionForCompletedBooking).toHaveBeenCalledWith(
+        { id: 1, status: 'COMPLETED' },
+        txClient,
+      );
+    });
   });
 });
 

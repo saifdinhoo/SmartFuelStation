@@ -15,9 +15,9 @@ import { useAuth } from '@/app/providers/AuthProvider';
 const UNSUPPORTED = [
   {
     icon: SlidersHorizontal,
-    title: 'Platform configuration',
+    title: 'Booking window configuration',
     reason:
-      'No settings table exists in the schema — booking windows, commission rates, and similar values have nowhere to be stored.',
+      'No settings table exists in the schema for booking windows or similar scheduling values.',
   },
   {
     icon: Bell,
@@ -102,11 +102,15 @@ export function AdminSettingsPage() {
             <h2 className="text-heading-3">Real configuration lives here</h2>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
-            <Alert variant="info" title="Service categories are the platform's only stored configuration">
-              Categories control what providers can offer and what customers can search.
+            <Alert variant="info" title="Service categories and provider commission are the platform's stored configuration">
+              Categories control what providers can offer and what customers can search. Each
+              provider's commission rate is set from the Finance dashboard.
             </Alert>
             <Link to="/admin/categories">
               <Button variant="secondary">Manage service categories</Button>
+            </Link>
+            <Link to="/admin/finance">
+              <Button variant="secondary">Manage commission &amp; finance</Button>
             </Link>
           </CardContent>
         </Card>

@@ -21,6 +21,8 @@ import { DashboardShellPreview } from '@/pages/DashboardShellPreview';
 import { ServicesPage } from '@/features/provider/services/ServicesPage';
 import { QueuePage } from '@/features/provider/queue/QueuePage';
 import { AnalyticsPage } from '@/features/provider/analytics/AnalyticsPage';
+import { ProviderFinancePage } from '@/features/provider/finance/ProviderFinancePage';
+import { AdminFinancePage } from '@/features/admin/finance/AdminFinancePage';
 import { DiscoveryPage } from '@/features/customer/discovery/DiscoveryPage';
 import { ProviderDetailsPage } from '@/features/customer/discovery/ProviderDetailsPage';
 import { CategoriesPage } from '@/features/admin/categories/CategoriesPage';
@@ -229,6 +231,18 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
+          <Route
+            path="/provider/finance"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderFinancePage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
           {providerSubRoutes.map((item) => (
             <Route
               key={item.path}
@@ -264,6 +278,7 @@ export function AppRoutes() {
               ['/admin/reviews', <AdminReviewsPage key="rev" />],
               ['/admin/complaints', <AdminComplaintsPage key="comp" />],
               ['/admin/analytics', <AdminAnalyticsPage key="an" />],
+              ['/admin/finance', <AdminFinancePage key="fin" />],
               ['/admin/system-settings', <AdminSettingsPage key="set" />],
             ] as const
           ).map(([path, element]) => (

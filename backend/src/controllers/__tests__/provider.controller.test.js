@@ -5,6 +5,7 @@ jest.mock('../../services/providerAnalytics.service');
 jest.mock('../../services/providerHours.service');
 jest.mock('../../services/availability.service');
 jest.mock('../../services/fuelInventory.service');
+jest.mock('../../services/finance.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
 
@@ -12,6 +13,7 @@ const providerService = require('../../services/provider.service');
 const hoursService = require('../../services/providerHours.service');
 const availabilityService = require('../../services/availability.service');
 const fuelService = require('../../services/fuelInventory.service');
+const financeService = require('../../services/finance.service');
 const socketEvents = require('../../sockets/queueEvents');
 const notificationService = require('../../services/notification.service');
 const providerController = require('../provider.controller');
@@ -251,6 +253,67 @@ describe('fuel inventory (read-only from this controller)', () => {
     const next = jest.fn();
 
     await providerController.getFuel({ user: PROVIDER, params: { id: '999' } }, fakeRes(), next);
+
+    expect(next).toHaveBeenCalledWith(err);
+  });
+});
+
+describe('finance (read-only from this controller — Phase D)', () => {
+  it('myFinanceSummary resolves the provider from the JWT, not the request body, and forwards range', async () => {
+    financeService.getOwnSummary.mockResolvedValue({ providerId: 2, grossServiceValue: 100 });
+    const res = fakeRes();
+
+    await providerController.myFinanceSummary(
+      { user: PROVIDER, query: { range: '7d' }, body: { providerId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(financeService.getOwnSummary).toHaveBeenCalledWith(77, '7d');
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: { providerId: 2, grossServiceValue: 100 },
+    });
+  });
+
+  it('myFinanceTransactions resolves the provider from the JWT, not a query param', async () => {
+    financeService.listOwnTransactions.mockResolvedValue([]);
+    const res = fakeRes();
+
+    await providerController.myFinanceTransactions(
+      { user: PROVIDER, query: { providerId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(financeService.listOwnTransactions).toHaveBeenCalledWith(77);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
+  });
+
+  it('myCommission resolves the provider from the JWT and never accepts a providerId from the client', async () => {
+    financeService.getOwnCommission.mockResolvedValue({ providerId: 2, commissionRate: 10 });
+    const res = fakeRes();
+
+    await providerController.myCommission(
+      { user: PROVIDER, body: { providerId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(financeService.getOwnCommission).toHaveBeenCalledWith(77);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: { providerId: 2, commissionRate: 10 },
+    });
+  });
+
+  it('passes a finance service error to next() rather than throwing', async () => {
+    const err = new Error('No provider profile is linked to this account');
+    err.statusCode = 403;
+    financeService.getOwnSummary.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.myFinanceSummary({ user: PROVIDER, query: {} }, fakeRes(), next);
 
     expect(next).toHaveBeenCalledWith(err);
   });

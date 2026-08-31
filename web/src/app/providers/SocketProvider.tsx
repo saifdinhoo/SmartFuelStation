@@ -41,6 +41,10 @@ interface ProviderFuelUpdatedPayload {
   providerId: number;
 }
 
+interface FinanceUpdatedPayload {
+  providerId: number;
+}
+
 // Public availability only — the same fields GET /providers already
 // exposes to any authenticated caller. Never carries owner identity,
 // address, approval trail, or queue entries.
@@ -118,6 +122,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // offline never pushed a provider:fuel_updated event.
       queryClient.invalidateQueries({ queryKey: ['fuel'] });
       queryClient.invalidateQueries({ queryKey: ['fuelHistory'] });
+      // Same reasoning again — a booking completion, settlement, or
+      // commission change made while this client was offline never pushed
+      // a finance:updated event.
+      queryClient.invalidateQueries({ queryKey: ['adminFinance'] });
+      queryClient.invalidateQueries({ queryKey: ['finance'] });
     }
 
     function onDisconnect() {
@@ -164,6 +173,20 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       queryClient.invalidateQueries({ queryKey: ['fuel', payload.providerId] });
       queryClient.invalidateQueries({ queryKey: ['fuelHistory', payload.providerId] });
       queryClient.invalidateQueries({ queryKey: ['fuel', 'me'] });
+    }
+
+    // A booking completed (creating its FinancialTransaction), an admin
+    // settled a transaction, or a provider's commission rate changed. The
+    // payload is just `{ providerId }` — never a money value or the acting
+    // admin's identity (see notifyFinanceUpdated's own doc comment). An
+    // admin session sees every provider, so it always invalidates its
+    // whole finance area rather than trying to match one providerId
+    // against several different cache keys; a provider session's own
+    // finance/commission keys are invalidated unconditionally for the same
+    // reason onProviderFuelUpdated already documents for 'fuel','me'.
+    function onFinanceUpdated(_payload: FinanceUpdatedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['adminFinance'] });
+      queryClient.invalidateQueries({ queryKey: ['finance', 'me'] });
     }
 
     // Patched in place rather than invalidated: the payload carries every
@@ -217,6 +240,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket
       .off('provider:fuel_updated', onProviderFuelUpdated)
       .on('provider:fuel_updated', onProviderFuelUpdated);
+    socket.off('finance:updated', onFinanceUpdated).on('finance:updated', onFinanceUpdated);
 
     return () => {
       socket.off('connect', onConnect);
@@ -228,6 +252,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('notification:new', onNotificationNew);
       socket.off('provider:availability_changed', onProviderAvailabilityChanged);
       socket.off('provider:fuel_updated', onProviderFuelUpdated);
+      socket.off('finance:updated', onFinanceUpdated);
     };
   }, [queryClient]);
 

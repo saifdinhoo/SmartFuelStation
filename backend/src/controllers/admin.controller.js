@@ -1,5 +1,6 @@
 const adminService = require('../services/admin.service');
 const fuelService = require('../services/fuelInventory.service');
+const financeService = require('../services/finance.service');
 const socketEvents = require('../sockets/queueEvents');
 
 async function safely(fn) {
@@ -125,6 +126,75 @@ async function listProviderFuelHistory(req, res, next) {
   }
 }
 
+// --- finance (ADMIN-only — enforced by router.use above) ------------------
+
+async function financeSummary(req, res, next) {
+  try {
+    const summary = await financeService.getAdminSummary(req.query.range);
+    res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function financeTransactions(req, res, next) {
+  try {
+    const transactions = await financeService.listAdminTransactions({
+      providerId: req.query.providerId,
+      status: req.query.status,
+    });
+    res.json({ success: true, data: transactions });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function financeProvider(req, res, next) {
+  try {
+    const data = await financeService.getAdminProviderFinance(req.params.providerId, req.query.range);
+    res.json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function settleFinanceTransaction(req, res, next) {
+  try {
+    const transaction = await financeService.setSettlementStatus(req.params.id, req.user.userId);
+    res.json({ success: true, data: transaction });
+
+    await safely(() => socketEvents.notifyFinanceUpdated({ providerId: transaction.providerId }));
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- commission configuration (ADMIN-only — enforced by router.use above) -
+
+async function getProviderCommission(req, res, next) {
+  try {
+    const commission = await financeService.getProviderCommission(req.params.providerId);
+    res.json({ success: true, data: commission });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function setProviderCommission(req, res, next) {
+  try {
+    const commission = await financeService.setProviderCommission(
+      req.params.providerId,
+      req.body.commissionRate,
+      req.user.userId,
+    );
+    res.json({ success: true, data: commission });
+
+    await safely(() => socketEvents.notifyFinanceUpdated({ providerId: commission.providerId }));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   overview,
   analytics,
@@ -136,4 +206,10 @@ module.exports = {
   listProviderFuel,
   updateProviderFuel,
   listProviderFuelHistory,
+  financeSummary,
+  financeTransactions,
+  financeProvider,
+  settleFinanceTransaction,
+  getProviderCommission,
+  setProviderCommission,
 };

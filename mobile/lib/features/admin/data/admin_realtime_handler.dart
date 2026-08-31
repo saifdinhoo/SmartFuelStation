@@ -98,4 +98,25 @@ class AdminRealtimeHandler implements RealtimeEventHandler {
   /// admin session's edit needs a live push here yet.
   @override
   void onProviderFuelUpdated(Map<String, dynamic> payload) {}
+
+  /// `{ providerId }` is broadcast rather than room-targeted, and an admin
+  /// sees every provider's ledger, so the platform-wide summary and
+  /// transaction lists are invalidated unconditionally regardless of which
+  /// provider changed — mirrors the "just invalidate, let the next watch
+  /// re-read" minimalism [onProviderFuelUpdated] already uses elsewhere in
+  /// this file. The one field worth reading from the payload is the
+  /// commission key, which unlike the summary/transactions IS scoped to a
+  /// single provider — invalidating every admin's commission cache entry
+  /// for a change to one business would be needless.
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {
+    _cache.invalidatePrefix(AdminKeys.financeSummary);
+    _cache.invalidatePrefix(AdminKeys.financeTransactions);
+    _cache.invalidatePrefix(AdminKeys.providerFinancePrefix);
+
+    final providerId = asIntOrNull(payload['providerId']);
+    if (providerId != null) _cache.invalidate(AdminKeys.commission(providerId));
+
+    appliedEvents++;
+  }
 }

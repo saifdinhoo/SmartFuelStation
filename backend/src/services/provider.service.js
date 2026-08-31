@@ -4,7 +4,7 @@ const prisma = require('../config/prisma');
 // Services and categories come from PostgreSQL rather than frontend constants.
 async function listProviders(requesterRole) {
   const isAdmin = requesterRole === 'ADMIN';
-  return prisma.provider.findMany({
+  const providers = await prisma.provider.findMany({
     where: isAdmin ? {} : { isApproved: true },
     include: {
       user: { select: { id: true, name: true, email: true, phone: true } },
@@ -17,6 +17,13 @@ async function listProviders(requesterRole) {
     },
     orderBy: { businessName: 'asc' },
   });
+
+  // Commission is internal platform/admin configuration (Phase D) — never
+  // exposed on this general listing, which any authenticated role
+  // (including CUSTOMER) can call. An admin reads/writes it through the
+  // dedicated GET/PUT /admin/providers/:id/commission endpoints instead
+  // (finance.service.js), which are ADMIN-only.
+  return providers.map(({ commissionRate, commissionUpdatedAt, commissionUpdatedByAdminId, ...rest }) => rest);
 }
 
 async function approveProvider(id, approvedById) {

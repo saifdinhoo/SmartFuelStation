@@ -1,8 +1,25 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { ReactNode } from 'react';
 import { AdminProvidersPage } from './AdminProvidersPage';
 import type { AdminProvider } from './types';
+
+vi.mock('@/services/apiClient', () => ({
+  apiClient: { get: vi.fn().mockResolvedValue({ data: { success: true, data: {} } }) },
+}));
+vi.mock('@/app/providers/ToastProvider', () => ({
+  useToast: () => ({ showToast: vi.fn() }),
+}));
+
+function renderPage() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  function Wrapper({ children }: { children: ReactNode }) {
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  }
+  return render(<AdminProvidersPage />, { wrapper: Wrapper });
+}
 
 function provider(overrides: Partial<AdminProvider> = {}): AdminProvider {
   return {
@@ -49,7 +66,7 @@ describe('AdminProvidersPage — View location', () => {
       revoke: vi.fn(),
       reload: vi.fn(),
     });
-    render(<AdminProvidersPage />);
+    renderPage();
     expect(screen.getByRole('button', { name: /view location/i })).toBeEnabled();
   });
 
@@ -66,7 +83,7 @@ describe('AdminProvidersPage — View location', () => {
       reload: vi.fn(),
     });
     const user = userEvent.setup();
-    render(<AdminProvidersPage />);
+    renderPage();
 
     await user.click(screen.getByRole('button', { name: /view location/i }));
 
@@ -90,7 +107,7 @@ describe('AdminProvidersPage — View location', () => {
       reload: vi.fn(),
     });
     const user = userEvent.setup();
-    render(<AdminProvidersPage />);
+    renderPage();
 
     const button = screen.getByRole('button', { name: /view location/i });
     expect(button).toBeEnabled();
@@ -100,5 +117,48 @@ describe('AdminProvidersPage — View location', () => {
       '_blank',
       'noopener,noreferrer',
     );
+  });
+});
+
+describe('AdminProvidersPage — Manage commission (Phase D)', () => {
+  it('every provider card has a commission-management entry point, sale history or not', () => {
+    useProviderApprovalsMock.mockReturnValue({
+      viewState: 'ready',
+      errorMessage: null,
+      providers: [provider()],
+      pending: [],
+      approved: [provider()],
+      isMutating: false,
+      approve: vi.fn(),
+      revoke: vi.fn(),
+      reload: vi.fn(),
+    });
+    renderPage();
+    expect(screen.getByRole('button', { name: /manage commission/i })).toBeInTheDocument();
+  });
+
+  it('opens the commission sheet for the specific provider clicked, prefilled with its real rate', async () => {
+    const { apiClient } = await import('@/services/apiClient');
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: { success: true, data: { providerId: 2, commissionRate: 12.5, updatedAt: null, updatedByAdminId: null } },
+    });
+    useProviderApprovalsMock.mockReturnValue({
+      viewState: 'ready',
+      errorMessage: null,
+      providers: [provider()],
+      pending: [],
+      approved: [provider()],
+      isMutating: false,
+      approve: vi.fn(),
+      revoke: vi.fn(),
+      reload: vi.fn(),
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole('button', { name: /manage commission/i }));
+
+    expect(await screen.findByRole('dialog', { name: /Cedars Auto Care/ })).toBeInTheDocument();
+    expect(await screen.findByLabelText('Commission (%)')).toHaveValue(12.5);
   });
 });

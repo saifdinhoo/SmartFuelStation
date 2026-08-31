@@ -1198,7 +1198,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pAnalyticsNoRevenue =>
-      'Revenue isn\'t reported — nothing in the database tracks it.';
+      'Revenue is tracked separately — see Finance for real commission and earnings figures.';
+
+  @override
+  String get pFinanceTitle => 'My Earnings';
+
+  @override
+  String get pFinanceCommissionLabel => 'Platform commission';
+
+  @override
+  String get pFinanceCommissionPaid => 'Platform Fees';
+
+  @override
+  String get pFinanceNetEarnings => 'Net Earnings';
+
+  @override
+  String get pFinancePending => 'Pending';
+
+  @override
+  String get pFinanceSettled => 'Settled';
+
+  @override
+  String get pFinanceTrend => 'Net Earnings Over Time';
+
+  @override
+  String get pFinanceTransactions => 'Transaction History';
+
+  @override
+  String get pFinanceNoTransactions => 'No earnings yet';
+
+  @override
+  String get pFinanceReadOnlyNote =>
+      'Set by the platform admin. You cannot edit this — changes only ever apply to future completed bookings.';
 
   @override
   String get pMoreTitle => 'More';
@@ -1214,6 +1245,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pMoreAnalytics => 'Analytics';
+
+  @override
+  String get pMoreFinance => 'Finance';
 
   @override
   String get pMoreAccount => 'Account';
@@ -1473,6 +1507,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aFuelPriceInvalid => 'Price must not be negative';
 
   @override
+  String get financeGross => 'Gross';
+
+  @override
+  String get financeCommission => 'Commission';
+
+  @override
+  String get financeNet => 'Net';
+
+  @override
+  String get financeCommissionRateField => 'Commission rate';
+
+  @override
+  String get financeStatusAll => 'All statuses';
+
+  @override
+  String get financeStatusPending => 'Pending';
+
+  @override
+  String get financeStatusSettled => 'Settled';
+
+  @override
+  String get financeTrendEmpty =>
+      'No completed bookings recorded in this range yet.';
+
+  @override
+  String get financeTrendSinglePoint =>
+      'More history will appear as bookings complete.';
+
+  @override
+  String get financeUnknownService => 'Booking';
+
+  @override
+  String get commonCreated => 'Created';
+
+  @override
+  String get aFinanceTitle => 'Finance';
+
+  @override
+  String get aFinanceCommissionRevenue => 'Platform Revenue';
+
+  @override
+  String get aFinanceProviderNet => 'Provider Net';
+
+  @override
+  String get aFinancePending => 'Pending Settlement';
+
+  @override
+  String get aFinanceSettled => 'Settled';
+
+  @override
+  String get aFinanceTransactionCount => 'Transactions';
+
+  @override
+  String get aFinanceTrend => 'Revenue Over Time';
+
+  @override
+  String get aFinanceTransactions => 'Transactions';
+
+  @override
+  String get aFinanceProviderFilter => 'Provider';
+
+  @override
+  String get aFinanceAllProviders => 'All providers';
+
+  @override
+  String get aFinanceNoTransactions => 'No transactions match this filter yet.';
+
+  @override
+  String get aFinanceMarkSettled => 'Mark Settled';
+
+  @override
+  String get aFinanceSettleSuccess => 'Transaction marked as settled';
+
+  @override
+  String get aFinanceSettledAt => 'Settled';
+
+  @override
+  String get aFinanceCommissionEdit => 'Manage commission';
+
+  @override
+  String get aFinanceCommissionTitle => 'Platform commission';
+
+  @override
+  String get aFinanceCommissionInvalid =>
+      'Commission rate must be between 0 and 100';
+
+  @override
+  String get aFinanceCommissionSaved => 'Commission rate updated';
+
+  @override
   String get aProvidersApproveTitle => 'Approve this business?';
 
   @override
@@ -1690,6 +1814,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aMoreAnalytics => 'Analytics';
 
   @override
+  String get aMoreFinance => 'Finance';
+
+  @override
   String get aMoreAccount => 'Account';
 
   @override
@@ -1700,7 +1827,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aMoreNoPlatformSettings =>
-      'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.';
+      'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.';
 
   @override
   String get aMoreNoPassword => 'There is no change-password endpoint.';
