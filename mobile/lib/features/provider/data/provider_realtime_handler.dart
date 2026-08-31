@@ -100,4 +100,15 @@ class ProviderRealtimeHandler implements RealtimeEventHandler {
   /// bookings and queue changes already reach it via the events above.
   @override
   void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
+
+  /// `{ providerId }` is broadcast rather than room-targeted (see
+  /// notifyProviderFuelUpdated's own doc comment), so there is no numeric
+  /// id here to compare against this session's own provider — the own-fuel
+  /// key is simply always invalidated, mirroring how onProviderStatusChanged
+  /// above must re-derive relevance from the cached profile instead.
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {
+    _cache.invalidate(ProviderKeys.fuel);
+    appliedEvents++;
+  }
 }

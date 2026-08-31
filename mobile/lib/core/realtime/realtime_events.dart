@@ -32,6 +32,12 @@ class RealtimeEvents {
   /// stale. Carries nothing GET /providers/:id/availability does not
   /// already expose to any authenticated caller.
   static const providerAvailabilityChanged = 'provider:availability_changed';
+
+  /// `{ providerId }` → broadcast to every authenticated socket. Fired when
+  /// an Admin changes a provider's fuel inventory. Carries nothing GET
+  /// /providers/:id/fuel does not already expose to any authenticated
+  /// caller — never the acting admin's identity.
+  static const providerFuelUpdated = 'provider:fuel_updated';
 }
 
 /// What the socket layer does with an event, without knowing how.
@@ -60,4 +66,8 @@ abstract class RealtimeEventHandler {
   /// A provider's booking calendar changed. Received by every signed-in
   /// client, including customers browsing discovery.
   void onProviderAvailabilityChanged(Map<String, dynamic> payload);
+
+  /// A provider's fuel inventory changed. Received by every signed-in
+  /// client, including customers browsing discovery.
+  void onProviderFuelUpdated(Map<String, dynamic> payload);
 }

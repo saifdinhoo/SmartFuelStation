@@ -123,6 +123,47 @@ describe('SocketProvider — notification:new integration', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['availability', 2] });
   });
 
+  it('invalidates a provider\'s fuel and fuelHistory caches (and the own-fuel key) on provider:fuel_updated', async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(['fuel', 2], [{ fuelType: 'DIESEL' }]);
+    queryClient.setQueryData(['fuelHistory', 2, 'DIESEL', '7d'], []);
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <div>child</div>
+        </SocketProvider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => expect(handlers['provider:fuel_updated']).toBeTypeOf('function'));
+    handlers['provider:fuel_updated']({ providerId: 2 });
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['fuel', 2] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['fuelHistory', 2] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['fuel', 'me'] });
+  });
+
+  it('invalidates fuel caches on (re)connect too', async () => {
+    const queryClient = new QueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <div>child</div>
+        </SocketProvider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => expect(handlers['connect']).toBeTypeOf('function'));
+    handlers['connect']();
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['fuel'] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['fuelHistory'] });
+  });
+
   it('clears cached notifications when the user is not authenticated (logout)', () => {
     mockIsAuthenticated = false;
     const queryClient = new QueryClient();

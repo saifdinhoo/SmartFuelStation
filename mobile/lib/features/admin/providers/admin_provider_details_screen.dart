@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/models/admin_models.dart';
 import '../../../core/state/async_view.dart';
@@ -131,6 +133,13 @@ class AdminProviderDetailsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: () => context.push(Routes.adminProviderFuel(providerId)),
+                  icon: const Icon(Icons.local_gas_station_outlined, size: 18),
+                  label: Text(l10n.aFuelManageButton),
                 ),
 
                 const SizedBox(height: 24),

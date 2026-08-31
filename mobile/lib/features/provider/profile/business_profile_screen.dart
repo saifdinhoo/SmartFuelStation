@@ -9,6 +9,7 @@ import '../../../core/state/query_cache.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/status_chip.dart';
+import '../../customer/widgets/fuel_status_list.dart';
 import '../data/provider_repository.dart';
 import '../hours/operating_hours_editor.dart';
 
@@ -298,6 +299,36 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
               const SizedBox(height: 20),
               const OperatingHoursEditor(),
+
+              Builder(
+                builder: (context) {
+                  final fuel = repo.watchOwnFuel().valueOrNull ?? const [];
+                  if (fuel.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.fuelMyInventoryTitle, style: theme.textTheme.titleMedium),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.fuelManagedByAdminNote,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: status.mutedForeground,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            FuelStatusList(items: fuel, showPrice: false),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               if (_error != null) ...[
                 const SizedBox(height: 12),

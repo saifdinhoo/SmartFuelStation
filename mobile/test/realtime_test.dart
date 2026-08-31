@@ -391,6 +391,64 @@ void main() {
     });
   });
 
+  group('provider:fuel_updated', () {
+    test('invalidates the current status and every cached history range for the provider', () async {
+      var statusLoads = 0;
+      var historyLoads = 0;
+      await cache.refresh<List<FuelInventoryItem>>(CacheKeys.fuel(2), () async {
+        statusLoads++;
+        return const [];
+      });
+      await cache.refresh<List<FuelHistoryPoint>>(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        () async {
+          historyLoads++;
+          return const [];
+        },
+      );
+
+      handler.onProviderFuelUpdated({'providerId': 2});
+      expect(handler.appliedEvents, 1);
+
+      cache.watch<List<FuelInventoryItem>>(CacheKeys.fuel(2), () async {
+        statusLoads++;
+        return const [];
+      });
+      cache.watch<List<FuelHistoryPoint>>(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        () async {
+          historyLoads++;
+          return const [];
+        },
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(statusLoads, 2);
+      expect(historyLoads, 2);
+    });
+
+    test('leaves a different provider\'s cached fuel data untouched', () async {
+      var otherLoads = 0;
+      await cache.refresh<List<FuelInventoryItem>>(CacheKeys.fuel(9), () async {
+        otherLoads++;
+        return const [];
+      });
+
+      handler.onProviderFuelUpdated({'providerId': 2});
+
+      cache.watch<List<FuelInventoryItem>>(CacheKeys.fuel(9), () async {
+        otherLoads++;
+        return const [];
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(otherLoads, 1, reason: 'provider 9 was never touched by an event about provider 2');
+    });
+
+    test('ignores a payload with no providerId', () {
+      handler.onProviderFuelUpdated({});
+      expect(handler.appliedEvents, 0);
+    });
+  });
+
   group('provider queue snapshot', () {
     test('only refreshes that provider\'s public summary', () async {
       await cache.refresh(CacheKeys.queueSummary(3), () async => 'summary');

@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:smart_automotive_service_app/core/l10n/day_labels.dart';
+import 'package:smart_automotive_service_app/core/l10n/fuel_labels.dart';
 import 'package:smart_automotive_service_app/core/l10n/generated/app_localizations.dart';
 import 'package:smart_automotive_service_app/core/l10n/locale_controller.dart';
 import 'package:smart_automotive_service_app/core/location/location_service.dart';
@@ -14,6 +15,7 @@ import 'package:smart_automotive_service_app/core/theme/app_theme.dart';
 import 'package:smart_automotive_service_app/features/customer/data/customer_repository.dart';
 import 'package:smart_automotive_service_app/features/customer/queue/queue_display.dart';
 import 'package:smart_automotive_service_app/features/customer/widgets/booking_status_ui.dart';
+import 'package:smart_automotive_service_app/features/customer/widgets/fuel_status_list.dart';
 import 'package:smart_automotive_service_app/features/customer/widgets/operating_hours_list.dart';
 
 Future<AppLocalizations> loadL10n(String code) =>
@@ -169,6 +171,51 @@ void main() {
       // field, so a leaked identity would be a compile error, not a
       // runtime one.
       expect(slot.status, SlotStatusModel.booked);
+    });
+
+    test('FuelInventoryItem parses the public shape with no admin fields', () {
+      final item = FuelInventoryItem.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'displayName': 'Gasoline 95',
+        'capacityLiters': '20000.00',
+        'currentLiters': '7450.00',
+        'percentageRemaining': 37.3,
+        'pricePerLiter': '6.80',
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(item.fuelType, FuelTypeModel.gasoline95);
+      expect(item.currentLiters, 7450.0);
+      expect(item.percentageRemaining, 37.3);
+      expect(item.pricePerLiter, 6.8);
+    });
+
+    test('FuelInventoryItem tolerates a null price', () {
+      final item = FuelInventoryItem.fromJson({
+        'fuelType': 'DIESEL',
+        'displayName': 'Diesel / Solar',
+        'capacityLiters': 30000,
+        'currentLiters': 22100,
+        'percentageRemaining': 73.7,
+        'pricePerLiter': null,
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(item.pricePerLiter, isNull);
+    });
+
+    test('FuelHistoryPoint carries only fuelType/liters/timestamp', () {
+      final point = FuelHistoryPoint.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'liters': 15000,
+        'timestamp': '2026-08-01T00:00:00.000Z',
+      });
+      expect(point.fuelType, FuelTypeModel.gasoline95);
+      expect(point.liters, 15000.0);
+    });
+
+    test('FuelTypeModel.api round-trips every value back to the backend enum', () {
+      for (final type in FuelTypeModel.values) {
+        expect(FuelTypeModel.fromApi(type.api), type);
+      }
     });
 
     test('rating summary keeps null distinct from zero', () {
@@ -521,6 +568,151 @@ void main() {
         ),
       );
       expect(find.text(en.pHoursClosed), findsOneWidget);
+    });
+  });
+
+  group('fuel cache keys', () {
+    test('a different fuelType or range is a separate cached history read', () {
+      expect(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        isNot(CacheKeys.fuelHistory(2, 'DIESEL', '7d')),
+      );
+      expect(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        isNot(CacheKeys.fuelHistory(2, 'GASOLINE_95', '30d')),
+      );
+    });
+
+    test('every fuel-history key for a provider sits under its invalidation prefix', () {
+      expect(
+        CacheKeys.fuelHistory(2, 'DIESEL', '7d').startsWith(CacheKeys.fuelHistoryPrefix(2)),
+        isTrue,
+      );
+      expect(
+        CacheKeys.fuelHistory(9, 'DIESEL', '7d').startsWith(CacheKeys.fuelHistoryPrefix(2)),
+        isFalse,
+      );
+    });
+
+    test('the current-status key sits under the shared provider/ prefix', () {
+      expect(CacheKeys.fuel(2).startsWith(CacheKeys.providerPrefix), isTrue);
+    });
+  });
+
+  group('FuelStatusList', () {
+    Widget wrap(Widget child) => MaterialApp(
+      locale: const Locale('en'),
+      theme: AppTheme.light,
+      supportedLocales: LocaleController.supported,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: Scaffold(body: SingleChildScrollView(child: child)),
+    );
+
+    FuelInventoryItem item({
+      FuelTypeModel fuelType = FuelTypeModel.gasoline95,
+      String displayName = 'Gasoline 95',
+      double current = 7450,
+      double capacity = 20000,
+      double pct = 37.3,
+      double? price = 6.8,
+    }) => FuelInventoryItem(
+      fuelType: fuelType,
+      displayName: displayName,
+      capacityLiters: capacity,
+      currentLiters: current,
+      percentageRemaining: pct,
+      pricePerLiter: price,
+      updatedAt: DateTime.now(),
+    );
+
+    testWidgets('renders nothing for an empty list', (tester) async {
+      await tester.pumpWidget(wrap(const FuelStatusList(items: [])));
+      expect(find.byType(FuelStatusList), findsOneWidget);
+      // No card/progress bar content should be rendered.
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+
+    testWidgets('shows the display name, percentage and a real progress bar', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()])));
+      expect(find.text('Gasoline 95'), findsOneWidget);
+      expect(find.text('37.3%'), findsOneWidget);
+      final bar = tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator));
+      expect(bar.value, closeTo(0.373, 0.001));
+    });
+
+    testWidgets('hides price when showPrice is false — provider read-only view', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()], showPrice: false)));
+      expect(find.textContaining('/L'), findsNothing);
+    });
+
+    testWidgets('renders no buttons or text fields — this is a read-only display', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()])));
+      expect(find.byType(ElevatedButton), findsNothing);
+      expect(find.byType(OutlinedButton), findsNothing);
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('shows every fuel type independently', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          FuelStatusList(
+            items: [
+              item(),
+              item(fuelType: FuelTypeModel.diesel, displayName: 'Diesel / Solar', current: 22100, capacity: 30000, pct: 73.7),
+            ],
+          ),
+        ),
+      );
+      expect(find.text('Gasoline 95'), findsOneWidget);
+      expect(find.text('Diesel / Solar'), findsOneWidget);
+    });
+  });
+
+  group('fuel localization', () {
+    test('fuel type and status strings are translated in both locales', () async {
+      final en = await loadL10n('en');
+      final ar = await loadL10n('ar');
+
+      for (final type in FuelTypeModel.values) {
+        final english = fuelTypeLabel(en, type);
+        final arabic = fuelTypeLabel(ar, type);
+        expect(english, isNotEmpty);
+        expect(arabic, isNotEmpty);
+        expect(arabic, isNot(english), reason: '$type must actually be translated');
+      }
+
+      expect(ar.fuelAvailabilityTitle, isNot(en.fuelAvailabilityTitle));
+      expect(ar.fuelHistorySinglePoint, isNot(en.fuelHistorySinglePoint));
+      expect(ar.fuelManagedByAdminNote, isNot(en.fuelManagedByAdminNote));
+    });
+
+    testWidgets('fuel strings render right-to-left in Arabic', (tester) async {
+      final ar = await loadL10n('ar');
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ar'),
+          supportedLocales: LocaleController.supported,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Builder(
+            builder: (context) =>
+                Scaffold(body: Text(AppLocalizations.of(context)!.fuelAvailabilityTitle)),
+          ),
+        ),
+      );
+
+      final text = find.text(ar.fuelAvailabilityTitle);
+      expect(text, findsOneWidget);
+      expect(Directionality.of(tester.element(text)), TextDirection.rtl);
     });
   });
 

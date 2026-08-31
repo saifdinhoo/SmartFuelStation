@@ -4,6 +4,7 @@ const profileService = require('../services/providerProfile.service');
 const analyticsService = require('../services/providerAnalytics.service');
 const hoursService = require('../services/providerHours.service');
 const availabilityService = require('../services/availability.service');
+const fuelService = require('../services/fuelInventory.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
 
@@ -226,6 +227,42 @@ async function getAvailability(req, res, next) {
   }
 }
 
+// --- fuel inventory ---------------------------------------------------------
+// Read-only from this controller: only /admin/providers/:id/fuel routes may
+// write. A provider reading their own inventory and a customer reading a
+// public one both go through the same public-shaped service functions.
+
+async function getMyFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.getOwnFuel(req.user.userId);
+    res.json({ success: true, data: fuel });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.getPublicFuel(req.params.id, req.user);
+    res.json({ success: true, data: fuel });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getFuelHistory(req, res, next) {
+  try {
+    const history = await fuelService.getPublicHistory(
+      req.params.id,
+      { fuelType: req.query.fuelType, range: req.query.range },
+      req.user,
+    );
+    res.json({ success: true, data: history });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   approve,
@@ -242,4 +279,7 @@ module.exports = {
   updateMyHours,
   getHours,
   getAvailability,
+  getMyFuel,
+  getFuel,
+  getFuelHistory,
 };

@@ -4,12 +4,14 @@ jest.mock('../../services/providerProfile.service');
 jest.mock('../../services/providerAnalytics.service');
 jest.mock('../../services/providerHours.service');
 jest.mock('../../services/availability.service');
+jest.mock('../../services/fuelInventory.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
 
 const providerService = require('../../services/provider.service');
 const hoursService = require('../../services/providerHours.service');
 const availabilityService = require('../../services/availability.service');
+const fuelService = require('../../services/fuelInventory.service');
 const socketEvents = require('../../sockets/queueEvents');
 const notificationService = require('../../services/notification.service');
 const providerController = require('../provider.controller');
@@ -189,6 +191,66 @@ describe('getAvailability', () => {
       fakeRes(),
       next,
     );
+
+    expect(next).toHaveBeenCalledWith(err);
+  });
+});
+
+describe('fuel inventory (read-only from this controller)', () => {
+  it('getMyFuel resolves the provider from the JWT, not the request body', async () => {
+    fuelService.getOwnFuel.mockResolvedValue([]);
+    const res = fakeRes();
+
+    await providerController.getMyFuel(
+      { user: PROVIDER, body: { providerId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(fuelService.getOwnFuel).toHaveBeenCalledWith(77);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
+  });
+
+  it('getFuel (public) reads the provider id from the route param', async () => {
+    const fuel = [{ fuelType: 'DIESEL', currentLiters: 100 }];
+    fuelService.getPublicFuel.mockResolvedValue(fuel);
+    const res = fakeRes();
+
+    await providerController.getFuel({ user: PROVIDER, params: { id: '2' } }, res, jest.fn());
+
+    expect(fuelService.getPublicFuel).toHaveBeenCalledWith('2', PROVIDER);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: fuel });
+  });
+
+  it('getFuelHistory forwards providerId, fuelType and range to the service', async () => {
+    fuelService.getPublicHistory.mockResolvedValue([]);
+    const res = fakeRes();
+
+    await providerController.getFuelHistory(
+      {
+        user: PROVIDER,
+        params: { id: '2' },
+        query: { fuelType: 'DIESEL', range: '7d' },
+      },
+      res,
+      jest.fn(),
+    );
+
+    expect(fuelService.getPublicHistory).toHaveBeenCalledWith(
+      '2',
+      { fuelType: 'DIESEL', range: '7d' },
+      PROVIDER,
+    );
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
+  });
+
+  it('passes a fuel service error to next() rather than throwing', async () => {
+    const err = new Error('Provider not found');
+    err.statusCode = 404;
+    fuelService.getPublicFuel.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.getFuel({ user: PROVIDER, params: { id: '999' } }, fakeRes(), next);
 
     expect(next).toHaveBeenCalledWith(err);
   });

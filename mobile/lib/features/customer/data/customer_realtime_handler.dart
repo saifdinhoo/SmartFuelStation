@@ -177,4 +177,16 @@ class CustomerRealtimeHandler implements RealtimeEventHandler {
     _cache.invalidatePrefix(CacheKeys.availabilityPrefix(providerId));
     appliedEvents++;
   }
+
+  /// `{ providerId }`. The current-status card and every cached history
+  /// range/fuelType for this provider are marked stale.
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {
+    final providerId = asIntOrNull(payload['providerId']);
+    if (providerId == null) return;
+
+    _cache.invalidate(CacheKeys.fuel(providerId));
+    _cache.invalidatePrefix(CacheKeys.fuelHistoryPrefix(providerId));
+    appliedEvents++;
+  }
 }

@@ -366,6 +366,49 @@ class AppLocalizationsAr extends AppLocalizations {
   String get providerHoursNone => 'لم يحدد هذا النشاط ساعات عمله بعد.';
 
   @override
+  String get fuelGasoline95 => 'بنزين 95';
+
+  @override
+  String get fuelGasoline98 => 'بنزين 98';
+
+  @override
+  String get fuelDiesel => 'ديزل / مازوت';
+
+  @override
+  String get fuelRemainingLabel => 'المتبقي';
+
+  @override
+  String get fuelCapacityLabel => 'السعة';
+
+  @override
+  String get fuelLastUpdatedLabel => 'آخر تحديث';
+
+  @override
+  String get fuelAvailabilityTitle => 'توفر الوقود';
+
+  @override
+  String get fuelMyInventoryTitle => 'مخزون الوقود لدي';
+
+  @override
+  String get fuelManagedByAdminNote => 'يدير مسؤول المنصة مخزون الوقود.';
+
+  @override
+  String get fuelHistoryTitle => 'الوقود المتبقي عبر الزمن';
+
+  @override
+  String get fuelRange7d => 'آخر 7 أيام';
+
+  @override
+  String get fuelRange30d => 'آخر 30 يومًا';
+
+  @override
+  String get fuelHistoryEmpty => 'لا يوجد سجل وقود في هذه الفترة بعد.';
+
+  @override
+  String get fuelHistorySinglePoint =>
+      'سيظهر المزيد من السجل مع تحديث مستويات الوقود.';
+
+  @override
   String serviceDuration(int minutes) {
     return '$minutes دقيقة';
   }
@@ -1368,6 +1411,45 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aProvidersRevoke => 'سحب الاعتماد';
+
+  @override
+  String get aFuelManageButton => 'إدارة الوقود';
+
+  @override
+  String get aFuelTitle => 'إدارة الوقود';
+
+  @override
+  String get aFuelNotConfigured => 'لم يُضبط بعد.';
+
+  @override
+  String get aFuelSetUp => 'إعداد';
+
+  @override
+  String get aFuelUpdate => 'تحديث';
+
+  @override
+  String get aFuelCapacityField => 'السعة';
+
+  @override
+  String get aFuelRemainingField => 'المتبقي';
+
+  @override
+  String get aFuelPriceField => 'السعر لكل لتر';
+
+  @override
+  String get aFuelSaved => 'تم تحديث مخزون الوقود';
+
+  @override
+  String get aFuelCapacityInvalid => 'يجب أن تكون السعة أكبر من 0';
+
+  @override
+  String get aFuelRemainingInvalid => 'يجب ألا يكون المتبقي بالسالب';
+
+  @override
+  String get aFuelRemainingExceedsCapacity => 'لا يمكن أن يتجاوز المتبقي السعة';
+
+  @override
+  String get aFuelPriceInvalid => 'يجب ألا يكون السعر بالسالب';
 
   @override
   String get aProvidersApproveTitle => 'اعتماد هذا النشاط؟';

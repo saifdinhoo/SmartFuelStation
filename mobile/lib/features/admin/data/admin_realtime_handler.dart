@@ -92,4 +92,10 @@ class AdminRealtimeHandler implements RealtimeEventHandler {
   /// The admin area has no per-provider availability screen.
   @override
   void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
+
+  /// The admin fuel management screen re-reads on demand (it already
+  /// invalidates its own cache right after a successful write); no other
+  /// admin session's edit needs a live push here yet.
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {}
 }

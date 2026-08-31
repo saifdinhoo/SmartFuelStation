@@ -458,6 +458,11 @@ void main() {
       expect(AdminKeys.usersFiltered('ALL', 'x'), startsWith(AdminKeys.users));
       expect(AdminKeys.analyticsFor('7d'), startsWith(AdminKeys.analytics));
     });
+
+    test('fuel keys are scoped per provider, and history keys per range too', () {
+      expect(AdminKeys.fuel(2), isNot(AdminKeys.fuel(3)));
+      expect(AdminKeys.fuelHistory(2, '7d'), isNot(AdminKeys.fuelHistory(2, '30d')));
+    });
   });
 
   group('admin vocabulary', () {

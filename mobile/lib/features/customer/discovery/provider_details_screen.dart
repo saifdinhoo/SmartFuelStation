@@ -10,6 +10,8 @@ import '../../../core/widgets/status_chip.dart';
 import '../booking/create_booking_sheet.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
+import '../widgets/fuel_history_chart.dart';
+import '../widgets/fuel_status_list.dart';
 import '../widgets/operating_hours_list.dart';
 import '../widgets/rating_stars.dart';
 
@@ -44,6 +46,7 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     final reviewsState = repo.watchProviderReviews(widget.providerId);
     final queueState = repo.watchQueueSummary(widget.providerId);
     final hoursState = repo.watchProviderHours(widget.providerId);
+    final fuelState = repo.watchProviderFuel(widget.providerId);
 
     return Scaffold(
       appBar: AppBar(),
@@ -184,6 +187,20 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
                 ),
               ),
 
+              // Only shown once real fuel inventory rows exist — never a
+              // fabricated card for a provider that doesn't sell fuel.
+              ...fuelState.map(
+                onData: (items) => items.isEmpty
+                    ? const []
+                    : _fuelSections(l10n, theme, widget.providerId, items),
+                onLoading: (previous) => (previous == null || previous.isEmpty)
+                    ? const []
+                    : _fuelSections(l10n, theme, widget.providerId, previous),
+                onError: (error, previous) => (previous == null || previous.isEmpty)
+                    ? const []
+                    : _fuelSections(l10n, theme, widget.providerId, previous),
+              ),
+
               const SizedBox(height: 20),
               _Section(title: l10n.providerQueueNow),
               const SizedBox(height: 6),
@@ -320,6 +337,28 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     );
   }
 }
+
+List<Widget> _fuelSections(
+  AppLocalizations l10n,
+  ThemeData theme,
+  int providerId,
+  List<FuelInventoryItem> items,
+) => [
+  const SizedBox(height: 20),
+  _Section(title: l10n.fuelAvailabilityTitle),
+  const SizedBox(height: 6),
+  Card(
+    child: Padding(
+      padding: const EdgeInsets.all(14),
+      child: FuelStatusList(items: items),
+    ),
+  ),
+  const SizedBox(height: 20),
+  FuelHistoryChart(
+    providerId: providerId,
+    fuelTypes: items.map((i) => i.fuelType).toList(),
+  ),
+];
 
 class _Section extends StatelessWidget {
   const _Section({required this.title});

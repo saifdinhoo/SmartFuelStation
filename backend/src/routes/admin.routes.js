@@ -17,4 +17,10 @@ router.get('/reviews', adminController.listReviews);
 router.get('/complaints', adminController.listComplaints);
 router.patch('/complaints/:id', adminController.updateComplaint);
 
+// Fuel inventory — the ONLY place these values may be written. There is no
+// PATCH/PUT for fuel anywhere under /providers/me/* (see provider.routes.js).
+router.get('/providers/:providerId/fuel', adminController.listProviderFuel);
+router.put('/providers/:providerId/fuel/:fuelType', adminController.updateProviderFuel);
+router.get('/providers/:providerId/fuel/history', adminController.listProviderFuelHistory);
+
 module.exports = router;

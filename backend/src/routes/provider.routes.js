@@ -13,6 +13,9 @@ router.patch('/me', authenticate, authorize('PROVIDER'), providerController.upda
 router.get('/me/analytics', authenticate, authorize('PROVIDER'), providerController.myAnalytics);
 router.get('/me/hours', authenticate, authorize('PROVIDER'), providerController.getMyHours);
 router.put('/me/hours', authenticate, authorize('PROVIDER'), providerController.updateMyHours);
+// Read-only — there is deliberately no PATCH/PUT for a provider's own fuel
+// inventory anywhere in this file. Only /admin/providers/:id/fuel writes it.
+router.get('/me/fuel', authenticate, authorize('PROVIDER'), providerController.getMyFuel);
 router.post('/me/services', authenticate, authorize('PROVIDER'), providerController.createMyService);
 router.patch(
   '/me/services/:serviceId',
@@ -36,5 +39,7 @@ router.get('/:id/reviews', authenticate, providerController.listReviews);
 router.get('/:id/rating-summary', authenticate, providerController.ratingSummary);
 router.get('/:id/hours', authenticate, providerController.getHours);
 router.get('/:id/availability', authenticate, providerController.getAvailability);
+router.get('/:id/fuel', authenticate, providerController.getFuel);
+router.get('/:id/fuel/history', authenticate, providerController.getFuelHistory);
 
 module.exports = router;

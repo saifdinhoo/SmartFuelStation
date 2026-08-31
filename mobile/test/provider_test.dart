@@ -246,6 +246,24 @@ void main() {
       expect(handler.appliedEvents, 0);
     });
 
+    test('onProviderFuelUpdated invalidates the own-fuel key', () async {
+      var loads = 0;
+      await cache.refresh<List<FuelInventoryItem>>(ProviderKeys.fuel, () async {
+        loads++;
+        return const [];
+      });
+
+      handler.onProviderFuelUpdated({'providerId': 1});
+      expect(handler.appliedEvents, 1);
+
+      cache.watch<List<FuelInventoryItem>>(ProviderKeys.fuel, () async {
+        loads++;
+        return const [];
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(loads, 2, reason: 'an Admin fuel update must refresh the provider\'s own view');
+    });
+
     test(
       'a customer cancellation refreshes the provider booking keys',
       () async {
@@ -390,6 +408,46 @@ void main() {
       for (final day in DayOfWeekModel.week) {
         expect(DayOfWeekModel.fromApi(day.api), day);
       }
+    });
+
+    test('AdminFuelInventoryItem carries the audit fields the public shape omits', () {
+      final item = AdminFuelInventoryItem.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'displayName': 'Gasoline 95',
+        'capacityLiters': 20000,
+        'currentLiters': 7450,
+        'percentageRemaining': 37.3,
+        'pricePerLiter': 6.8,
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+        'id': 1,
+        'providerId': 2,
+        'updatedByAdminId': 3,
+        'updatedByAdminName': 'Site Admin',
+        'createdAt': '2026-08-01T00:00:00.000Z',
+      });
+      expect(item.updatedByAdminId, 3);
+      expect(item.updatedByAdminName, 'Site Admin');
+      expect(item.currentLiters, 7450.0);
+    });
+
+    test('AdminFuelHistoryEntry parses previous/new values and the acting admin', () {
+      final entry = AdminFuelHistoryEntry.fromJson({
+        'id': 4,
+        'fuelType': 'DIESEL',
+        'previousLiters': 15000,
+        'newLiters': 10000,
+        'previousCapacityLiters': 20000,
+        'newCapacityLiters': 20000,
+        'previousPricePerLiter': null,
+        'newPricePerLiter': null,
+        'changedByAdminId': 3,
+        'changedByAdminName': 'Site Admin',
+        'createdAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(entry.previousLiters, 15000.0);
+      expect(entry.newLiters, 10000.0);
+      expect(entry.changedByAdminName, 'Site Admin');
+      expect(entry.previousPricePerLiter, isNull);
     });
 
     test('analytics parses without any revenue field', () {

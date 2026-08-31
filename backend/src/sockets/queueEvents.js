@@ -128,6 +128,21 @@ function notifyProviderAvailabilityChanged({ providerId }) {
   io.emit('provider:availability_changed', { providerId });
 }
 
+// An Admin changed a provider's fuel inventory. Any client currently
+// viewing that provider's fuel status or history (customer or provider)
+// should treat its last-fetched data as stale and refetch.
+//
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderStatusChanged/notifyProviderAvailabilityChanged: the
+// payload is strictly less than what GET /providers/:id/fuel already
+// returns to any authenticated caller — just the provider id, never the
+// acting admin's identity or the new values themselves.
+function notifyProviderFuelUpdated({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('provider:fuel_updated', { providerId });
+}
+
 module.exports = {
   broadcastProviderQueueUpdate,
   notifyCustomerEntry,
@@ -135,4 +150,5 @@ module.exports = {
   notifyBookingStatusChanged,
   notifyProviderStatusChanged,
   notifyProviderAvailabilityChanged,
+  notifyProviderFuelUpdated,
 };

@@ -363,6 +363,50 @@ class AppLocalizationsEn extends AppLocalizations {
       'This provider hasn\'t set their operating hours yet.';
 
   @override
+  String get fuelGasoline95 => 'Gasoline 95';
+
+  @override
+  String get fuelGasoline98 => 'Gasoline 98';
+
+  @override
+  String get fuelDiesel => 'Diesel / Solar';
+
+  @override
+  String get fuelRemainingLabel => 'Remaining';
+
+  @override
+  String get fuelCapacityLabel => 'Capacity';
+
+  @override
+  String get fuelLastUpdatedLabel => 'Last updated';
+
+  @override
+  String get fuelAvailabilityTitle => 'Fuel Availability';
+
+  @override
+  String get fuelMyInventoryTitle => 'My Fuel Inventory';
+
+  @override
+  String get fuelManagedByAdminNote =>
+      'Fuel inventory is managed by the platform administrator.';
+
+  @override
+  String get fuelHistoryTitle => 'Fuel Remaining Over Time';
+
+  @override
+  String get fuelRange7d => 'Last 7 days';
+
+  @override
+  String get fuelRange30d => 'Last 30 days';
+
+  @override
+  String get fuelHistoryEmpty => 'No fuel history recorded in this range yet.';
+
+  @override
+  String get fuelHistorySinglePoint =>
+      'More history will appear as fuel levels are updated.';
+
+  @override
   String serviceDuration(int minutes) {
     return '$minutes min';
   }
@@ -1374,6 +1418,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aProvidersRevoke => 'Revoke approval';
+
+  @override
+  String get aFuelManageButton => 'Manage Fuel';
+
+  @override
+  String get aFuelTitle => 'Fuel Management';
+
+  @override
+  String get aFuelNotConfigured => 'Not configured yet.';
+
+  @override
+  String get aFuelSetUp => 'Set up';
+
+  @override
+  String get aFuelUpdate => 'Update';
+
+  @override
+  String get aFuelCapacityField => 'Capacity';
+
+  @override
+  String get aFuelRemainingField => 'Remaining';
+
+  @override
+  String get aFuelPriceField => 'Price per liter';
+
+  @override
+  String get aFuelSaved => 'Fuel inventory updated';
+
+  @override
+  String get aFuelCapacityInvalid => 'Capacity must be greater than 0';
+
+  @override
+  String get aFuelRemainingInvalid => 'Remaining must not be negative';
+
+  @override
+  String get aFuelRemainingExceedsCapacity =>
+      'Remaining cannot exceed capacity';
+
+  @override
+  String get aFuelPriceInvalid => 'Price must not be negative';
 
   @override
   String get aProvidersApproveTitle => 'Approve this business?';

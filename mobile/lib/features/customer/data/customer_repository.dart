@@ -20,6 +20,9 @@ class CacheKeys {
   static String providerHours(int providerId) => 'provider/$providerId/hours';
   static String availability(int providerId, int serviceId, String date) =>
       'availability/$providerId/$serviceId/$date';
+  static String fuel(int providerId) => 'provider/$providerId/fuel';
+  static String fuelHistory(int providerId, String fuelType, String range) =>
+      'provider/$providerId/fuel/history/$fuelType/$range';
 
   /// Everything scoped to a single provider, for bulk invalidation.
   static const providerPrefix = 'provider/';
@@ -27,6 +30,10 @@ class CacheKeys {
   /// Every cached availability query for one provider, regardless of which
   /// service/date combination was requested.
   static String availabilityPrefix(int providerId) => 'availability/$providerId/';
+
+  /// Every cached fuel history query for one provider, regardless of
+  /// fuelType/range.
+  static String fuelHistoryPrefix(int providerId) => 'provider/$providerId/fuel/history/';
 }
 
 /// Customer-facing reads and mutations.
@@ -146,6 +153,40 @@ class CustomerRepository {
     ) as Map;
     return Availability.fromJson(Map<String, dynamic>.from(json));
   });
+
+  /// Public read — only shown when the list is non-empty; a provider that
+  /// doesn't sell fuel simply has no rows, never a fabricated empty-tank
+  /// row.
+  AsyncValue<List<FuelInventoryItem>> watchProviderFuel(int providerId) =>
+      _cache.watch(CacheKeys.fuel(providerId), () async {
+        final raw = await _api.get('/providers/$providerId/fuel') as List<dynamic>;
+        return raw
+            .whereType<Map>()
+            .map((json) => FuelInventoryItem.fromJson(Map<String, dynamic>.from(json)))
+            .toList();
+      });
+
+  /// Real recorded points only — one per Admin update, including the
+  /// initial creation. [range] is "7d" or "30d".
+  AsyncValue<List<FuelHistoryPoint>> watchFuelHistory(
+    int providerId,
+    FuelTypeModel fuelType,
+    String range,
+  ) => _cache.watch(
+    CacheKeys.fuelHistory(providerId, fuelType.api, range),
+    () async {
+      final raw =
+          await _api.get(
+                '/providers/$providerId/fuel/history',
+                query: {'fuelType': fuelType.api, 'range': range},
+              )
+              as List<dynamic>;
+      return raw
+          .whereType<Map>()
+          .map((json) => FuelHistoryPoint.fromJson(Map<String, dynamic>.from(json)))
+          .toList();
+    },
+  );
 
   // --- bookings ------------------------------------------------------------
 

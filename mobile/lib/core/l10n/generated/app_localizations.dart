@@ -728,6 +728,90 @@ abstract class AppLocalizations {
   /// **'This provider hasn\'t set their operating hours yet.'**
   String get providerHoursNone;
 
+  /// No description provided for @fuelGasoline95.
+  ///
+  /// In en, this message translates to:
+  /// **'Gasoline 95'**
+  String get fuelGasoline95;
+
+  /// No description provided for @fuelGasoline98.
+  ///
+  /// In en, this message translates to:
+  /// **'Gasoline 98'**
+  String get fuelGasoline98;
+
+  /// No description provided for @fuelDiesel.
+  ///
+  /// In en, this message translates to:
+  /// **'Diesel / Solar'**
+  String get fuelDiesel;
+
+  /// No description provided for @fuelRemainingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get fuelRemainingLabel;
+
+  /// No description provided for @fuelCapacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get fuelCapacityLabel;
+
+  /// No description provided for @fuelLastUpdatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get fuelLastUpdatedLabel;
+
+  /// No description provided for @fuelAvailabilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Availability'**
+  String get fuelAvailabilityTitle;
+
+  /// No description provided for @fuelMyInventoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Fuel Inventory'**
+  String get fuelMyInventoryTitle;
+
+  /// No description provided for @fuelManagedByAdminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel inventory is managed by the platform administrator.'**
+  String get fuelManagedByAdminNote;
+
+  /// No description provided for @fuelHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Remaining Over Time'**
+  String get fuelHistoryTitle;
+
+  /// No description provided for @fuelRange7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get fuelRange7d;
+
+  /// No description provided for @fuelRange30d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get fuelRange30d;
+
+  /// No description provided for @fuelHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No fuel history recorded in this range yet.'**
+  String get fuelHistoryEmpty;
+
+  /// No description provided for @fuelHistorySinglePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'More history will appear as fuel levels are updated.'**
+  String get fuelHistorySinglePoint;
+
   /// No description provided for @serviceDuration.
   ///
   /// In en, this message translates to:
@@ -2629,6 +2713,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Revoke approval'**
   String get aProvidersRevoke;
+
+  /// No description provided for @aFuelManageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Fuel'**
+  String get aFuelManageButton;
+
+  /// No description provided for @aFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Management'**
+  String get aFuelTitle;
+
+  /// No description provided for @aFuelNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured yet.'**
+  String get aFuelNotConfigured;
+
+  /// No description provided for @aFuelSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get aFuelSetUp;
+
+  /// No description provided for @aFuelUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get aFuelUpdate;
+
+  /// No description provided for @aFuelCapacityField.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get aFuelCapacityField;
+
+  /// No description provided for @aFuelRemainingField.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get aFuelRemainingField;
+
+  /// No description provided for @aFuelPriceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per liter'**
+  String get aFuelPriceField;
+
+  /// No description provided for @aFuelSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel inventory updated'**
+  String get aFuelSaved;
+
+  /// No description provided for @aFuelCapacityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity must be greater than 0'**
+  String get aFuelCapacityInvalid;
+
+  /// No description provided for @aFuelRemainingInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining must not be negative'**
+  String get aFuelRemainingInvalid;
+
+  /// No description provided for @aFuelRemainingExceedsCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining cannot exceed capacity'**
+  String get aFuelRemainingExceedsCapacity;
+
+  /// No description provided for @aFuelPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must not be negative'**
+  String get aFuelPriceInvalid;
 
   /// No description provided for @aProvidersApproveTitle.
   ///

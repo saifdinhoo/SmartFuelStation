@@ -15,6 +15,9 @@ import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingMo
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
 import { useProviderHours } from '@/features/scheduling/useOperatingHours';
 import { OperatingHoursList } from '@/features/scheduling/OperatingHoursList';
+import { useProviderFuel } from '@/features/fuel/useFuel';
+import { FuelStatusList } from '@/features/fuel/FuelStatusList';
+import { FuelHistoryChart } from '@/features/fuel/FuelHistoryChart';
 import { useProviderDetails } from './useProviderDetails';
 import { useProviderRating } from './useProviderRating';
 import { useProviderReviews } from './useProviderReviews';
@@ -30,6 +33,7 @@ export function ProviderDetailsPage() {
   const reviews = useProviderReviews(providerId);
   const queue = useQueueSummary(provider?.id);
   const hours = useProviderHours(provider?.id);
+  const fuel = useProviderFuel(provider?.id);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   return (
@@ -180,6 +184,23 @@ export function ProviderDetailsPage() {
               )}
             </CardContent>
           </Card>
+
+          {!fuel.isPending && !fuel.isError && fuel.fuel && fuel.fuel.length > 0 && (
+            <>
+              <Card>
+                <CardHeader>
+                  <h2 className="text-heading-3">Fuel Availability</h2>
+                </CardHeader>
+                <CardContent>
+                  <FuelStatusList items={fuel.fuel} />
+                </CardContent>
+              </Card>
+              <FuelHistoryChart
+                providerId={provider.id}
+                fuelTypes={fuel.fuel.map((f) => f.fuelType)}
+              />
+            </>
+          )}
 
           <Card>
             <CardHeader>

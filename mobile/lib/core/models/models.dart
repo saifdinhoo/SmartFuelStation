@@ -651,6 +651,163 @@ class Availability {
 }
 
 // ---------------------------------------------------------------------------
+// Fuel inventory
+// ---------------------------------------------------------------------------
+
+enum FuelTypeModel {
+  gasoline95,
+  gasoline98,
+  diesel;
+
+  static FuelTypeModel fromApi(String? value) => switch (value) {
+    'GASOLINE_98' => gasoline98,
+    'DIESEL' => diesel,
+    _ => gasoline95,
+  };
+
+  String get api => switch (this) {
+    gasoline95 => 'GASOLINE_95',
+    gasoline98 => 'GASOLINE_98',
+    diesel => 'DIESEL',
+  };
+}
+
+/// Public/provider-own shape from GET /providers/:id/fuel,
+/// /providers/me/fuel. Never carries updatedByAdminId or any other audit
+/// field — that is exactly what separates this from
+/// [AdminFuelInventoryItem].
+class FuelInventoryItem {
+  const FuelInventoryItem({
+    required this.fuelType,
+    required this.displayName,
+    required this.capacityLiters,
+    required this.currentLiters,
+    required this.percentageRemaining,
+    required this.updatedAt,
+    this.pricePerLiter,
+  });
+
+  final FuelTypeModel fuelType;
+  final String displayName;
+  final double capacityLiters;
+  final double currentLiters;
+  final double percentageRemaining;
+  final double? pricePerLiter;
+  final DateTime updatedAt;
+
+  factory FuelInventoryItem.fromJson(Map<String, dynamic> json) => FuelInventoryItem(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    displayName: asString(json['displayName']),
+    capacityLiters: asDouble(json['capacityLiters']),
+    currentLiters: asDouble(json['currentLiters']),
+    percentageRemaining: asDouble(json['percentageRemaining']),
+    pricePerLiter: asDoubleOrNull(json['pricePerLiter']),
+    updatedAt: asDate(json['updatedAt']),
+  );
+}
+
+/// Admin-only shape from GET /admin/providers/:id/fuel — the same public
+/// fields plus who last changed it.
+class AdminFuelInventoryItem extends FuelInventoryItem {
+  const AdminFuelInventoryItem({
+    required super.fuelType,
+    required super.displayName,
+    required super.capacityLiters,
+    required super.currentLiters,
+    required super.percentageRemaining,
+    required super.updatedAt,
+    required this.id,
+    required this.providerId,
+    this.updatedByAdminId,
+    this.updatedByAdminName,
+    super.pricePerLiter,
+  });
+
+  final int id;
+  final int providerId;
+  final int? updatedByAdminId;
+  final String? updatedByAdminName;
+
+  factory AdminFuelInventoryItem.fromJson(Map<String, dynamic> json) => AdminFuelInventoryItem(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    displayName: asString(json['displayName']),
+    capacityLiters: asDouble(json['capacityLiters']),
+    currentLiters: asDouble(json['currentLiters']),
+    percentageRemaining: asDouble(json['percentageRemaining']),
+    pricePerLiter: asDoubleOrNull(json['pricePerLiter']),
+    updatedAt: asDate(json['updatedAt']),
+    id: asInt(json['id']),
+    providerId: asInt(json['providerId']),
+    updatedByAdminId: asIntOrNull(json['updatedByAdminId']),
+    updatedByAdminName: asStringOrNull(json['updatedByAdminName']),
+  );
+}
+
+/// One real chart point from GET /providers/:id/fuel/history — never a
+/// customer/admin identity, only what a chart needs.
+class FuelHistoryPoint {
+  const FuelHistoryPoint({
+    required this.fuelType,
+    required this.liters,
+    required this.timestamp,
+  });
+
+  final FuelTypeModel fuelType;
+  final double liters;
+  final DateTime timestamp;
+
+  factory FuelHistoryPoint.fromJson(Map<String, dynamic> json) => FuelHistoryPoint(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    liters: asDouble(json['liters']),
+    timestamp: asDate(json['timestamp']),
+  );
+}
+
+/// One row of the Admin-only audit trail from
+/// GET /admin/providers/:id/fuel/history.
+class AdminFuelHistoryEntry {
+  const AdminFuelHistoryEntry({
+    required this.id,
+    required this.fuelType,
+    required this.previousLiters,
+    required this.newLiters,
+    required this.changedByAdminId,
+    required this.changedByAdminName,
+    required this.createdAt,
+    this.previousCapacityLiters,
+    this.newCapacityLiters,
+    this.previousPricePerLiter,
+    this.newPricePerLiter,
+  });
+
+  final int id;
+  final FuelTypeModel fuelType;
+  final double previousLiters;
+  final double newLiters;
+  final double? previousCapacityLiters;
+  final double? newCapacityLiters;
+  final double? previousPricePerLiter;
+  final double? newPricePerLiter;
+  final int changedByAdminId;
+  final String changedByAdminName;
+  final DateTime createdAt;
+
+  factory AdminFuelHistoryEntry.fromJson(Map<String, dynamic> json) => AdminFuelHistoryEntry(
+    id: asInt(json['id']),
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    previousLiters: asDouble(json['previousLiters']),
+    newLiters: asDouble(json['newLiters']),
+    previousCapacityLiters: asDoubleOrNull(json['previousCapacityLiters']),
+    newCapacityLiters: asDoubleOrNull(json['newCapacityLiters']),
+    previousPricePerLiter: asDoubleOrNull(json['previousPricePerLiter']),
+    newPricePerLiter: asDoubleOrNull(json['newPricePerLiter']),
+    changedByAdminId: asInt(json['changedByAdminId']),
+    changedByAdminName: asString(json['changedByAdminName']),
+    createdAt: asDate(json['createdAt']),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Provider self-service
 // ---------------------------------------------------------------------------
 

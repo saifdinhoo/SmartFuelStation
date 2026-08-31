@@ -37,6 +37,10 @@ interface ProviderAvailabilityChangedPayload {
   providerId: number;
 }
 
+interface ProviderFuelUpdatedPayload {
+  providerId: number;
+}
+
 // Public availability only — the same fields GET /providers already
 // exposes to any authenticated caller. Never carries owner identity,
 // address, approval trail, or queue entries.
@@ -110,6 +114,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // Same reasoning — a booking made by someone else while this client
       // was offline never pushed a provider:availability_changed event.
       queryClient.invalidateQueries({ queryKey: ['availability'] });
+      // Same reasoning again — a fuel update made while this client was
+      // offline never pushed a provider:fuel_updated event.
+      queryClient.invalidateQueries({ queryKey: ['fuel'] });
+      queryClient.invalidateQueries({ queryKey: ['fuelHistory'] });
     }
 
     function onDisconnect() {
@@ -145,6 +153,17 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     // combination currently cached for this provider is covered.
     function onProviderAvailabilityChanged(payload: ProviderAvailabilityChangedPayload) {
       queryClient.invalidateQueries({ queryKey: ['availability', payload.providerId] });
+    }
+
+    // An Admin changed this provider's fuel inventory — refetch both the
+    // current status cards and the history chart for anyone viewing it.
+    // Also invalidates the provider's own ['fuel','me'] key unconditionally
+    // (cheap and harmless for everyone else) since a numeric providerId
+    // can't be matched against that string key from here.
+    function onProviderFuelUpdated(payload: ProviderFuelUpdatedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['fuel', payload.providerId] });
+      queryClient.invalidateQueries({ queryKey: ['fuelHistory', payload.providerId] });
+      queryClient.invalidateQueries({ queryKey: ['fuel', 'me'] });
     }
 
     // Patched in place rather than invalidated: the payload carries every
@@ -195,6 +214,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     socket
       .off('provider:availability_changed', onProviderAvailabilityChanged)
       .on('provider:availability_changed', onProviderAvailabilityChanged);
+    socket
+      .off('provider:fuel_updated', onProviderFuelUpdated)
+      .on('provider:fuel_updated', onProviderFuelUpdated);
 
     return () => {
       socket.off('connect', onConnect);
@@ -205,6 +227,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('provider:status_changed', onProviderStatusChanged);
       socket.off('notification:new', onNotificationNew);
       socket.off('provider:availability_changed', onProviderAvailabilityChanged);
+      socket.off('provider:fuel_updated', onProviderFuelUpdated);
     };
   }, [queryClient]);
 

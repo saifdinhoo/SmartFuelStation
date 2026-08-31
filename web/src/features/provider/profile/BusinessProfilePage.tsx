@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { OperatingHoursEditor } from '@/features/provider/hours/OperatingHoursEditor';
+import { useOwnFuel } from '@/features/fuel/useFuel';
+import { FuelStatusList } from '@/features/fuel/FuelStatusList';
 import { useOwnProviderProfile, useUpdateOwnProfile } from './useOwnProviderProfile';
 import { businessProfileSchema, type BusinessProfileFormValues } from './businessProfileSchema';
 
@@ -21,6 +23,7 @@ function toFormValue(value: number | null): string {
 export function BusinessProfilePage() {
   const { profile, isPending, isError, errorMessage, reload } = useOwnProviderProfile();
   const { save, isSaving } = useUpdateOwnProfile();
+  const fuel = useOwnFuel();
 
   const {
     register,
@@ -187,6 +190,20 @@ export function BusinessProfilePage() {
           </form>
 
           <OperatingHoursEditor />
+
+          {!fuel.isPending && !fuel.isError && fuel.fuel && fuel.fuel.length > 0 && (
+            <Card>
+              <CardHeader>
+                <h2 className="text-heading-3">My Fuel Inventory</h2>
+                <p className="text-body-sm text-muted-foreground">
+                  Fuel inventory is managed by the platform administrator.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <FuelStatusList items={fuel.fuel} />
+              </CardContent>
+            </Card>
+          )}
         </Reveal>
       )}
     </div>

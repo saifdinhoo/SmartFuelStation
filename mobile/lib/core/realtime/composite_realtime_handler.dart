@@ -64,4 +64,11 @@ class CompositeRealtimeHandler implements RealtimeEventHandler {
       handler.onProviderAvailabilityChanged(payload);
     }
   }
+
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {
+    for (final handler in _handlers) {
+      handler.onProviderFuelUpdated(payload);
+    }
+  }
 }

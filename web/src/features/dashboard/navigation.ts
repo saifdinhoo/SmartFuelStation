@@ -15,6 +15,7 @@ import {
   Search,
   Heart,
   Car,
+  Fuel,
   type LucideIcon,
 } from 'lucide-react';
 import type { AuthUser } from '@/features/auth/authApi';
@@ -51,6 +52,7 @@ const adminNav: NavItem[] = [
   { label: 'Providers', path: '/admin/providers', icon: Users },
   { label: 'Customers', path: '/admin/customers', icon: UserRound },
   { label: 'Categories', path: '/admin/categories', icon: Tags },
+  { label: 'Fuel', path: '/admin/fuel', icon: Fuel },
   { label: 'Bookings', path: '/admin/bookings', icon: CalendarCheck },
   { label: 'Complaints', path: '/admin/complaints', icon: MessageSquareWarning },
   { label: 'Reviews', path: '/admin/reviews', icon: Star },

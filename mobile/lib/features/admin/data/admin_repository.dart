@@ -33,6 +33,9 @@ class AdminKeys {
       'admin/reviews?rating=$rating&provider=$providerId';
   static String analyticsFor(String range) => 'admin/analytics/$range';
   static String user(int id) => 'admin/users/$id';
+  static String fuel(int providerId) => 'admin/providers/$providerId/fuel';
+  static String fuelHistory(int providerId, String range) =>
+      'admin/providers/$providerId/fuel/history/$range';
 }
 
 /// Everything the admin area reads and writes.
@@ -359,5 +362,72 @@ class AdminRepository {
   Future<AdminAnalytics> refreshAnalytics(String range) => _cache.refresh(
     AdminKeys.analyticsFor(range),
     () => _fetchAnalytics(range),
+  );
+
+  // --- fuel inventory (ADMIN-only writes, enforced server-side) -----------
+
+  Future<List<AdminFuelInventoryItem>> _loadFuel(int providerId) async {
+    final raw = await _api.get('/admin/providers/$providerId/fuel') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((j) => AdminFuelInventoryItem.fromJson(Map<String, dynamic>.from(j)))
+        .toList();
+  }
+
+  AsyncValue<List<AdminFuelInventoryItem>> watchFuel(int providerId) =>
+      _cache.watch(AdminKeys.fuel(providerId), () => _loadFuel(providerId));
+
+  /// PUT /admin/providers/:id/fuel/:fuelType — create-or-update. The only
+  /// place in the app that writes fuel inventory.
+  Future<FuelInventoryItem> updateFuel(
+    int providerId,
+    FuelTypeModel fuelType, {
+    required double capacityLiters,
+    required double currentLiters,
+    double? pricePerLiter,
+  }) async {
+    final json =
+        await _api.put(
+              '/admin/providers/$providerId/fuel/${fuelType.api}',
+              body: {
+                'capacityLiters': capacityLiters,
+                'currentLiters': currentLiters,
+                'pricePerLiter': pricePerLiter,
+              },
+            )
+            as Map;
+    final updated = FuelInventoryItem.fromJson(Map<String, dynamic>.from(json));
+    _cache.invalidate(AdminKeys.fuel(providerId));
+    _cache.invalidatePrefix('admin/providers/$providerId/fuel/history/');
+    // Public/provider-own reads of the same data. Raw string keys rather
+    // than importing ProviderRepository's key class, matching how
+    // deleteReview below already invalidates 'providers' the same way.
+    _cache.invalidate('provider/$providerId/fuel');
+    _cache.invalidate('provider/me/fuel');
+    return updated;
+  }
+
+  Future<List<AdminFuelHistoryEntry>> _loadFuelHistory(
+    int providerId,
+    String range,
+  ) async {
+    final raw =
+        await _api.get(
+              '/admin/providers/$providerId/fuel/history',
+              query: {'range': range},
+            )
+            as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((j) => AdminFuelHistoryEntry.fromJson(Map<String, dynamic>.from(j)))
+        .toList();
+  }
+
+  AsyncValue<List<AdminFuelHistoryEntry>> watchFuelHistory(
+    int providerId,
+    String range,
+  ) => _cache.watch(
+    AdminKeys.fuelHistory(providerId, range),
+    () => _loadFuelHistory(providerId, range),
   );
 }

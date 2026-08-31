@@ -31,6 +31,7 @@ import { AdminReviewsPage } from '@/features/admin/reviews/AdminReviewsPage';
 import { AdminComplaintsPage } from '@/features/admin/complaints/AdminComplaintsPage';
 import { AdminAnalyticsPage } from '@/features/admin/analytics/AdminAnalyticsPage';
 import { AdminSettingsPage } from '@/features/admin/settings/AdminSettingsPage';
+import { AdminFuelPage } from '@/features/admin/fuel/AdminFuelPage';
 import { BookingHistoryPage } from '@/features/customer/bookings/BookingHistoryPage';
 import { BookingDetailsPage } from '@/features/customer/bookings/BookingDetailsPage';
 import { ProviderBookingsPage } from '@/features/provider/bookings/ProviderBookingsPage';
@@ -256,6 +257,7 @@ export function AppRoutes() {
           {(
             [
               ['/admin/categories', <CategoriesPage key="cat" />],
+              ['/admin/fuel', <AdminFuelPage key="fuel" />],
               ['/admin/providers', <AdminProvidersPage key="prov" />],
               ['/admin/customers', <AdminUsersPage key="users" />],
               ['/admin/bookings', <AdminBookingsPage key="book" />],

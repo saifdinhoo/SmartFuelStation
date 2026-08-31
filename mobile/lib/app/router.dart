@@ -10,6 +10,7 @@ import '../features/admin/categories/admin_categories_screen.dart';
 import '../features/admin/complaints/admin_complaints_screen.dart';
 import '../features/admin/more/admin_more_screen.dart';
 import '../features/admin/overview/admin_overview_screen.dart';
+import '../features/admin/fuel/admin_fuel_screen.dart';
 import '../features/admin/providers/admin_provider_details_screen.dart';
 import '../features/admin/providers/admin_providers_screen.dart';
 import '../features/admin/reviews/admin_reviews_screen.dart';
@@ -63,6 +64,7 @@ class Routes {
 
   static String adminUserDetails(int id) => '/admin/users/$id';
   static String adminProviderDetails(int id) => '/admin/providers/$id';
+  static String adminProviderFuel(int id) => '/admin/providers/$id/fuel';
   static String adminBookingDetails(int id) => '/admin/bookings/$id';
 
   // Customer area.
@@ -284,6 +286,12 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: '/admin/providers/:id',
         builder: (_, state) => AdminProviderDetailsScreen(
+          providerId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/admin/providers/:id/fuel',
+        builder: (_, state) => AdminFuelScreen(
           providerId: int.parse(state.pathParameters['id']!),
         ),
       ),

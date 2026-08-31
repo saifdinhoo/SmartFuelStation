@@ -15,6 +15,7 @@ class ProviderKeys {
 
   static const profile = 'provider/me';
   static const hours = 'provider/me/hours';
+  static const fuel = 'provider/me/fuel';
   static const analytics = 'provider/me/analytics';
   static const categories = 'categories';
 
@@ -105,6 +106,20 @@ class ProviderRepository {
     _cache.invalidate('providers');
     return updated;
   }
+
+  // --- fuel inventory (read-only — no write method exists here) ------------
+
+  /// GET /providers/me/fuel. Read-only: there is deliberately no
+  /// update/create method in this class — only /admin/providers/:id/fuel
+  /// may write, enforced server-side.
+  AsyncValue<List<FuelInventoryItem>> watchOwnFuel() =>
+      _cache.watch(ProviderKeys.fuel, () async {
+        final raw = await _api.get('/providers/me/fuel') as List<dynamic>;
+        return raw
+            .whereType<Map>()
+            .map((json) => FuelInventoryItem.fromJson(Map<String, dynamic>.from(json)))
+            .toList();
+      });
 
   // --- services ------------------------------------------------------------
 

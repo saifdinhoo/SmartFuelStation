@@ -1,4 +1,15 @@
 const adminService = require('../services/admin.service');
+const fuelService = require('../services/fuelInventory.service');
+const socketEvents = require('../sockets/queueEvents');
+
+async function safely(fn) {
+  try {
+    await fn();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Socket.IO notification failed:', err);
+  }
+}
 
 async function overview(req, res, next) {
   try {
@@ -69,6 +80,51 @@ async function updateComplaint(req, res, next) {
   }
 }
 
+// --- fuel inventory (ADMIN-only — enforced by router.use above) -----------
+
+async function listProviderFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.listAdminFuelForProvider(req.params.providerId);
+    res.json({ success: true, data: fuel });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateProviderFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.adminUpsertFuel(
+      req.params.providerId,
+      req.params.fuelType,
+      req.body,
+      req.user.userId,
+    );
+    res.json({ success: true, data: fuel });
+
+    // Anyone currently viewing this provider's fuel status (customer or
+    // provider) should treat their last-fetched inventory/history as
+    // stale. Public-safe payload only — see notifyProviderFuelUpdated's
+    // own doc comment for why a providerId alone is safe to broadcast.
+    await safely(() =>
+      socketEvents.notifyProviderFuelUpdated({ providerId: Number(req.params.providerId) }),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function listProviderFuelHistory(req, res, next) {
+  try {
+    const history = await fuelService.getAdminHistory(req.params.providerId, {
+      fuelType: req.query.fuelType,
+      range: req.query.range,
+    });
+    res.json({ success: true, data: history });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   overview,
   analytics,
@@ -77,4 +133,7 @@ module.exports = {
   listReviews,
   listComplaints,
   updateComplaint,
+  listProviderFuel,
+  updateProviderFuel,
+  listProviderFuelHistory,
 };
