@@ -14,6 +14,7 @@ class ProviderKeys {
   const ProviderKeys._();
 
   static const profile = 'provider/me';
+  static const hours = 'provider/me/hours';
   static const analytics = 'provider/me/analytics';
   static const categories = 'categories';
 
@@ -70,6 +71,40 @@ class ProviderRepository {
 
   Future<OwnProviderProfile> setAdvertisedWait(int minutes) =>
       updateProfile({'estimatedWaitMinutes': minutes});
+
+  // --- operating hours -------------------------------------------------------
+
+  Future<List<OperatingHour>> _loadHours() async {
+    final raw = await _api.get('/providers/me/hours') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((json) => OperatingHour.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  AsyncValue<List<OperatingHour>> watchHours() =>
+      _cache.watch(ProviderKeys.hours, _loadHours);
+
+  /// PUT /providers/me/hours. Sends the whole week the screen is holding —
+  /// the backend upserts by (providerId, dayOfWeek), so this can never
+  /// create a duplicate row.
+  Future<List<OperatingHour>> updateHours(List<OperatingHour> entries) async {
+    final raw =
+        await _api.put(
+              '/providers/me/hours',
+              body: entries.map((e) => e.toJson()).toList(),
+            )
+            as List<dynamic>;
+    final updated = raw
+        .whereType<Map>()
+        .map((json) => OperatingHour.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+    _cache.setData(ProviderKeys.hours, updated);
+    // Customers viewing this provider's hours or booking availability may
+    // now be looking at stale data.
+    _cache.invalidate('providers');
+    return updated;
+  }
 
   // --- services ------------------------------------------------------------
 

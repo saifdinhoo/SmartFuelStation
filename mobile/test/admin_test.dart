@@ -400,6 +400,7 @@ void main() {
       handler.onBookingStatusChanged({'bookingId': 1, 'status': 'CANCELLED'});
       handler.onProviderQueueUpdated({'providerId': 1, 'entries': const []});
       handler.onMyQueueUpdate({'id': 1});
+      handler.onProviderAvailabilityChanged({'providerId': 1});
       expect(handler.appliedEvents, 0);
     });
 

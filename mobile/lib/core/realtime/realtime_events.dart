@@ -25,6 +25,13 @@ class RealtimeEvents {
   /// The full created Notification row → the recipient's own room only.
   /// Emitted by `backend/src/services/notification.service.js`.
   static const notificationNew = 'notification:new';
+
+  /// `{ providerId }` → broadcast to every authenticated socket. Fired when
+  /// a booking is created or changes status, so a client currently viewing
+  /// that provider's availability knows its last-fetched slot list may be
+  /// stale. Carries nothing GET /providers/:id/availability does not
+  /// already expose to any authenticated caller.
+  static const providerAvailabilityChanged = 'provider:availability_changed';
 }
 
 /// What the socket layer does with an event, without knowing how.
@@ -49,4 +56,8 @@ abstract class RealtimeEventHandler {
 
   /// A new persistent notification was created for the signed-in user.
   void onNotificationNew(Map<String, dynamic> payload);
+
+  /// A provider's booking calendar changed. Received by every signed-in
+  /// client, including customers browsing discovery.
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload);
 }

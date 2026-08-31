@@ -72,6 +72,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleAdmin => 'مشرف';
 
   @override
+  String get dayMonday => 'الإثنين';
+
+  @override
+  String get dayTuesday => 'الثلاثاء';
+
+  @override
+  String get dayWednesday => 'الأربعاء';
+
+  @override
+  String get dayThursday => 'الخميس';
+
+  @override
+  String get dayFriday => 'الجمعة';
+
+  @override
+  String get daySaturday => 'السبت';
+
+  @override
+  String get daySunday => 'الأحد';
+
+  @override
   String get loginSubmitting => 'جارٍ تسجيل الدخول…';
 
   @override
@@ -336,6 +357,15 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا النشاط مغلق حاليًا، لكن يمكنك طلب حجز.';
 
   @override
+  String get providerHoursTitle => 'ساعات العمل';
+
+  @override
+  String get providerHoursNotSet => 'لم تُحدَّد الساعات';
+
+  @override
+  String get providerHoursNone => 'لم يحدد هذا النشاط ساعات عمله بعد.';
+
+  @override
   String serviceDuration(int minutes) {
     return '$minutes دقيقة';
   }
@@ -353,9 +383,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookingDateTime => 'التاريخ والوقت';
 
   @override
-  String get bookingPickDateTime => 'اختر التاريخ والوقت';
-
-  @override
   String get bookingNotes => 'ملاحظات (اختياري)';
 
   @override
@@ -371,10 +398,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookingErrorSelectService => 'اختر خدمة';
 
   @override
-  String get bookingErrorSelectTime => 'اختر التاريخ والوقت';
+  String get bookingSelectDate => 'التاريخ';
 
   @override
-  String get bookingErrorFutureTime => 'اختر وقتًا في المستقبل';
+  String bookingOpenHours(String opening, String closing) {
+    return 'مفتوح من $opening إلى $closing';
+  }
+
+  @override
+  String get bookingClosedOnDate => 'هذا النشاط مغلق في التاريخ المحدد.';
+
+  @override
+  String get bookingHoursNotConfigured =>
+      'لم يحدد هذا النشاط ساعات عمله بعد، لذا لا يمكن الحجز في هذا التاريخ.';
+
+  @override
+  String get bookingNoSlotsFit =>
+      'لا توجد أوقات تتسع لهذه الخدمة قبل الإغلاق في هذا التاريخ.';
+
+  @override
+  String get bookingSlotBookedLabel => 'محجوز';
+
+  @override
+  String get bookingSlotPastLabel => 'فات وقته';
+
+  @override
+  String get bookingErrorSelectSlot => 'اختر وقتًا متاحًا';
+
+  @override
+  String get bookingConflictRetry =>
+      'تم حجز هذا الوقت للتو من قِبل شخص آخر. اختر وقتًا آخر أدناه.';
 
   @override
   String get bookingsTitle => 'الحجوزات';
@@ -929,17 +982,39 @@ class AppLocalizationsAr extends AppLocalizations {
       'يُستخدم لترتيب نشاطك حسب المسافة في بحث العملاء.';
 
   @override
-  String get pProfileHoursTitle => 'ساعات العمل غير متاحة';
-
-  @override
-  String get pProfileHoursBody =>
-      'لا يوجد حقل لها في قاعدة البيانات، لذا لا يمكن حفظها. استخدم الحالة المباشرة لتحديد إن كنت مفتوحًا الآن.';
-
-  @override
   String get pProfileSave => 'حفظ التغييرات';
 
   @override
   String get pProfileSaved => 'تم تحديث الملف';
+
+  @override
+  String get pHoursTitle => 'ساعات العمل';
+
+  @override
+  String get pHoursSubtitle =>
+      'تُعرض للعملاء، وتُستخدم لتحديد الأوقات التي يمكنهم الحجز فيها.';
+
+  @override
+  String get pHoursClosed => 'مغلق';
+
+  @override
+  String get pHoursOpensLabel => 'يفتح';
+
+  @override
+  String get pHoursClosesLabel => 'يغلق';
+
+  @override
+  String get pHoursSave => 'حفظ التغييرات';
+
+  @override
+  String get pHoursDiscard => 'تجاهل التغييرات';
+
+  @override
+  String get pHoursSaved => 'تم حفظ ساعات العمل';
+
+  @override
+  String get pHoursErrorCloseBeforeOpen =>
+      'يجب أن يكون وقت الإغلاق بعد وقت الفتح';
 
   @override
   String get pProfileNameRequired => 'اسم النشاط مطلوب';

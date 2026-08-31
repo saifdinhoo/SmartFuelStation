@@ -10,6 +10,7 @@ import '../../../core/widgets/status_chip.dart';
 import '../booking/create_booking_sheet.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
+import '../widgets/operating_hours_list.dart';
 import '../widgets/rating_stars.dart';
 
 class ProviderDetailsScreen extends StatefulWidget {
@@ -42,6 +43,7 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     final ratingState = repo.watchRating(widget.providerId);
     final reviewsState = repo.watchProviderReviews(widget.providerId);
     final queueState = repo.watchQueueSummary(widget.providerId);
+    final hoursState = repo.watchProviderHours(widget.providerId);
 
     return Scaffold(
       appBar: AppBar(),
@@ -158,6 +160,29 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
                 const SizedBox(height: 6),
                 Text(provider.description!, style: theme.textTheme.bodyMedium),
               ],
+
+              const SizedBox(height: 20),
+              _Section(title: l10n.providerHoursTitle),
+              const SizedBox(height: 6),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: hoursState.map(
+                    onData: (hours) => OperatingHoursList(hours: hours),
+                    onLoading: (previous) => previous == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : OperatingHoursList(hours: previous),
+                    onError: (error, previous) => previous != null
+                        ? OperatingHoursList(hours: previous)
+                        : Text(
+                            error.message,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: status.mutedForeground,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 20),
               _Section(title: l10n.providerQueueNow),

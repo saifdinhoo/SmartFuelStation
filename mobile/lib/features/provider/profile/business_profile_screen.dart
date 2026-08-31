@@ -10,11 +10,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../data/provider_repository.dart';
+import '../hours/operating_hours_editor.dart';
 
-/// Edits exactly the fields PATCH /providers/me accepts.
-///
-/// Operating hours are absent on purpose: there is no column for them, so
-/// the screen says so rather than offering an input that would be discarded.
+/// Edits exactly the fields PATCH /providers/me accepts, plus the weekly
+/// operating-hours editor (its own independent save unit — see
+/// [OperatingHoursEditor]).
 class BusinessProfileScreen extends StatefulWidget {
   const BusinessProfileScreen({super.key});
 
@@ -297,28 +297,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               ),
 
               const SizedBox(height: 20),
-              Card(
-                color: status.muted,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.pProfileHoursTitle,
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.pProfileHoursBody,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: status.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              const OperatingHoursEditor(),
 
               if (_error != null) ...[
                 const SizedBox(height: 12),

@@ -17,9 +17,16 @@ class CacheKeys {
   static String providerRating(int id) => 'provider/$id/rating';
   static String queueSummary(int id) => 'provider/$id/queue-summary';
   static String booking(int id) => 'booking/$id';
+  static String providerHours(int providerId) => 'provider/$providerId/hours';
+  static String availability(int providerId, int serviceId, String date) =>
+      'availability/$providerId/$serviceId/$date';
 
   /// Everything scoped to a single provider, for bulk invalidation.
   static const providerPrefix = 'provider/';
+
+  /// Every cached availability query for one provider, regardless of which
+  /// service/date combination was requested.
+  static String availabilityPrefix(int providerId) => 'availability/$providerId/';
 }
 
 /// Customer-facing reads and mutations.
@@ -95,6 +102,51 @@ class CustomerRepository {
         return QueueSummary.fromJson(Map<String, dynamic>.from(json));
       });
 
+  // --- operating hours & availability ---------------------------------------
+
+  /// Read-only weekly schedule, shown on Provider Details. Kept separate
+  /// from `isOpen`/`isOpen`'s live status — this is what the provider has
+  /// scheduled, not whether they are open at this exact instant.
+  AsyncValue<List<OperatingHour>> watchProviderHours(int providerId) =>
+      _cache.watch(CacheKeys.providerHours(providerId), () async {
+        final raw = await _api.get('/providers/$providerId/hours') as List<dynamic>;
+        return raw
+            .whereType<Map>()
+            .map((json) => OperatingHour.fromJson(Map<String, dynamic>.from(json)))
+            .toList();
+      });
+
+  /// Backend-authoritative slot list for one service on one local calendar
+  /// date. [date] must already be "YYYY-MM-DD" in the device's local
+  /// timezone — never derived via `toIso8601String()` on a DateTime, which
+  /// reports UTC and can land on the wrong day near midnight.
+  AsyncValue<Availability> watchAvailability({
+    required int providerId,
+    required int serviceId,
+    required String date,
+  }) => _cache.watch(CacheKeys.availability(providerId, serviceId, date), () async {
+    final json = await _api.get(
+      '/providers/$providerId/availability',
+      query: {'serviceId': serviceId, 'date': date},
+    ) as Map;
+    return Availability.fromJson(Map<String, dynamic>.from(json));
+  });
+
+  /// Forces a fresh read — used after a 409 conflict on booking creation, so
+  /// the slot that was just taken by someone else disappears immediately
+  /// rather than waiting for the 30-second staleness window.
+  Future<Availability> refreshAvailability({
+    required int providerId,
+    required int serviceId,
+    required String date,
+  }) => _cache.refresh(CacheKeys.availability(providerId, serviceId, date), () async {
+    final json = await _api.get(
+      '/providers/$providerId/availability',
+      query: {'serviceId': serviceId, 'date': date},
+    ) as Map;
+    return Availability.fromJson(Map<String, dynamic>.from(json));
+  });
+
   // --- bookings ------------------------------------------------------------
 
   /// GET /bookings is scoped server-side to the caller: a customer receives
@@ -142,6 +194,7 @@ class CustomerRepository {
     // A new booking occupies a slot, which changes that provider's
     // availability picture for everyone browsing.
     _cache.invalidate(CacheKeys.queueSummary(booking.providerId));
+    _cache.invalidatePrefix(CacheKeys.availabilityPrefix(booking.providerId));
     return booking;
   }
 

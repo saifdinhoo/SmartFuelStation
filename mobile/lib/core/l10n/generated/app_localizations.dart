@@ -224,6 +224,48 @@ abstract class AppLocalizations {
   /// **'Admin'**
   String get roleAdmin;
 
+  /// No description provided for @dayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get dayMonday;
+
+  /// No description provided for @dayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get dayTuesday;
+
+  /// No description provided for @dayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get dayWednesday;
+
+  /// No description provided for @dayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get dayThursday;
+
+  /// No description provided for @dayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get dayFriday;
+
+  /// No description provided for @daySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get daySaturday;
+
+  /// No description provided for @daySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get daySunday;
+
   /// No description provided for @loginSubmitting.
   ///
   /// In en, this message translates to:
@@ -668,6 +710,24 @@ abstract class AppLocalizations {
   /// **'This business is closed right now, but you can still request a booking.'**
   String get providerClosedCannotBook;
 
+  /// No description provided for @providerHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours'**
+  String get providerHoursTitle;
+
+  /// No description provided for @providerHoursNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours not set'**
+  String get providerHoursNotSet;
+
+  /// No description provided for @providerHoursNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider hasn\'t set their operating hours yet.'**
+  String get providerHoursNone;
+
   /// No description provided for @serviceDuration.
   ///
   /// In en, this message translates to:
@@ -697,12 +757,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date & time'**
   String get bookingDateTime;
-
-  /// No description provided for @bookingPickDateTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a date and time'**
-  String get bookingPickDateTime;
 
   /// No description provided for @bookingNotes.
   ///
@@ -734,17 +788,59 @@ abstract class AppLocalizations {
   /// **'Select a service'**
   String get bookingErrorSelectService;
 
-  /// No description provided for @bookingErrorSelectTime.
+  /// No description provided for @bookingSelectDate.
   ///
   /// In en, this message translates to:
-  /// **'Choose a date and time'**
-  String get bookingErrorSelectTime;
+  /// **'Date'**
+  String get bookingSelectDate;
 
-  /// No description provided for @bookingErrorFutureTime.
+  /// No description provided for @bookingOpenHours.
   ///
   /// In en, this message translates to:
-  /// **'Pick a time in the future'**
-  String get bookingErrorFutureTime;
+  /// **'Open {opening} – {closing}'**
+  String bookingOpenHours(String opening, String closing);
+
+  /// No description provided for @bookingClosedOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider is closed on the selected date.'**
+  String get bookingClosedOnDate;
+
+  /// No description provided for @bookingHoursNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider hasn\'t set their operating hours yet, so this date can\'t be booked.'**
+  String get bookingHoursNotConfigured;
+
+  /// No description provided for @bookingNoSlotsFit.
+  ///
+  /// In en, this message translates to:
+  /// **'No time slots fit this service before closing on this date.'**
+  String get bookingNoSlotsFit;
+
+  /// No description provided for @bookingSlotBookedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get bookingSlotBookedLabel;
+
+  /// No description provided for @bookingSlotPastLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get bookingSlotPastLabel;
+
+  /// No description provided for @bookingErrorSelectSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an available time slot'**
+  String get bookingErrorSelectSlot;
+
+  /// No description provided for @bookingConflictRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'That time was just booked by someone else. Pick another slot below.'**
+  String get bookingConflictRetry;
 
   /// No description provided for @bookingsTitle.
   ///
@@ -1772,18 +1868,6 @@ abstract class AppLocalizations {
   /// **'Used to rank your business by distance in customer search.'**
   String get pProfileLocationHint;
 
-  /// No description provided for @pProfileHoursTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Operating hours aren\'t available'**
-  String get pProfileHoursTitle;
-
-  /// No description provided for @pProfileHoursBody.
-  ///
-  /// In en, this message translates to:
-  /// **'There is no field for them in the database, so they can\'t be saved. Use Live Status to mark yourself open or closed right now.'**
-  String get pProfileHoursBody;
-
   /// No description provided for @pProfileSave.
   ///
   /// In en, this message translates to:
@@ -1795,6 +1879,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile updated'**
   String get pProfileSaved;
+
+  /// No description provided for @pHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours'**
+  String get pHoursTitle;
+
+  /// No description provided for @pHoursSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown to customers, and used to decide which times they can book.'**
+  String get pHoursSubtitle;
+
+  /// No description provided for @pHoursClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get pHoursClosed;
+
+  /// No description provided for @pHoursOpensLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens'**
+  String get pHoursOpensLabel;
+
+  /// No description provided for @pHoursClosesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes'**
+  String get pHoursClosesLabel;
+
+  /// No description provided for @pHoursSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get pHoursSave;
+
+  /// No description provided for @pHoursDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get pHoursDiscard;
+
+  /// No description provided for @pHoursSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours saved'**
+  String get pHoursSaved;
+
+  /// No description provided for @pHoursErrorCloseBeforeOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing time must be after opening time'**
+  String get pHoursErrorCloseBeforeOpen;
 
   /// No description provided for @pProfileNameRequired.
   ///

@@ -2,10 +2,14 @@ jest.mock('../../services/provider.service');
 jest.mock('../../services/review.service');
 jest.mock('../../services/providerProfile.service');
 jest.mock('../../services/providerAnalytics.service');
+jest.mock('../../services/providerHours.service');
+jest.mock('../../services/availability.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
 
 const providerService = require('../../services/provider.service');
+const hoursService = require('../../services/providerHours.service');
+const availabilityService = require('../../services/availability.service');
 const socketEvents = require('../../sockets/queueEvents');
 const notificationService = require('../../services/notification.service');
 const providerController = require('../provider.controller');
@@ -15,6 +19,7 @@ function fakeRes() {
 }
 
 const ADMIN = { userId: 1, role: 'ADMIN' };
+const PROVIDER = { userId: 77, role: 'PROVIDER' };
 
 beforeEach(() => {
   jest.resetAllMocks();
@@ -89,5 +94,102 @@ describe('setApproval', () => {
       estimatedWaitMinutes: 5,
       isApproved: true,
     });
+  });
+});
+
+describe('operating hours', () => {
+  it('getMyHours resolves the provider from the JWT, not the request body/params', async () => {
+    hoursService.getOwnHours.mockResolvedValue([]);
+    const res = fakeRes();
+
+    await providerController.getMyHours(
+      { user: PROVIDER, body: { providerId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(hoursService.getOwnHours).toHaveBeenCalledWith(77);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
+  });
+
+  it('updateMyHours forwards the body to the service and resolves the provider from the JWT', async () => {
+    const updated = [{ dayOfWeek: 'MONDAY', isClosed: false, openTime: '09:00', closeTime: '18:00' }];
+    hoursService.updateOwnHours.mockResolvedValue(updated);
+    const res = fakeRes();
+    const body = [{ dayOfWeek: 'MONDAY', isClosed: false, openTime: '09:00', closeTime: '18:00' }];
+
+    await providerController.updateMyHours({ user: PROVIDER, body }, res, jest.fn());
+
+    expect(hoursService.updateOwnHours).toHaveBeenCalledWith(77, body);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: updated });
+  });
+
+  it('updateMyHours passes a service error to next() rather than throwing', async () => {
+    const err = new Error('closeTime must be after openTime');
+    err.statusCode = 400;
+    hoursService.updateOwnHours.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.updateMyHours({ user: PROVIDER, body: [] }, fakeRes(), next);
+
+    expect(next).toHaveBeenCalledWith(err);
+  });
+
+  it('getHours (public) reads the provider id from the route param', async () => {
+    hoursService.getHours.mockResolvedValue([]);
+    const res = fakeRes();
+
+    await providerController.getHours({ user: PROVIDER, params: { id: '2' } }, res, jest.fn());
+
+    expect(hoursService.getHours).toHaveBeenCalledWith('2', PROVIDER);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: [] });
+  });
+});
+
+describe('getAvailability', () => {
+  it('forwards providerId (route param) and serviceId/date (query) to the service', async () => {
+    const availability = {
+      providerId: 2,
+      serviceId: 5,
+      date: '2027-01-15',
+      status: 'OPEN',
+      openingTime: '09:00',
+      closingTime: '18:00',
+      serviceDurationMinutes: 30,
+      slots: [],
+    };
+    availabilityService.getAvailability.mockResolvedValue(availability);
+    const res = fakeRes();
+
+    await providerController.getAvailability(
+      {
+        user: PROVIDER,
+        params: { id: '2' },
+        query: { serviceId: '5', date: '2027-01-15' },
+      },
+      res,
+      jest.fn(),
+    );
+
+    expect(availabilityService.getAvailability).toHaveBeenCalledWith(
+      { providerId: '2', serviceId: '5', date: '2027-01-15' },
+      PROVIDER,
+    );
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: availability });
+  });
+
+  it('passes a service error to next() rather than throwing', async () => {
+    const err = new Error('date must be a valid date in the form YYYY-MM-DD');
+    err.statusCode = 400;
+    availabilityService.getAvailability.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.getAvailability(
+      { user: PROVIDER, params: { id: '2' }, query: {} },
+      fakeRes(),
+      next,
+    );
+
+    expect(next).toHaveBeenCalledWith(err);
   });
 });

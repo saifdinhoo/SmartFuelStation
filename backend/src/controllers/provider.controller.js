@@ -2,6 +2,8 @@ const providerService = require('../services/provider.service');
 const reviewService = require('../services/review.service');
 const profileService = require('../services/providerProfile.service');
 const analyticsService = require('../services/providerAnalytics.service');
+const hoursService = require('../services/providerHours.service');
+const availabilityService = require('../services/availability.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
 
@@ -179,6 +181,51 @@ async function deleteMyService(req, res, next) {
   }
 }
 
+// --- operating hours --------------------------------------------------------
+
+async function getMyHours(req, res, next) {
+  try {
+    const hours = await hoursService.getOwnHours(req.user.userId);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateMyHours(req, res, next) {
+  try {
+    const hours = await hoursService.updateOwnHours(req.user.userId, req.body);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getHours(req, res, next) {
+  try {
+    const hours = await hoursService.getHours(req.params.id, req.user);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getAvailability(req, res, next) {
+  try {
+    const availability = await availabilityService.getAvailability(
+      {
+        providerId: req.params.id,
+        serviceId: req.query.serviceId,
+        date: req.query.date,
+      },
+      req.user,
+    );
+    res.json({ success: true, data: availability });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   approve,
@@ -191,4 +238,8 @@ module.exports = {
   createMyService,
   updateMyService,
   deleteMyService,
+  getMyHours,
+  updateMyHours,
+  getHours,
+  getAvailability,
 };

@@ -11,6 +11,8 @@ const router = express.Router();
 router.get('/me', authenticate, authorize('PROVIDER'), providerController.getMe);
 router.patch('/me', authenticate, authorize('PROVIDER'), providerController.updateMe);
 router.get('/me/analytics', authenticate, authorize('PROVIDER'), providerController.myAnalytics);
+router.get('/me/hours', authenticate, authorize('PROVIDER'), providerController.getMyHours);
+router.put('/me/hours', authenticate, authorize('PROVIDER'), providerController.updateMyHours);
 router.post('/me/services', authenticate, authorize('PROVIDER'), providerController.createMyService);
 router.patch(
   '/me/services/:serviceId',
@@ -32,5 +34,7 @@ router.patch('/:id/approve', authenticate, authorize('ADMIN'), providerControlle
 router.patch('/:id/approval', authenticate, authorize('ADMIN'), providerController.setApproval);
 router.get('/:id/reviews', authenticate, providerController.listReviews);
 router.get('/:id/rating-summary', authenticate, providerController.ratingSummary);
+router.get('/:id/hours', authenticate, providerController.getHours);
+router.get('/:id/availability', authenticate, providerController.getAvailability);
 
 module.exports = router;

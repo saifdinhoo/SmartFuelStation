@@ -83,6 +83,46 @@ describe('SocketProvider — notification:new integration', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['notifications', 'unread-count'] });
   });
 
+  it('invalidates availability on (re)connect too', async () => {
+    const queryClient = new QueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <div>child</div>
+        </SocketProvider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() => expect(handlers['connect']).toBeTypeOf('function'));
+    handlers['connect']();
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['availability'] });
+  });
+
+  it('invalidates only the affected provider\'s availability on provider:availability_changed', async () => {
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(['availability', 2, 5, '2026-09-01'], { status: 'OPEN', slots: [] });
+    queryClient.setQueryData(['availability', 9, 1, '2026-09-01'], { status: 'OPEN', slots: [] });
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <div>child</div>
+        </SocketProvider>
+      </QueryClientProvider>,
+    );
+
+    await waitFor(() =>
+      expect(handlers['provider:availability_changed']).toBeTypeOf('function'),
+    );
+    handlers['provider:availability_changed']({ providerId: 2 });
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['availability', 2] });
+  });
+
   it('clears cached notifications when the user is not authenticated (logout)', () => {
     mockIsAuthenticated = false;
     const queryClient = new QueryClient();

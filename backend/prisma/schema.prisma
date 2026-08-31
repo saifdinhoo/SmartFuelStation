@@ -100,17 +100,53 @@ model Provider {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  user          User              @relation(fields: [userId], references: [id])
-  approvedBy    User?             @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  services      ProviderService[]
-  reviews       Review[]
-  complaints    Complaint[]
-  queueEntries  QueueEntry[]
-  notifications Notification[]
+  user           User                    @relation(fields: [userId], references: [id])
+  approvedBy     User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  services       ProviderService[]
+  reviews        Review[]
+  complaints     Complaint[]
+  queueEntries   QueueEntry[]
+  notifications  Notification[]
+  operatingHours ProviderOperatingHour[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
   @@index([approvedById])
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// The provider's normal weekly schedule — distinct from Provider.isOpen,
+// which is a manual/live "open right now" toggle (see booking.service.js
+// and availability.service.js for how the two are kept separate).
+//
+// openTime/closeTime are plain "HH:mm" 24-hour strings, not DateTime/Time
+// columns — a wall-clock time of day has no date or timezone component of
+// its own, and storing it as one invites exactly the kind of UTC-shift bug
+// this feature exists to avoid. See availability.service.js's doc comment
+// for the project's documented local-time assumption.
+model ProviderOperatingHour {
+  id         Int       @id @default(autoincrement())
+  providerId Int
+  dayOfWeek  DayOfWeek
+  // Null on a closed day — a closed day has no opening interval.
+  openTime   String?
+  closeTime  String?
+  isClosed   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, dayOfWeek])
 }
 
 model ServiceCategory {

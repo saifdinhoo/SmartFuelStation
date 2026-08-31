@@ -33,6 +33,10 @@ interface BookingStatusChangedPayload {
   status: string;
 }
 
+interface ProviderAvailabilityChangedPayload {
+  providerId: number;
+}
+
 // Public availability only — the same fields GET /providers already
 // exposes to any authenticated caller. Never carries owner identity,
 // address, approval trail, or queue entries.
@@ -103,6 +107,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // socket alone.
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      // Same reasoning — a booking made by someone else while this client
+      // was offline never pushed a provider:availability_changed event.
+      queryClient.invalidateQueries({ queryKey: ['availability'] });
     }
 
     function onDisconnect() {
@@ -129,6 +136,15 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     function onBookingStatusChanged(payload: BookingStatusChangedPayload) {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings', String(payload.bookingId)] });
+    }
+
+    // A booking was created or changed status for this provider — anyone
+    // currently looking at its availability (e.g. mid-booking, choosing a
+    // slot) has a query keyed ['availability', providerId, ...] that may
+    // now be stale. Matches on the key prefix, so every service/date
+    // combination currently cached for this provider is covered.
+    function onProviderAvailabilityChanged(payload: ProviderAvailabilityChangedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['availability', payload.providerId] });
     }
 
     // Patched in place rather than invalidated: the payload carries every
@@ -176,6 +192,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       .off('provider:status_changed', onProviderStatusChanged)
       .on('provider:status_changed', onProviderStatusChanged);
     socket.off('notification:new', onNotificationNew).on('notification:new', onNotificationNew);
+    socket
+      .off('provider:availability_changed', onProviderAvailabilityChanged)
+      .on('provider:availability_changed', onProviderAvailabilityChanged);
 
     return () => {
       socket.off('connect', onConnect);
@@ -185,6 +204,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('booking:status_changed', onBookingStatusChanged);
       socket.off('provider:status_changed', onProviderStatusChanged);
       socket.off('notification:new', onNotificationNew);
+      socket.off('provider:availability_changed', onProviderAvailabilityChanged);
     };
   }, [queryClient]);
 

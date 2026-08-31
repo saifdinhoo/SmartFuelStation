@@ -8,9 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Badge } from '@/components/ui/Badge';
-import { Alert } from '@/components/ui/Alert';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { OperatingHoursEditor } from '@/features/provider/hours/OperatingHoursEditor';
 import { useOwnProviderProfile, useUpdateOwnProfile } from './useOwnProviderProfile';
 import { businessProfileSchema, type BusinessProfileFormValues } from './businessProfileSchema';
 
@@ -171,11 +171,6 @@ export function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            <Alert variant="info" title="Operating hours aren't available yet">
-              There is no field for them in the database, so they can&apos;t be saved. Use the Live
-              Status page to mark yourself open or closed right now.
-            </Alert>
-
             <div className="flex justify-end gap-3">
               <Button
                 type="button"
@@ -190,6 +185,8 @@ export function BusinessProfilePage() {
               </Button>
             </div>
           </form>
+
+          <OperatingHoursEditor />
         </Reveal>
       )}
     </div>

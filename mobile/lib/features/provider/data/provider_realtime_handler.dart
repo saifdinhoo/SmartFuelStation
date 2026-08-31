@@ -95,4 +95,9 @@ class ProviderRealtimeHandler implements RealtimeEventHandler {
   /// Handled by NotificationRealtimeHandler, shared by every role.
   @override
   void onNotificationNew(Map<String, dynamic> payload) {}
+
+  /// The provider area has no availability-browsing screen of its own —
+  /// bookings and queue changes already reach it via the events above.
+  @override
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
 }

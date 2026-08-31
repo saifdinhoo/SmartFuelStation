@@ -72,6 +72,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleAdmin => 'Admin';
 
   @override
+  String get dayMonday => 'Monday';
+
+  @override
+  String get dayTuesday => 'Tuesday';
+
+  @override
+  String get dayWednesday => 'Wednesday';
+
+  @override
+  String get dayThursday => 'Thursday';
+
+  @override
+  String get dayFriday => 'Friday';
+
+  @override
+  String get daySaturday => 'Saturday';
+
+  @override
+  String get daySunday => 'Sunday';
+
+  @override
   String get loginSubmitting => 'Logging in…';
 
   @override
@@ -332,6 +353,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'This business is closed right now, but you can still request a booking.';
 
   @override
+  String get providerHoursTitle => 'Operating hours';
+
+  @override
+  String get providerHoursNotSet => 'Hours not set';
+
+  @override
+  String get providerHoursNone =>
+      'This provider hasn\'t set their operating hours yet.';
+
+  @override
   String serviceDuration(int minutes) {
     return '$minutes min';
   }
@@ -349,9 +380,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingDateTime => 'Date & time';
 
   @override
-  String get bookingPickDateTime => 'Pick a date and time';
-
-  @override
   String get bookingNotes => 'Notes (optional)';
 
   @override
@@ -367,10 +395,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingErrorSelectService => 'Select a service';
 
   @override
-  String get bookingErrorSelectTime => 'Choose a date and time';
+  String get bookingSelectDate => 'Date';
 
   @override
-  String get bookingErrorFutureTime => 'Pick a time in the future';
+  String bookingOpenHours(String opening, String closing) {
+    return 'Open $opening – $closing';
+  }
+
+  @override
+  String get bookingClosedOnDate =>
+      'This provider is closed on the selected date.';
+
+  @override
+  String get bookingHoursNotConfigured =>
+      'This provider hasn\'t set their operating hours yet, so this date can\'t be booked.';
+
+  @override
+  String get bookingNoSlotsFit =>
+      'No time slots fit this service before closing on this date.';
+
+  @override
+  String get bookingSlotBookedLabel => 'Booked';
+
+  @override
+  String get bookingSlotPastLabel => 'Past';
+
+  @override
+  String get bookingErrorSelectSlot => 'Choose an available time slot';
+
+  @override
+  String get bookingConflictRetry =>
+      'That time was just booked by someone else. Pick another slot below.';
 
   @override
   String get bookingsTitle => 'Bookings';
@@ -930,17 +985,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used to rank your business by distance in customer search.';
 
   @override
-  String get pProfileHoursTitle => 'Operating hours aren\'t available';
-
-  @override
-  String get pProfileHoursBody =>
-      'There is no field for them in the database, so they can\'t be saved. Use Live Status to mark yourself open or closed right now.';
-
-  @override
   String get pProfileSave => 'Save changes';
 
   @override
   String get pProfileSaved => 'Profile updated';
+
+  @override
+  String get pHoursTitle => 'Operating hours';
+
+  @override
+  String get pHoursSubtitle =>
+      'Shown to customers, and used to decide which times they can book.';
+
+  @override
+  String get pHoursClosed => 'Closed';
+
+  @override
+  String get pHoursOpensLabel => 'Opens';
+
+  @override
+  String get pHoursClosesLabel => 'Closes';
+
+  @override
+  String get pHoursSave => 'Save changes';
+
+  @override
+  String get pHoursDiscard => 'Discard changes';
+
+  @override
+  String get pHoursSaved => 'Operating hours saved';
+
+  @override
+  String get pHoursErrorCloseBeforeOpen =>
+      'Closing time must be after opening time';
 
   @override
   String get pProfileNameRequired => 'Business name is required';

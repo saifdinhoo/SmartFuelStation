@@ -485,6 +485,172 @@ class QueueEntry {
 }
 
 // ---------------------------------------------------------------------------
+// Operating hours & availability
+// ---------------------------------------------------------------------------
+
+enum DayOfWeekModel {
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday,
+  sunday;
+
+  static DayOfWeekModel fromApi(String? value) => switch (value) {
+    'MONDAY' => monday,
+    'TUESDAY' => tuesday,
+    'WEDNESDAY' => wednesday,
+    'THURSDAY' => thursday,
+    'FRIDAY' => friday,
+    'SATURDAY' => saturday,
+    _ => sunday,
+  };
+
+  /// The exact enum value the backend expects back on PUT
+  /// /providers/me/hours.
+  String get api => switch (this) {
+    monday => 'MONDAY',
+    tuesday => 'TUESDAY',
+    wednesday => 'WEDNESDAY',
+    thursday => 'THURSDAY',
+    friday => 'FRIDAY',
+    saturday => 'SATURDAY',
+    sunday => 'SUNDAY',
+  };
+
+  /// Matches the Prisma enum's own declaration order, which is also the
+  /// order GET /providers/:id/hours already returns.
+  static const week = [
+    monday,
+    tuesday,
+    wednesday,
+    thursday,
+    friday,
+    saturday,
+    sunday,
+  ];
+}
+
+/// One weekday's row from GET /providers/:id/hours or
+/// GET|PUT /providers/me/hours.
+class OperatingHour {
+  const OperatingHour({
+    required this.dayOfWeek,
+    required this.isClosed,
+    this.openTime,
+    this.closeTime,
+  });
+
+  final DayOfWeekModel dayOfWeek;
+  final bool isClosed;
+
+  /// "HH:mm", 24-hour, local wall-clock time. Null exactly when [isClosed]
+  /// is true — the backend forces this pairing server-side too.
+  final String? openTime;
+  final String? closeTime;
+
+  factory OperatingHour.fromJson(Map<String, dynamic> json) => OperatingHour(
+    dayOfWeek: DayOfWeekModel.fromApi(asStringOrNull(json['dayOfWeek'])),
+    isClosed: asBool(json['isClosed']),
+    openTime: asStringOrNull(json['openTime']),
+    closeTime: asStringOrNull(json['closeTime']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'dayOfWeek': dayOfWeek.api,
+    'isClosed': isClosed,
+    'openTime': isClosed ? null : openTime,
+    'closeTime': isClosed ? null : closeTime,
+  };
+}
+
+enum SlotStatusModel {
+  available,
+  booked,
+  past;
+
+  static SlotStatusModel fromApi(String? value) => switch (value) {
+    'AVAILABLE' => available,
+    'BOOKED' => booked,
+    _ => past,
+  };
+}
+
+/// One candidate booking start from GET /providers/:id/availability.
+///
+/// Carries no customer identity or booking id — the backend never sends
+/// either, even for a BOOKED slot, so there is nothing here that could leak
+/// who holds it.
+class AvailabilitySlot {
+  const AvailabilitySlot({
+    required this.startTime,
+    required this.endTime,
+    required this.status,
+  });
+
+  final String startTime;
+  final String endTime;
+  final SlotStatusModel status;
+
+  factory AvailabilitySlot.fromJson(Map<String, dynamic> json) =>
+      AvailabilitySlot(
+        startTime: asString(json['startTime']),
+        endTime: asString(json['endTime']),
+        status: SlotStatusModel.fromApi(asStringOrNull(json['status'])),
+      );
+}
+
+enum AvailabilityStatusModel {
+  open,
+  closed,
+  hoursNotConfigured;
+
+  static AvailabilityStatusModel fromApi(String? value) => switch (value) {
+    'OPEN' => open,
+    'CLOSED' => closed,
+    _ => hoursNotConfigured,
+  };
+}
+
+/// GET /providers/:id/availability?serviceId=&date=. Backend-authoritative
+/// — the booking sheet never computes slots itself, only renders these.
+class Availability {
+  const Availability({
+    required this.providerId,
+    required this.serviceId,
+    required this.date,
+    required this.status,
+    required this.serviceDurationMinutes,
+    required this.slots,
+    this.openingTime,
+    this.closingTime,
+  });
+
+  final int providerId;
+  final int serviceId;
+
+  /// "YYYY-MM-DD", the same local calendar date that was requested.
+  final String date;
+  final AvailabilityStatusModel status;
+  final String? openingTime;
+  final String? closingTime;
+  final int serviceDurationMinutes;
+  final List<AvailabilitySlot> slots;
+
+  factory Availability.fromJson(Map<String, dynamic> json) => Availability(
+    providerId: asInt(json['providerId']),
+    serviceId: asInt(json['serviceId']),
+    date: asString(json['date']),
+    status: AvailabilityStatusModel.fromApi(asStringOrNull(json['status'])),
+    openingTime: asStringOrNull(json['openingTime']),
+    closingTime: asStringOrNull(json['closingTime']),
+    serviceDurationMinutes: asInt(json['serviceDurationMinutes']),
+    slots: asMapList(json['slots']).map(AvailabilitySlot.fromJson).toList(),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Provider self-service
 // ---------------------------------------------------------------------------
 

@@ -110,10 +110,29 @@ function notifyProviderStatusChanged({ providerId, isOpen, estimatedWaitMinutes,
   });
 }
 
+// A provider's booking calendar changed (created, or a status transition
+// that moves a booking into or out of the ACTIVE_STATUSES that block a
+// slot — see availabilityRules.js/booking.service.js). Any client
+// currently viewing GET /providers/:id/availability for this provider
+// should treat its last-fetched slot list as stale and refetch.
+//
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderStatusChanged: the payload is strictly less than what the
+// availability endpoint itself already returns to any authenticated
+// caller (just the provider id — no date, no slot data, no customer
+// identity), so broadcasting it exposes nothing a socket couldn't already
+// learn by calling the REST endpoint directly.
+function notifyProviderAvailabilityChanged({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('provider:availability_changed', { providerId });
+}
+
 module.exports = {
   broadcastProviderQueueUpdate,
   notifyCustomerEntry,
   notifyCustomerRemoved,
   notifyBookingStatusChanged,
   notifyProviderStatusChanged,
+  notifyProviderAvailabilityChanged,
 };

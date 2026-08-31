@@ -241,6 +241,11 @@ void main() {
       expect(handler.appliedEvents, 0);
     });
 
+    test('the provider area has no availability screen, so this is a no-op', () {
+      handler.onProviderAvailabilityChanged({'providerId': 1});
+      expect(handler.appliedEvents, 0);
+    });
+
     test(
       'a customer cancellation refreshes the provider booking keys',
       () async {
@@ -353,6 +358,38 @@ void main() {
       expect(entry.customerName, 'Sami');
       expect(entry.queuePosition, 2);
       expect(entry.status, QueueStatus.inService);
+    });
+
+    test('OperatingHour round-trips through toJson for an open day', () {
+      final hour = OperatingHour(
+        dayOfWeek: DayOfWeekModel.monday,
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      );
+      expect(hour.toJson(), {
+        'dayOfWeek': 'MONDAY',
+        'isClosed': false,
+        'openTime': '09:00',
+        'closeTime': '18:00',
+      });
+    });
+
+    test('OperatingHour.toJson forces null times for a closed day even if set', () {
+      final hour = OperatingHour(
+        dayOfWeek: DayOfWeekModel.friday,
+        isClosed: true,
+        openTime: '09:00',
+        closeTime: '18:00',
+      );
+      expect(hour.toJson()['openTime'], isNull);
+      expect(hour.toJson()['closeTime'], isNull);
+    });
+
+    test('DayOfWeekModel.api round-trips every value back to the backend enum', () {
+      for (final day in DayOfWeekModel.week) {
+        expect(DayOfWeekModel.fromApi(day.api), day);
+      }
     });
 
     test('analytics parses without any revenue field', () {

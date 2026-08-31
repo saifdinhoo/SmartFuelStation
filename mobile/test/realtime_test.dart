@@ -221,6 +221,23 @@ void main() {
       handler.onReconnected();
       expect(handler.appliedEvents, 0);
     });
+
+    test('also marks cached availability stale, across every provider', () async {
+      var loads = 0;
+      await cache.refresh(CacheKeys.availability(2, 5, '2026-09-01'), () async {
+        loads++;
+        return 'a';
+      });
+
+      handler.onReconnected();
+
+      cache.watch(CacheKeys.availability(2, 5, '2026-09-01'), () async {
+        loads++;
+        return 'a';
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(loads, 2, reason: 'a booking made while offline is never replayed');
+    });
   });
 
   group('provider:status_changed', () {
@@ -355,6 +372,25 @@ void main() {
     });
   });
 
+  group('provider:availability_changed', () {
+    test('marks only the named provider\'s availability stale', () async {
+      await cache.refresh(CacheKeys.availability(2, 5, '2026-09-01'), () async => 'a');
+      await cache.refresh(CacheKeys.availability(9, 1, '2026-09-01'), () async => 'b');
+
+      handler.onProviderAvailabilityChanged({'providerId': 2});
+
+      // Data survives (no blank screen); staleness is what changed.
+      expect(cache.read<String>(CacheKeys.availability(2, 5, '2026-09-01')).valueOrNull, 'a');
+      expect(cache.read<String>(CacheKeys.availability(9, 1, '2026-09-01')).valueOrNull, 'b');
+      expect(handler.appliedEvents, 1);
+    });
+
+    test('ignores a payload with no providerId', () {
+      handler.onProviderAvailabilityChanged({});
+      expect(handler.appliedEvents, 0);
+    });
+  });
+
   group('provider queue snapshot', () {
     test('only refreshes that provider\'s public summary', () async {
       await cache.refresh(CacheKeys.queueSummary(3), () async => 'summary');
@@ -461,6 +497,7 @@ void main() {
       notificationHandler.onMyQueueUpdate({'id': 1});
       notificationHandler.onProviderQueueUpdated({'providerId': 1});
       notificationHandler.onProviderStatusChanged({'providerId': 1});
+      notificationHandler.onProviderAvailabilityChanged({'providerId': 1});
 
       expect(notificationHandler.appliedEvents, 0);
     });

@@ -176,11 +176,6 @@ class ProviderMoreScreen extends StatelessWidget {
                   // Stated rather than shown as a disabled control that
                   // would imply it is coming imminently.
                   _Gap(icon: Icons.key_outlined, text: l10n.pMoreNoPassword),
-                  const SizedBox(height: 12),
-                  _Gap(
-                    icon: Icons.schedule_outlined,
-                    text: l10n.pProfileHoursBody,
-                  ),
                 ],
               ),
             ),

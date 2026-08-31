@@ -13,6 +13,8 @@ import { Tooltip } from '@/components/ui/Tooltip';
 import { TranslateButton } from '@/components/common/TranslateButton';
 import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingModal';
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
+import { useProviderHours } from '@/features/scheduling/useOperatingHours';
+import { OperatingHoursList } from '@/features/scheduling/OperatingHoursList';
 import { useProviderDetails } from './useProviderDetails';
 import { useProviderRating } from './useProviderRating';
 import { useProviderReviews } from './useProviderReviews';
@@ -27,6 +29,7 @@ export function ProviderDetailsPage() {
   const rating = useProviderRating(providerId);
   const reviews = useProviderReviews(providerId);
   const queue = useQueueSummary(provider?.id);
+  const hours = useProviderHours(provider?.id);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   return (
@@ -159,6 +162,27 @@ export function ProviderDetailsPage() {
 
           <Card>
             <CardHeader>
+              <h2 className="text-heading-3">Operating hours</h2>
+            </CardHeader>
+            <CardContent>
+              {hours.isPending ? (
+                <div className="flex flex-col gap-2">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <Skeleton key={i} className="h-4 w-full rounded" />
+                  ))}
+                </div>
+              ) : hours.isError ? (
+                <p className="text-body-sm text-muted-foreground">
+                  Could not load this provider&apos;s hours.
+                </p>
+              ) : (
+                <OperatingHoursList hours={hours.hours ?? []} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <h2 className="text-heading-3">Services &amp; prices</h2>
             </CardHeader>
             <CardContent>
@@ -240,6 +264,7 @@ export function ProviderDetailsPage() {
         <CreateBookingModal
           open={bookingModalOpen}
           onClose={() => setBookingModalOpen(false)}
+          providerId={provider.id}
           services={provider.services}
         />
       )}

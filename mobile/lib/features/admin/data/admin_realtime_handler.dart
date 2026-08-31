@@ -88,4 +88,8 @@ class AdminRealtimeHandler implements RealtimeEventHandler {
   /// Handled by NotificationRealtimeHandler, shared by every role.
   @override
   void onNotificationNew(Map<String, dynamic> payload) {}
+
+  /// The admin area has no per-provider availability screen.
+  @override
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
 }
