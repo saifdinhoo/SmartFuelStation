@@ -575,7 +575,7 @@ abstract class AppLocalizations {
   /// No description provided for @exploreUseLocation.
   ///
   /// In en, this message translates to:
-  /// **'Use my location'**
+  /// **'Update my location'**
   String get exploreUseLocation;
 
   /// No description provided for @exploreLocationDenied.
@@ -668,17 +668,23 @@ abstract class AppLocalizations {
   /// **'{count} in line'**
   String providerInLine(int count);
 
-  /// No description provided for @providerDirections.
+  /// No description provided for @locationViewLocation.
   ///
   /// In en, this message translates to:
-  /// **'Directions'**
-  String get providerDirections;
+  /// **'View location'**
+  String get locationViewLocation;
 
-  /// No description provided for @providerDirectionsUnavailable.
+  /// No description provided for @locationGetDirections.
   ///
   /// In en, this message translates to:
-  /// **'Maps aren\'t wired up yet.'**
-  String get providerDirectionsUnavailable;
+  /// **'Get directions'**
+  String get locationGetDirections;
+
+  /// No description provided for @locationCouldNotOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Maps.'**
+  String get locationCouldNotOpenMaps;
 
   /// No description provided for @providerFavorite.
   ///
@@ -1951,6 +1957,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Used to rank your business by distance in customer search.'**
   String get pProfileLocationHint;
+
+  /// No description provided for @pProfileUseCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use current location'**
+  String get pProfileUseCurrentLocation;
+
+  /// No description provided for @pProfilePreviewOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview on map'**
+  String get pProfilePreviewOnMap;
+
+  /// No description provided for @pProfileLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your current location. Check your permissions and try again.'**
+  String get pProfileLocationDenied;
 
   /// No description provided for @pProfileSave.
   ///

@@ -10,6 +10,7 @@ import '../../../core/state/async_view.dart';
 import '../../../core/state/query_cache.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/location_action_buttons.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../data/admin_repository.dart';
 import '../widgets/admin_widgets.dart';
@@ -199,6 +200,13 @@ class AdminProviderCard extends StatelessWidget {
                   ),
                 ),
               ],
+              const SizedBox(height: 8),
+              LocationActionButtons(
+                latitude: row.latitude,
+                longitude: row.longitude,
+                address: row.address,
+                showDirections: false,
+              ),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 14,

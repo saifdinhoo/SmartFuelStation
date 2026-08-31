@@ -257,7 +257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreSortLabel => 'Sort';
 
   @override
-  String get exploreUseLocation => 'Use my location';
+  String get exploreUseLocation => 'Update my location';
 
   @override
   String get exploreLocationDenied =>
@@ -331,10 +331,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get providerDirections => 'Directions';
+  String get locationViewLocation => 'View location';
 
   @override
-  String get providerDirectionsUnavailable => 'Maps aren\'t wired up yet.';
+  String get locationGetDirections => 'Get directions';
+
+  @override
+  String get locationCouldNotOpenMaps => 'Could not open Maps.';
 
   @override
   String get providerFavorite => 'Save';
@@ -1027,6 +1030,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pProfileLocationHint =>
       'Used to rank your business by distance in customer search.';
+
+  @override
+  String get pProfileUseCurrentLocation => 'Use current location';
+
+  @override
+  String get pProfilePreviewOnMap => 'Preview on map';
+
+  @override
+  String get pProfileLocationDenied =>
+      'Could not get your current location. Check your permissions and try again.';
 
   @override
   String get pProfileSave => 'Save changes';

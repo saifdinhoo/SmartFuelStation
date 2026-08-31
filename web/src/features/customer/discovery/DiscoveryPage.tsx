@@ -37,9 +37,19 @@ export function DiscoveryPage() {
             Automotive shops near you, sorted by distance or price.
           </p>
         </div>
-        <Button variant="ghost" className="h-9 w-9 p-0" onClick={reload} aria-label="Refresh">
-          <RefreshCw className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            onClick={retryLocation}
+            isLoading={locationStatus === 'locating'}
+          >
+            <MapPin className="h-4 w-4" />
+            Update my location
+          </Button>
+          <Button variant="ghost" className="h-9 w-9 p-0" onClick={reload} aria-label="Refresh">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {(locationStatus === 'denied' || locationStatus === 'unsupported') && (

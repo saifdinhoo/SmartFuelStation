@@ -255,6 +255,32 @@ void main() {
       expect(row.ownerEmail, 'owner@example.com');
     });
 
+    test('admin provider rows parse latitude/longitude for View location', () {
+      final row = AdminProviderRow.fromJson({
+        'id': 2,
+        'businessName': 'Cedars',
+        'address': 'Street 1',
+        'isApproved': true,
+        'isOpen': true,
+        'latitude': '33.8938',
+        'longitude': '35.5018',
+      });
+      expect(row.latitude, 33.8938);
+      expect(row.longitude, 35.5018);
+    });
+
+    test('admin provider rows without coordinates parse as null, never a fabricated 0,0', () {
+      final row = AdminProviderRow.fromJson({
+        'id': 3,
+        'businessName': 'No Location Yet',
+        'address': 'Street 2',
+        'isApproved': true,
+        'isOpen': true,
+      });
+      expect(row.latitude, isNull);
+      expect(row.longitude, isNull);
+    });
+
     test('analytics parses every series and invents no revenue field', () {
       final analytics = AdminAnalytics.fromJson({
         'range': '7d',

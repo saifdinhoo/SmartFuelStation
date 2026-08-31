@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, MapPin, Clock, Navigation, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, CalendarPlus } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
+import { LocationActions } from '@/components/common/LocationActions';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -9,7 +10,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
-import { Tooltip } from '@/components/ui/Tooltip';
 import { TranslateButton } from '@/components/common/TranslateButton';
 import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingModal';
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
@@ -27,7 +27,7 @@ export function ProviderDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const providerId = id ?? '';
-  const { provider, isPending, isError, errorMessage, notFound, reload } =
+  const { provider, isPending, isError, errorMessage, notFound, reload, customerCoordinates } =
     useProviderDetails(providerId);
   const rating = useProviderRating(providerId);
   const reviews = useProviderReviews(providerId);
@@ -119,29 +119,13 @@ export function ProviderDetailsPage() {
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Tooltip
-              label={
-                provider.latitude === null || provider.longitude === null
-                  ? "This provider hasn't set a location yet"
-                  : 'Open in Google Maps'
-              }
-            >
-              <Button
-                disabled={provider.latitude === null || provider.longitude === null}
-                aria-disabled={provider.latitude === null || provider.longitude === null}
-                onClick={() =>
-                  window.open(
-                    `https://www.google.com/maps/dir/?api=1&destination=${provider.latitude},${provider.longitude}`,
-                    '_blank',
-                    'noopener,noreferrer',
-                  )
-                }
-              >
-                <Navigation className="h-4 w-4" />
-                Get directions
-              </Button>
-            </Tooltip>
+          <div className="flex flex-wrap items-center gap-2">
+            <LocationActions
+              latitude={provider.latitude}
+              longitude={provider.longitude}
+              address={provider.address}
+              origin={customerCoordinates}
+            />
             <Button variant="secondary" onClick={() => setBookingModalOpen(true)}>
               <CalendarPlus className="h-4 w-4" />
               Book now

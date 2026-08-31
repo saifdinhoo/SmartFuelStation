@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/location/location_service.dart';
+import '../../../core/location/map_actions.dart';
 import '../../../core/models/models.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/state/async_view.dart';
@@ -36,14 +38,31 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   /// would wipe whatever the provider is mid-way through typing.
   bool _seeded = false;
   bool _saving = false;
+  bool _locating = false;
   String? _error;
   String? _nameError;
   String? _addressError;
   String? _latError;
   String? _lngError;
+  String? _locationError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Preview on map reads the live text, so it needs to rebuild as the
+    // provider types — not just once the form is saved.
+    for (final controller in [_latitude, _longitude, _address]) {
+      controller.addListener(_onLocationFieldsChanged);
+    }
+  }
+
+  void _onLocationFieldsChanged() => setState(() {});
 
   @override
   void dispose() {
+    for (final controller in [_latitude, _longitude, _address]) {
+      controller.removeListener(_onLocationFieldsChanged);
+    }
     for (final controller in [
       _businessName,
       _description,
@@ -88,6 +107,31 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     }
     setError(null);
     return value;
+  }
+
+  // GPS only ever populates the form — never saves anything itself. The
+  // provider must still press Save for it to reach PostgreSQL.
+  Future<void> _useCurrentLocation() async {
+    setState(() {
+      _locating = true;
+      _locationError = null;
+    });
+    final position = await context.read<LocationService>().refreshPosition();
+    if (!mounted) return;
+    if (position == null) {
+      setState(() {
+        _locating = false;
+        _locationError = AppLocalizations.of(context)!.pProfileLocationDenied;
+      });
+      return;
+    }
+    setState(() {
+      _latitude.text = position.latitude.toStringAsFixed(6);
+      _longitude.text = position.longitude.toStringAsFixed(6);
+      _locating = false;
+      _latError = null;
+      _lngError = null;
+    });
   }
 
   Future<void> _save() async {
@@ -296,6 +340,63 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                   color: status.mutedForeground,
                 ),
               ),
+              const SizedBox(height: 10),
+              Builder(
+                builder: (context) {
+                  final lat = double.tryParse(_latitude.text.trim());
+                  final lng = double.tryParse(_longitude.text.trim());
+                  final previewUri = buildViewLocationUri(
+                    lat,
+                    lng,
+                    addressFallback: _address.text,
+                  );
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _locating ? null : _useCurrentLocation,
+                        icon: _locating
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.my_location, size: 18),
+                        label: Text(l10n.pProfileUseCurrentLocation),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: previewUri == null
+                            ? null
+                            : () async {
+                                bool opened;
+                                try {
+                                  opened = await openMapUri(previewUri);
+                                } catch (_) {
+                                  opened = false;
+                                }
+                                if (!opened && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(l10n.locationCouldNotOpenMaps),
+                                    ),
+                                  );
+                                }
+                              },
+                        icon: const Icon(Icons.place_outlined, size: 18),
+                        label: Text(l10n.pProfilePreviewOnMap),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              if (_locationError != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  _locationError!,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ],
 
               const SizedBox(height: 20),
               const OperatingHoursEditor(),

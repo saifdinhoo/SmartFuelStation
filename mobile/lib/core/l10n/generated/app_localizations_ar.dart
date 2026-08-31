@@ -257,7 +257,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exploreSortLabel => 'ترتيب';
 
   @override
-  String get exploreUseLocation => 'استخدم موقعي';
+  String get exploreUseLocation => 'تحديث موقعي';
 
   @override
   String get exploreLocationDenied =>
@@ -335,10 +335,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get providerDirections => 'الاتجاهات';
+  String get locationViewLocation => 'عرض الموقع';
 
   @override
-  String get providerDirectionsUnavailable => 'الخرائط غير مفعّلة بعد.';
+  String get locationGetDirections => 'الاتجاهات';
+
+  @override
+  String get locationCouldNotOpenMaps => 'تعذّر فتح الخرائط.';
 
   @override
   String get providerFavorite => 'حفظ';
@@ -1023,6 +1026,16 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get pProfileLocationHint =>
       'يُستخدم لترتيب نشاطك حسب المسافة في بحث العملاء.';
+
+  @override
+  String get pProfileUseCurrentLocation => 'استخدم موقعي الحالي';
+
+  @override
+  String get pProfilePreviewOnMap => 'معاينة على الخريطة';
+
+  @override
+  String get pProfileLocationDenied =>
+      'تعذّر تحديد موقعك الحالي. تحقق من الأذونات وحاول مرة أخرى.';
 
   @override
   String get pProfileSave => 'حفظ التغييرات';

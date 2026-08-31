@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Building2, CheckCircle2, Star, XCircle } from 'lucide-react';
+import { Building2, CheckCircle2, MapPin, Star, XCircle } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
+import { buildViewLocationUrl, openExternalUrl } from '@/utils/location';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -171,6 +172,25 @@ export function AdminProvidersPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
+                      {(() => {
+                        const url = buildViewLocationUrl(
+                          p.latitude !== null ? Number(p.latitude) : null,
+                          p.longitude !== null ? Number(p.longitude) : null,
+                          p.address,
+                        );
+                        return (
+                          <Button
+                            variant="ghost"
+                            className="h-8 px-3 text-xs"
+                            disabled={!url}
+                            aria-disabled={!url}
+                            onClick={() => url && openExternalUrl(url)}
+                          >
+                            <MapPin className="h-3.5 w-3.5" />
+                            View location
+                          </Button>
+                        );
+                      })()}
                       {p.isApproved ? (
                         <Button
                           variant="destructive"

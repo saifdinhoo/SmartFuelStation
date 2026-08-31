@@ -59,6 +59,10 @@ dependencies:
   # and actively maintained, so it was added rather than hand-rolling a
   # CustomPainter chart.
   fl_chart: ^0.69.2
+  # Opens an external Maps app/URL for View location / Get directions
+  # (Phase C). The official Flutter-team package for launching URLs —
+  # no Maps SDK or API key involved, just an https:// link.
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

@@ -54,11 +54,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   /// Distance sorting needs a device position; asking for it is opt-in
   /// rather than on app start, so the permission prompt has obvious context.
+  /// Always forces a fresh GPS reading — this is the explicit "update my
+  /// location" action, not just a one-time enable, so it must work again
+  /// even after a position is already known.
   Future<void> _useLocation() async {
     final location = context.read<LocationService>();
-    await location.ensurePosition();
+    final hadPosition = location.hasPosition;
+    await location.refreshPosition();
     if (!mounted) return;
-    if (location.hasPosition) {
+    if (location.hasPosition && !hadPosition) {
       setState(() => _sort = ProviderSort.distance);
     }
   }
@@ -204,17 +208,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             ),
                           ],
                         ),
-                        if (!location.hasPosition)
-                          Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: TextButton.icon(
-                              onPressed: location.isLoading
-                                  ? null
-                                  : _useLocation,
-                              icon: const Icon(Icons.my_location, size: 18),
-                              label: Text(l10n.exploreUseLocation),
-                            ),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: TextButton.icon(
+                            onPressed: location.isLoading ? null : _useLocation,
+                            icon: location.isLoading
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.my_location, size: 18),
+                            label: Text(l10n.exploreUseLocation),
                           ),
+                        ),
                         if (location.isDenied)
                           Text(
                             l10n.exploreLocationDenied,

@@ -522,6 +522,8 @@ class AdminProviderRow {
     this.ownerName,
     this.ownerEmail,
     this.ownerPhone,
+    this.latitude,
+    this.longitude,
   });
 
   final int id;
@@ -536,6 +538,8 @@ class AdminProviderRow {
   final String? ownerName;
   final String? ownerEmail;
   final String? ownerPhone;
+  final double? latitude;
+  final double? longitude;
 
   factory AdminProviderRow.fromJson(Map<String, dynamic> json) {
     final user = asMapOrNull(json['user']);
@@ -553,6 +557,8 @@ class AdminProviderRow {
       ownerName: asStringOrNull(user?['name']),
       ownerEmail: asStringOrNull(user?['email']),
       ownerPhone: asStringOrNull(user?['phone']),
+      latitude: asDoubleOrNull(json['latitude']),
+      longitude: asDoubleOrNull(json['longitude']),
     );
   }
 

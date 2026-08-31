@@ -13,7 +13,12 @@ export function useGeolocation() {
   const [status, setStatus] = useState<GeolocationStatus>('locating');
   const [coordinates, setCoordinates] = useState<Coordinates>(DEMO_ORIGIN);
 
-  const requestLocation = useCallback(() => {
+  // `forceFresh` bypasses the browser's own position cache (maximumAge).
+  // The initial mount fetch can accept a recent cached reading — cheap and
+  // usually good enough for a first paint. An explicit "Update my
+  // location" click must not: the whole point of that button is asking
+  // again right now, so it always requests maximumAge: 0.
+  const requestLocation = useCallback((options: { forceFresh?: boolean } = {}) => {
     if (!('geolocation' in navigator)) {
       setStatus('unsupported');
       return;
@@ -29,7 +34,7 @@ export function useGeolocation() {
         setCoordinates(DEMO_ORIGIN);
         setStatus('denied');
       },
-      { timeout: 8000, maximumAge: 60_000 },
+      { timeout: 8000, maximumAge: options.forceFresh ? 0 : 60_000 },
     );
   }, []);
 
@@ -41,5 +46,9 @@ export function useGeolocation() {
     requestLocation();
   }, [requestLocation]);
 
-  return { status, coordinates, retry: requestLocation };
+  return {
+    status,
+    coordinates,
+    retry: useCallback(() => requestLocation({ forceFresh: true }), [requestLocation]),
+  };
 }

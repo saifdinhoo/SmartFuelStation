@@ -10,7 +10,7 @@ import { useGeolocation } from './useGeolocation';
 // (the customer came from Find Services), this resolves instantly with no
 // extra network call — otherwise TanStack Query fetches it fresh.
 export function useProviderDetails(id: string) {
-  const { coordinates } = useGeolocation();
+  const { status: locationStatus, coordinates } = useGeolocation();
 
   const providersQuery = useQuery({
     queryKey: ['providers'],
@@ -33,5 +33,10 @@ export function useProviderDetails(id: string) {
       : null,
     notFound,
     reload: providersQuery.refetch,
+    // The customer's own position, only when it's a real GPS reading —
+    // never the demo fallback point pretending to be one. Used as the
+    // directions origin; buildDirectionsUrl omits origin entirely when
+    // this is null, letting Google Maps ask the device instead.
+    customerCoordinates: locationStatus === 'granted' ? coordinates : null,
   };
 }

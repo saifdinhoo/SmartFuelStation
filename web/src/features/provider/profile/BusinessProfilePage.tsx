@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BadgeCheck } from 'lucide-react';
+import { BadgeCheck, LocateFixed, MapPin } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { buildViewLocationUrl, openExternalUrl } from '@/utils/location';
 import { OperatingHoursEditor } from '@/features/provider/hours/OperatingHoursEditor';
 import { useOwnFuel } from '@/features/fuel/useFuel';
 import { FuelStatusList } from '@/features/fuel/FuelStatusList';
@@ -29,10 +30,57 @@ export function BusinessProfilePage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<BusinessProfileFormValues>({
     resolver: zodResolver(businessProfileSchema),
   });
+
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  // GPS only ever populates the form — never saves anything itself. The
+  // provider must still press "Save changes" for it to reach PostgreSQL.
+  function useCurrentLocation() {
+    if (!('geolocation' in navigator)) {
+      setLocationError("This browser doesn't support location.");
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setValue('latitude', position.coords.latitude.toFixed(6), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        setValue('longitude', position.coords.longitude.toFixed(6), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        setLocating(false);
+      },
+      () => {
+        setLocationError(
+          'Could not get your current location. Check your browser permissions and try again.',
+        );
+        setLocating(false);
+      },
+      { timeout: 8000 },
+    );
+  }
+
+  // Uses whatever is currently typed in the form — including an unsaved
+  // edit — so the provider can verify a coordinate before committing to it.
+  const latText = watch('latitude');
+  const lngText = watch('longitude');
+  const addressText = watch('address');
+  const previewUrl = buildViewLocationUrl(
+    latText?.trim() ? Number(latText) : null,
+    lngText?.trim() ? Number(lngText) : null,
+    addressText,
+  );
 
   // Seed the form once the real profile arrives, and re-seed after a save
   // so `isDirty` resets against the newly-persisted values.
@@ -171,6 +219,28 @@ export function BusinessProfilePage() {
                 <p className="text-caption">
                   Used to rank your business by distance in customer search.
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    isLoading={locating}
+                    onClick={useCurrentLocation}
+                  >
+                    <LocateFixed className="h-4 w-4" />
+                    Use current location
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={!previewUrl}
+                    aria-disabled={!previewUrl}
+                    onClick={() => previewUrl && openExternalUrl(previewUrl)}
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Preview on map
+                  </Button>
+                </div>
+                {locationError && <p className="text-xs text-destructive">{locationError}</p>}
               </CardContent>
             </Card>
 
