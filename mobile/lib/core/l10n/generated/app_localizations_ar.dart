@@ -227,6 +227,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeFindService => 'ابحث عن خدمة';
 
   @override
+  String get homeQuickActions => 'إجراءات سريعة';
+
+  @override
+  String homeQueueCount(int count) {
+    return '$count في الطابور';
+  }
+
+  @override
   String get exploreTitle => 'استكشاف';
 
   @override

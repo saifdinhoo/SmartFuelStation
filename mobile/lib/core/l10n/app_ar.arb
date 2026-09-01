@@ -97,6 +97,9 @@
   "homeActiveBooking": "حجزك النشط",
   "homeNoActivity": "ليس لديك حجوزات نشطة.",
   "homeFindService": "ابحث عن خدمة",
+  "homeQuickActions": "إجراءات سريعة",
+  "homeQueueCount": "{count} في الطابور",
+  "@homeQueueCount": { "placeholders": { "count": { "type": "int" } } },
 
   "exploreTitle": "استكشاف",
   "exploreSearchHint": "ابحث عن نشاط أو خدمة…",

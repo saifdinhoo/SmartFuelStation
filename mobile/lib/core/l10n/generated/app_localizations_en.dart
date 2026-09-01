@@ -227,6 +227,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFindService => 'Find a service';
 
   @override
+  String get homeQuickActions => 'Quick actions';
+
+  @override
+  String homeQueueCount(int count) {
+    return '$count in queue';
+  }
+
+  @override
   String get exploreTitle => 'Explore';
 
   @override

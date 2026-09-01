@@ -97,6 +97,9 @@
   "homeActiveBooking": "Your active booking",
   "homeNoActivity": "You have no active bookings.",
   "homeFindService": "Find a service",
+  "homeQuickActions": "Quick actions",
+  "homeQueueCount": "{count} in queue",
+  "@homeQueueCount": { "placeholders": { "count": { "type": "int" } } },
 
   "exploreTitle": "Explore",
   "exploreSearchHint": "Search businesses or services…",

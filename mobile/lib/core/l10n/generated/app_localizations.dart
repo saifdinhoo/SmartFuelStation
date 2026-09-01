@@ -512,6 +512,18 @@ abstract class AppLocalizations {
   /// **'Find a service'**
   String get homeFindService;
 
+  /// No description provided for @homeQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get homeQuickActions;
+
+  /// No description provided for @homeQueueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in queue'**
+  String homeQueueCount(int count);
+
   /// No description provided for @exploreTitle.
   ///
   /// In en, this message translates to:
