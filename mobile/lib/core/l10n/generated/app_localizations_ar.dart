@@ -1408,12 +1408,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pMorePreferences => 'التفضيلات';
 
   @override
-  String get pMoreUnsupported => 'غير متاح بعد';
-
-  @override
-  String get pMoreNoPassword => 'لا توجد واجهة لتغيير كلمة المرور بعد.';
-
-  @override
   String get realtimeLive => 'مباشر';
 
   @override

@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { changePassword } from '@/features/auth/authApi';
-import type { ChangePasswordFormValues } from '@/features/auth/changePasswordSchema';
+import { changePassword } from './authApi';
+import type { ChangePasswordFormValues } from './changePasswordSchema';
 
+// Shared by both Customer and Provider Settings — one endpoint, one hook.
 export function useChangePassword() {
   const mutation = useMutation({
     mutationFn: (values: Omit<ChangePasswordFormValues, 'confirmPassword'>) =>

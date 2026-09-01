@@ -1,14 +1,24 @@
 import { Link } from 'react-router-dom';
-import { Bell, KeyRound, Languages, Palette, Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Bell, Languages, Palette, Trash2 } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { LanguageToggle } from '@/components/common/LanguageToggle';
+import { useToast } from '@/app/providers/ToastProvider';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import {
+  changePasswordSchema,
+  type ChangePasswordFormValues,
+} from '@/features/auth/changePasswordSchema';
+import { useChangePassword } from '@/features/auth/useChangePassword';
 import {
   useOwnProviderProfile,
   useUpdateOwnProfile,
@@ -24,12 +34,6 @@ const UNSUPPORTED = [
     reason: 'No notifications backend exists yet — nothing would be sent or stored.',
   },
   {
-    icon: KeyRound,
-    title: 'Change password',
-    reason:
-      'There is no change-password endpoint. The PasswordResetToken table exists but no route is wired to it.',
-  },
-  {
     icon: Trash2,
     title: 'Delete account',
     reason: 'No account-deletion endpoint exists, and bookings/reviews reference the account.',
@@ -39,6 +43,30 @@ const UNSUPPORTED = [
 export function ProviderSettingsPage() {
   const { profile, isPending, isError, errorMessage, reload } = useOwnProviderProfile();
   const { save, isSaving } = useUpdateOwnProfile();
+  const { showToast } = useToast();
+  const { changePassword, isPending: isChangingPassword } = useChangePassword();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ChangePasswordFormValues>({ resolver: zodResolver(changePasswordSchema) });
+
+  async function onChangePassword(values: ChangePasswordFormValues) {
+    try {
+      await changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      reset();
+      showToast({ title: 'Password changed successfully', variant: 'success' });
+    } catch (err) {
+      showToast({
+        title: getErrorMessage(err, 'Could not change your password'),
+        variant: 'destructive',
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -137,6 +165,37 @@ export function ProviderSettingsPage() {
                 <LanguageToggle />
               </div>
               <p className="text-caption">Saved in this browser only.</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <h2 className="text-heading-3">Security</h2>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onChangePassword)} className="flex flex-col gap-4" noValidate>
+                <PasswordInput
+                  label="Current password"
+                  autoComplete="current-password"
+                  error={errors.currentPassword?.message}
+                  {...register('currentPassword')}
+                />
+                <PasswordInput
+                  label="New password"
+                  autoComplete="new-password"
+                  error={errors.newPassword?.message}
+                  {...register('newPassword')}
+                />
+                <PasswordInput
+                  label="Confirm new password"
+                  autoComplete="new-password"
+                  error={errors.confirmPassword?.message}
+                  {...register('confirmPassword')}
+                />
+                <Button type="submit" isLoading={isChangingPassword} className="self-start">
+                  Change password
+                </Button>
+              </form>
             </CardContent>
           </Card>
 

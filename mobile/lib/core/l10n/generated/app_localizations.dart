@@ -2696,18 +2696,6 @@ abstract class AppLocalizations {
   /// **'Preferences'**
   String get pMorePreferences;
 
-  /// No description provided for @pMoreUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available yet'**
-  String get pMoreUnsupported;
-
-  /// No description provided for @pMoreNoPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'There\'s no change-password endpoint yet.'**
-  String get pMoreNoPassword;
-
   /// No description provided for @realtimeLive.
   ///
   /// In en, this message translates to:

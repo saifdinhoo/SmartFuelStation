@@ -51,7 +51,7 @@ class _CapturingAdapter implements HttpClientAdapter {
 /// No sign-in happens anywhere in this flow, so [SecureTokenStore] is never
 /// touched — its constructor is inert until read()/write() are actually
 /// invoked (see ai_test.dart's fakeAuthState doc comment).
-AuthState buildAuthState(_CapturingAdapter adapter) {
+AuthState _buildAuthState(_CapturingAdapter adapter) {
   final apiClient = ApiClient(readToken: () => null, onUnauthorized: () async {});
   apiClient.raw.httpClientAdapter = adapter;
   final auth = AuthState(const SecureTokenStore(FlutterSecureStorage()));
@@ -81,7 +81,7 @@ void main() {
     tester,
   ) async {
     final adapter = _CapturingAdapter();
-    final auth = buildAuthState(adapter);
+    final auth = _buildAuthState(adapter);
 
     await tester.pumpWidget(harness(child: const ForgotPasswordScreen(), auth: auth));
     await tester.enterText(find.byType(TextField), 'user@example.com');
@@ -98,7 +98,7 @@ void main() {
     tester,
   ) async {
     final adapter = _CapturingAdapter();
-    final auth = buildAuthState(adapter);
+    final auth = _buildAuthState(adapter);
 
     await tester.pumpWidget(harness(child: const ForgotPasswordScreen(), auth: auth));
     await tester.enterText(find.byType(TextField), 'nobody@example.com');
@@ -121,7 +121,7 @@ void main() {
         ),
         type: DioExceptionType.badResponse,
       );
-    final auth = buildAuthState(adapter);
+    final auth = _buildAuthState(adapter);
 
     await tester.pumpWidget(harness(child: const ForgotPasswordScreen(), auth: auth));
     await tester.enterText(find.byType(TextField), 'user@example.com');

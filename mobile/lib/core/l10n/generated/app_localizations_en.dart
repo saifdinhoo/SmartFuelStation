@@ -1416,12 +1416,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pMorePreferences => 'Preferences';
 
   @override
-  String get pMoreUnsupported => 'Not available yet';
-
-  @override
-  String get pMoreNoPassword => 'There\'s no change-password endpoint yet.';
-
-  @override
   String get realtimeLive => 'Live';
 
   @override

@@ -12,7 +12,7 @@ import { useAuth } from '@/app/providers/AuthProvider';
 import { useToast } from '@/app/providers/ToastProvider';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { changePasswordSchema, type ChangePasswordFormValues } from '@/features/auth/changePasswordSchema';
-import { useChangePassword } from './useChangePassword';
+import { useChangePassword } from '@/features/auth/useChangePassword';
 
 export function CustomerSettingsPage() {
   const { user } = useAuth();

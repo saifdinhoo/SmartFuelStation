@@ -502,8 +502,6 @@
   "pMoreFinance": "Finance",
   "pMoreAccount": "Account",
   "pMorePreferences": "Preferences",
-  "pMoreUnsupported": "Not available yet",
-  "pMoreNoPassword": "There's no change-password endpoint yet.",
 
   "realtimeLive": "Live",
   "realtimeOffline": "Offline",
