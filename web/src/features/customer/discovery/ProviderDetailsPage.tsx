@@ -13,6 +13,7 @@ import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { TranslateButton } from '@/components/common/TranslateButton';
 import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingModal';
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
+import { FavoriteButton } from '@/features/customer/favorites/FavoriteButton';
 import { useProviderHours } from '@/features/scheduling/useOperatingHours';
 import { OperatingHoursList } from '@/features/scheduling/OperatingHoursList';
 import { useProviderFuel } from '@/features/fuel/useFuel';
@@ -113,10 +114,13 @@ export function ProviderDetailsPage() {
                 </span>
               </div>
             </div>
-            <StatusIndicator
-              variant={provider.isOpen ? 'success' : 'neutral'}
-              label={provider.isOpen ? 'Open now' : 'Closed'}
-            />
+            <div className="flex shrink-0 items-center gap-2">
+              <StatusIndicator
+                variant={provider.isOpen ? 'success' : 'neutral'}
+                label={provider.isOpen ? 'Open now' : 'Closed'}
+              />
+              <FavoriteButton providerId={provider.id} />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

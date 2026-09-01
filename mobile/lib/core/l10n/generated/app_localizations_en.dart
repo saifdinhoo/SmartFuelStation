@@ -346,9 +346,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get providerUnfavorite => 'Saved';
 
   @override
-  String get providerFavoriteLocalOnly => 'Saved on this device only.';
-
-  @override
   String get providerBookNow => 'Book now';
 
   @override
@@ -708,6 +705,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get complaintErrorSubject => 'Subject is required';
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesEmpty =>
+      'Save a business from its page to find it here later.';
 
   @override
   String get profileTitle => 'Profile';

@@ -12,25 +12,16 @@ import '../../../core/widgets/status_chip.dart';
 import '../booking/create_booking_sheet.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
+import '../widgets/favorite_toggle_button.dart';
 import '../widgets/fuel_history_chart.dart';
 import '../widgets/fuel_status_list.dart';
 import '../widgets/operating_hours_list.dart';
 import '../widgets/rating_stars.dart';
 
-class ProviderDetailsScreen extends StatefulWidget {
+class ProviderDetailsScreen extends StatelessWidget {
   const ProviderDetailsScreen({super.key, required this.providerId});
 
   final int providerId;
-
-  @override
-  State<ProviderDetailsScreen> createState() => _ProviderDetailsScreenState();
-}
-
-class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
-  /// Favourites have no backend column, so this is intentionally local and
-  /// in-memory only. It is labelled as such in the UI rather than pretending
-  /// to sync.
-  bool _favorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +36,11 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     // There is no GET /providers/:id endpoint; the list is the source, and
     // it is already cached, so this costs nothing extra.
     final providersState = repo.watchProviders();
-    final ratingState = repo.watchRating(widget.providerId);
-    final reviewsState = repo.watchProviderReviews(widget.providerId);
-    final queueState = repo.watchQueueSummary(widget.providerId);
-    final hoursState = repo.watchProviderHours(widget.providerId);
-    final fuelState = repo.watchProviderFuel(widget.providerId);
+    final ratingState = repo.watchRating(providerId);
+    final reviewsState = repo.watchProviderReviews(providerId);
+    final queueState = repo.watchQueueSummary(providerId);
+    final hoursState = repo.watchProviderHours(providerId);
+    final fuelState = repo.watchProviderFuel(providerId);
 
     return Scaffold(
       appBar: AppBar(),
@@ -58,7 +49,7 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
         onRetry: repo.refreshProviders,
         builder: (context, providers) {
           final provider = providers
-              .where((p) => p.id == widget.providerId)
+              .where((p) => p.id == providerId)
               .firstOrNull;
 
           if (provider == null) {
@@ -137,21 +128,7 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
                 origin: location.position,
               ),
               const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: () {
-                  setState(() => _favorite = !_favorite);
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(l10n.providerFavoriteLocalOnly)));
-                },
-                icon: Icon(
-                  _favorite ? Icons.favorite : Icons.favorite_border,
-                  size: 18,
-                ),
-                label: Text(
-                  _favorite ? l10n.providerUnfavorite : l10n.providerFavorite,
-                ),
-              ),
+              FavoriteToggleButton(providerId: providerId),
 
               if (provider.description != null &&
                   provider.description!.isNotEmpty) ...[
@@ -189,13 +166,13 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
               ...fuelState.map(
                 onData: (items) => items.isEmpty
                     ? const []
-                    : _fuelSections(l10n, theme, widget.providerId, items),
+                    : _fuelSections(l10n, theme, providerId, items),
                 onLoading: (previous) => (previous == null || previous.isEmpty)
                     ? const []
-                    : _fuelSections(l10n, theme, widget.providerId, previous),
+                    : _fuelSections(l10n, theme, providerId, previous),
                 onError: (error, previous) => (previous == null || previous.isEmpty)
                     ? const []
-                    : _fuelSections(l10n, theme, widget.providerId, previous),
+                    : _fuelSections(l10n, theme, providerId, previous),
               ),
 
               const SizedBox(height: 20),

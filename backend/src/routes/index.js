@@ -10,6 +10,7 @@ const adminRoutes = require('./admin.routes');
 const notificationRoutes = require('./notification.routes');
 const aiRoutes = require('./ai.routes');
 const complaintRoutes = require('./complaint.routes');
+const favoriteRoutes = require('./favorite.routes');
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.use('/admin', adminRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/ai', aiRoutes);
 router.use('/complaints', complaintRoutes);
+router.use('/favorites', favoriteRoutes);
 
 module.exports = router;

@@ -1,8 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ProviderDetailsPage } from './ProviderDetailsPage';
+import { apiClient } from '@/services/apiClient';
+
+vi.mock('@/services/apiClient', () => ({
+  apiClient: { get: vi.fn(), post: vi.fn(), delete: vi.fn() },
+}));
+vi.mock('@/app/providers/ToastProvider', () => ({
+  useToast: () => ({ showToast: vi.fn() }),
+}));
 
 const provider = {
   id: 2,
@@ -43,18 +52,22 @@ vi.mock('@/features/customer/bookings/CreateBookingModal', () => ({
 }));
 
 function renderPage() {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <MemoryRouter initialEntries={['/customer/providers/2']}>
-      <Routes>
-        <Route path="/customer/providers/:id" element={<ProviderDetailsPage />} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/customer/providers/2']}>
+        <Routes>
+          <Route path="/customer/providers/:id" element={<ProviderDetailsPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.stubGlobal('open', vi.fn());
+  vi.mocked(apiClient.get).mockResolvedValue({ data: { success: true, data: [] } });
   useProviderDetailsMock.mockReturnValue({
     provider,
     isPending: false,

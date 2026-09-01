@@ -93,6 +93,7 @@ model User {
   fuelHistoryChanges   FuelInventoryHistory[]  @relation("FuelHistoryChangedBy")
   commissionUpdates    Provider[]              @relation("ProviderCommissionUpdatedBy")
   settledTransactions  FinancialTransaction[]  @relation("FinanceSettledBy")
+  favorites            Favorite[]
 
   @@index([role])
   @@index([createdAt])
@@ -146,10 +147,28 @@ model Provider {
   fuelInventory           ProviderFuelInventory[]
   fuelHistory             FuelInventoryHistory[]
   financialTransactions   FinancialTransaction[]
+  favoritedBy             Favorite[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
   @@index([approvedById])
+}
+
+// A customer saving a provider for later — real, shared, persisted storage
+// replacing what was previously a device-local-only toggle in Flutter (and
+// entirely absent on web). One row per (user, provider); the unique
+// constraint is what makes "favorite" idempotent and prevents duplicates.
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  providerId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@index([userId])
 }
 
 enum DayOfWeek {

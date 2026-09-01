@@ -350,9 +350,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get providerUnfavorite => 'محفوظ';
 
   @override
-  String get providerFavoriteLocalOnly => 'محفوظ على هذا الجهاز فقط.';
-
-  @override
   String get providerBookNow => 'احجز الآن';
 
   @override
@@ -708,6 +705,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get complaintErrorSubject => 'الموضوع مطلوب';
+
+  @override
+  String get favoritesTitle => 'المفضلة';
+
+  @override
+  String get favoritesEmpty => 'احفظ نشاطًا تجاريًا من صفحته لتجده هنا لاحقًا.';
 
   @override
   String get profileTitle => 'حسابي';

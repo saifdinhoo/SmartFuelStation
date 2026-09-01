@@ -698,12 +698,6 @@ abstract class AppLocalizations {
   /// **'Saved'**
   String get providerUnfavorite;
 
-  /// No description provided for @providerFavoriteLocalOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved on this device only.'**
-  String get providerFavoriteLocalOnly;
-
   /// No description provided for @providerBookNow.
   ///
   /// In en, this message translates to:
@@ -1363,6 +1357,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subject is required'**
   String get complaintErrorSubject;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a business from its page to find it here later.'**
+  String get favoritesEmpty;
 
   /// No description provided for @profileTitle.
   ///

@@ -135,7 +135,6 @@
   "locationCouldNotOpenMaps": "Could not open Maps.",
   "providerFavorite": "Save",
   "providerUnfavorite": "Saved",
-  "providerFavoriteLocalOnly": "Saved on this device only.",
   "providerBookNow": "Book now",
   "providerClosedCannotBook": "This business is closed right now, but you can still request a booking.",
   "providerHoursTitle": "Operating hours",
@@ -260,6 +259,9 @@
   "complaintSubmitted": "Complaint submitted",
   "complaintErrorProvider": "Choose a business",
   "complaintErrorSubject": "Subject is required",
+
+  "favoritesTitle": "Favorites",
+  "favoritesEmpty": "Save a business from its page to find it here later.",
 
   "profileTitle": "Profile",
   "profileAccount": "Account",

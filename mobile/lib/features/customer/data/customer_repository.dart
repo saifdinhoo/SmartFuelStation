@@ -15,6 +15,7 @@ class CacheKeys {
   static const myQueue = 'queue/mine';
   static const myReviews = 'reviews/mine';
   static const myComplaints = 'complaints/mine';
+  static const myFavorites = 'favorites/mine';
 
   static String providerReviews(int id) => 'provider/$id/reviews';
   static String providerRating(int id) => 'provider/$id/rating';
@@ -384,5 +385,39 @@ class CustomerRepository {
             as Map;
     _cache.invalidate(CacheKeys.myComplaints);
     return Complaint.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  // --- favorites -------------------------------------------------------------
+
+  /// GET /favorites/me — this customer's own saved businesses, persisted on
+  /// the backend so the same state appears on web and mobile after refetch.
+  Future<List<Favorite>> _loadMyFavorites() async {
+    final raw = await _api.get('/favorites/me') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((json) => Favorite.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  AsyncValue<List<Favorite>> watchMyFavorites() =>
+      _cache.watch(CacheKeys.myFavorites, _loadMyFavorites);
+
+  Future<List<Favorite>> refreshMyFavorites() =>
+      _cache.refresh(CacheKeys.myFavorites, _loadMyFavorites);
+
+  /// Idempotent server-side: favoriting an already-favorited provider just
+  /// returns the existing row.
+  Future<Favorite> addFavorite(int providerId) async {
+    final json =
+        await _api.post('/favorites', body: {'providerId': providerId}) as Map;
+    _cache.invalidate(CacheKeys.myFavorites);
+    return Favorite.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  /// Idempotent server-side: removing an already-absent favorite is a
+  /// silent no-op success.
+  Future<void> removeFavorite(int providerId) async {
+    await _api.delete('/favorites/$providerId');
+    _cache.invalidate(CacheKeys.myFavorites);
   }
 }

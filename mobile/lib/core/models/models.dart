@@ -295,6 +295,42 @@ class MyReview {
   }
 }
 
+/// One of the current customer's saved businesses — GET /favorites/me.
+/// Carries just enough of the provider to render a row without a second
+/// fetch; a real, backend-persisted favorite, shared across web and mobile.
+class Favorite {
+  const Favorite({
+    required this.id,
+    required this.createdAt,
+    required this.providerId,
+    required this.providerBusinessName,
+    required this.providerAddress,
+    required this.providerIsOpen,
+    required this.providerEstimatedWaitMinutes,
+  });
+
+  final int id;
+  final DateTime createdAt;
+  final int providerId;
+  final String providerBusinessName;
+  final String providerAddress;
+  final bool providerIsOpen;
+  final int providerEstimatedWaitMinutes;
+
+  factory Favorite.fromJson(Map<String, dynamic> json) {
+    final provider = asMapOrNull(json['provider']);
+    return Favorite(
+      id: asInt(json['id']),
+      createdAt: asDate(json['createdAt']),
+      providerId: asInt(provider?['id']),
+      providerBusinessName: asString(provider?['businessName']),
+      providerAddress: asString(provider?['address']),
+      providerIsOpen: asBool(provider?['isOpen']),
+      providerEstimatedWaitMinutes: asInt(provider?['estimatedWaitMinutes']),
+    );
+  }
+}
+
 /// Server-side Prisma aggregation — never computed on the client.
 /// [averageRating] is null when the provider has no reviews at all, which
 /// must render as a dash rather than 0.0.

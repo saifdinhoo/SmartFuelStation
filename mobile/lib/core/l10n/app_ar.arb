@@ -135,7 +135,6 @@
   "locationCouldNotOpenMaps": "تعذّر فتح الخرائط.",
   "providerFavorite": "حفظ",
   "providerUnfavorite": "محفوظ",
-  "providerFavoriteLocalOnly": "محفوظ على هذا الجهاز فقط.",
   "providerBookNow": "احجز الآن",
   "providerClosedCannotBook": "هذا النشاط مغلق حاليًا، لكن يمكنك طلب حجز.",
   "providerHoursTitle": "ساعات العمل",
@@ -260,6 +259,9 @@
   "complaintSubmitted": "تم إرسال الشكوى",
   "complaintErrorProvider": "اختر نشاطًا تجاريًا",
   "complaintErrorSubject": "الموضوع مطلوب",
+
+  "favoritesTitle": "المفضلة",
+  "favoritesEmpty": "احفظ نشاطًا تجاريًا من صفحته لتجده هنا لاحقًا.",
 
   "profileTitle": "حسابي",
   "profileAccount": "الحساب",
