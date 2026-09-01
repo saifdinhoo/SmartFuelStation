@@ -1887,4 +1887,98 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get liveStationNotAvailable => 'البث المباشر غير متاح لهذا النشاط.';
+
+  @override
+  String get aiAssistantTitle => 'المساعد الذكي';
+
+  @override
+  String get aiAssistantDescription =>
+      'اسأل عن كيفية عمل المنصة، أو صف مشكلة في سيارتك للحصول على تشخيص أولي.';
+
+  @override
+  String get aiAssistantWelcome =>
+      'مرحبًا! أنا مساعد المنصة. اسألني عن كيفية عمل أي شيء، أو صف مشكلة في سيارتك وسأساعدك في تحديد السبب المحتمل.';
+
+  @override
+  String get aiAssistantInputHint => 'اكتب رسالتك…';
+
+  @override
+  String get aiAssistantClear => 'مسح المحادثة';
+
+  @override
+  String get aiAssistantUnavailable =>
+      'مساعد الذكاء الاصطناعي غير متاح مؤقتًا. حاول مرة أخرى.';
+
+  @override
+  String get aiSend => 'إرسال';
+
+  @override
+  String get aiThinking => 'جارٍ التفكير…';
+
+  @override
+  String get aiModeAuto => 'تلقائي';
+
+  @override
+  String get aiModeSupport => 'دعم المنصة';
+
+  @override
+  String get aiModeDiagnosis => 'تشخيص المركبة';
+
+  @override
+  String get aiDiagnosisTitle => 'تشخيص أولي';
+
+  @override
+  String get aiPossibleCauses => 'الأسباب المحتملة';
+
+  @override
+  String get aiLikelihood => 'الاحتمالية';
+
+  @override
+  String get aiLikelihoodLikely => 'مرجّح';
+
+  @override
+  String get aiLikelihoodPossible => 'محتمل';
+
+  @override
+  String get aiLikelihoodLessLikely => 'أقل احتمالاً';
+
+  @override
+  String get aiLikelihoodUnknown => 'غير محدد';
+
+  @override
+  String get aiUrgencyLow => 'منخفضة';
+
+  @override
+  String get aiUrgencyMedium => 'متوسطة';
+
+  @override
+  String get aiUrgencyHigh => 'عالية';
+
+  @override
+  String get aiUrgencyEmergency => 'طارئة';
+
+  @override
+  String get aiUrgencyUnknown => 'غير محدد';
+
+  @override
+  String get aiSafetyAdvice => 'نصيحة السلامة';
+
+  @override
+  String get aiNeedMoreInfo => 'أحتاج إلى القليل من المعلومات الإضافية.';
+
+  @override
+  String get aiRecommendedService => 'الخدمة الموصى بها';
+
+  @override
+  String get aiFindProviders => 'ابحث عن مزوّدي خدمة مناسبين';
+
+  @override
+  String get aiFindNearbySecondary => 'ابحث عن مزوّدي خدمة قريبين';
+
+  @override
+  String get aiSeekImmediateHelp => 'اطلب المساعدة فورًا';
+
+  @override
+  String get aiSeekImmediateHelpBody =>
+      'توقف عن القيادة بمجرد أن يكون ذلك آمنًا، واطلب المساعدة على الطريق أو المساعدة الطارئة الآن — هذا ليس أمرًا ينتظر حجز موعد.';
 }

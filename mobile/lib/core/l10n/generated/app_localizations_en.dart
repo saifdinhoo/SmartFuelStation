@@ -1898,4 +1898,98 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get liveStationNotAvailable =>
       'Live camera is not available for this business.';
+
+  @override
+  String get aiAssistantTitle => 'AI Assistant';
+
+  @override
+  String get aiAssistantDescription =>
+      'Ask how the platform works, or describe a vehicle problem for a preliminary diagnosis.';
+
+  @override
+  String get aiAssistantWelcome =>
+      'Hi! I\'m your platform assistant. Ask me how something works, or describe a vehicle problem and I\'ll help narrow down what might be going on.';
+
+  @override
+  String get aiAssistantInputHint => 'Type your message…';
+
+  @override
+  String get aiAssistantClear => 'Clear conversation';
+
+  @override
+  String get aiAssistantUnavailable =>
+      'AI Assistant is temporarily unavailable. Please try again.';
+
+  @override
+  String get aiSend => 'Send';
+
+  @override
+  String get aiThinking => 'Thinking…';
+
+  @override
+  String get aiModeAuto => 'Auto';
+
+  @override
+  String get aiModeSupport => 'Platform Support';
+
+  @override
+  String get aiModeDiagnosis => 'Vehicle Diagnosis';
+
+  @override
+  String get aiDiagnosisTitle => 'Preliminary Diagnosis';
+
+  @override
+  String get aiPossibleCauses => 'Possible causes';
+
+  @override
+  String get aiLikelihood => 'Likelihood';
+
+  @override
+  String get aiLikelihoodLikely => 'Likely';
+
+  @override
+  String get aiLikelihoodPossible => 'Possible';
+
+  @override
+  String get aiLikelihoodLessLikely => 'Less likely';
+
+  @override
+  String get aiLikelihoodUnknown => 'Unspecified';
+
+  @override
+  String get aiUrgencyLow => 'Low';
+
+  @override
+  String get aiUrgencyMedium => 'Medium';
+
+  @override
+  String get aiUrgencyHigh => 'High';
+
+  @override
+  String get aiUrgencyEmergency => 'Emergency';
+
+  @override
+  String get aiUrgencyUnknown => 'Unspecified';
+
+  @override
+  String get aiSafetyAdvice => 'Safety advice';
+
+  @override
+  String get aiNeedMoreInfo => 'I need a little more information.';
+
+  @override
+  String get aiRecommendedService => 'Recommended service';
+
+  @override
+  String get aiFindProviders => 'Find Suitable Providers';
+
+  @override
+  String get aiFindNearbySecondary => 'Find nearby service providers';
+
+  @override
+  String get aiSeekImmediateHelp => 'Seek immediate help';
+
+  @override
+  String get aiSeekImmediateHelpBody =>
+      'Stop driving as soon as it is safe to do so, and seek roadside or emergency assistance now — this is not something to wait on a booking for.';
 }

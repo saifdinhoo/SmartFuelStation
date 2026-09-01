@@ -18,6 +18,7 @@ import '../features/admin/reviews/admin_reviews_screen.dart';
 import '../features/admin/shell/admin_shell.dart';
 import '../features/admin/users/admin_user_details_screen.dart';
 import '../features/admin/users/admin_users_screen.dart';
+import '../features/ai/screens/ai_assistant_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/state/auth_state.dart';
@@ -78,6 +79,7 @@ class Routes {
   static const customerQueue = '/customer/queue';
   static const customerProfile = '/customer/profile';
   static const customerNotifications = '/customer/notifications';
+  static const customerAssistant = '/customer/assistant';
 
   static String customerProviderDetails(int id) => '/customer/providers/$id';
   static String customerBookingDetails(int id) => '/customer/bookings/$id';
@@ -96,10 +98,12 @@ class Routes {
   static const providerAnalytics = '/provider/analytics';
   static const providerFinance = '/provider/finance';
   static const providerNotifications = '/provider/notifications';
+  static const providerAssistant = '/provider/assistant';
 
   static String providerBookingDetails(int id) => '/provider/bookings/$id';
 
   static const adminNotifications = '/admin/notifications';
+  static const adminAssistant = '/admin/assistant';
 }
 
 /// Roles allowed on a route prefix, checked by the redirect below.
@@ -200,6 +204,10 @@ GoRouter createRouter(AuthState auth) {
         path: Routes.customerNotifications,
         builder: (_, _) => const NotificationsScreen(),
       ),
+      GoRoute(
+        path: Routes.customerAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
+      ),
       ShellRoute(
         builder: (_, _, child) => CustomerShell(child: child),
         routes: [
@@ -260,6 +268,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: Routes.providerNotifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.providerAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => ProviderShell(child: child),
@@ -337,6 +349,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: Routes.adminNotifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => AdminShell(child: child),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/widgets/ai_assistant_button.dart';
 import '../../../core/widgets/live_indicator.dart';
 import '../../../core/widgets/notification_bell.dart';
 import '../../shell/widgets/settings_menu.dart';
@@ -55,7 +56,12 @@ class CustomerShell extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(labels[selected]),
-        actions: const [LiveIndicator(), NotificationBell(), SettingsMenu()],
+        actions: const [
+          LiveIndicator(),
+          AiAssistantButton(),
+          NotificationBell(),
+          SettingsMenu(),
+        ],
       ),
       body: child,
       bottomNavigationBar: NavigationBar(

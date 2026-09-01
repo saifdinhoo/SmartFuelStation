@@ -3613,6 +3613,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Live camera is not available for this business.'**
   String get liveStationNotAvailable;
+
+  /// No description provided for @aiAssistantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistantTitle;
+
+  /// No description provided for @aiAssistantDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask how the platform works, or describe a vehicle problem for a preliminary diagnosis.'**
+  String get aiAssistantDescription;
+
+  /// No description provided for @aiAssistantWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I\'m your platform assistant. Ask me how something works, or describe a vehicle problem and I\'ll help narrow down what might be going on.'**
+  String get aiAssistantWelcome;
+
+  /// No description provided for @aiAssistantInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your message…'**
+  String get aiAssistantInputHint;
+
+  /// No description provided for @aiAssistantClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation'**
+  String get aiAssistantClear;
+
+  /// No description provided for @aiAssistantUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant is temporarily unavailable. Please try again.'**
+  String get aiAssistantUnavailable;
+
+  /// No description provided for @aiSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiSend;
+
+  /// No description provided for @aiThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking…'**
+  String get aiThinking;
+
+  /// No description provided for @aiModeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get aiModeAuto;
+
+  /// No description provided for @aiModeSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Support'**
+  String get aiModeSupport;
+
+  /// No description provided for @aiModeDiagnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Diagnosis'**
+  String get aiModeDiagnosis;
+
+  /// No description provided for @aiDiagnosisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preliminary Diagnosis'**
+  String get aiDiagnosisTitle;
+
+  /// No description provided for @aiPossibleCauses.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible causes'**
+  String get aiPossibleCauses;
+
+  /// No description provided for @aiLikelihood.
+  ///
+  /// In en, this message translates to:
+  /// **'Likelihood'**
+  String get aiLikelihood;
+
+  /// No description provided for @aiLikelihoodLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Likely'**
+  String get aiLikelihoodLikely;
+
+  /// No description provided for @aiLikelihoodPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible'**
+  String get aiLikelihoodPossible;
+
+  /// No description provided for @aiLikelihoodLessLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Less likely'**
+  String get aiLikelihoodLessLikely;
+
+  /// No description provided for @aiLikelihoodUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unspecified'**
+  String get aiLikelihoodUnknown;
+
+  /// No description provided for @aiUrgencyLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get aiUrgencyLow;
+
+  /// No description provided for @aiUrgencyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get aiUrgencyMedium;
+
+  /// No description provided for @aiUrgencyHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get aiUrgencyHigh;
+
+  /// No description provided for @aiUrgencyEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get aiUrgencyEmergency;
+
+  /// No description provided for @aiUrgencyUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unspecified'**
+  String get aiUrgencyUnknown;
+
+  /// No description provided for @aiSafetyAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety advice'**
+  String get aiSafetyAdvice;
+
+  /// No description provided for @aiNeedMoreInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'I need a little more information.'**
+  String get aiNeedMoreInfo;
+
+  /// No description provided for @aiRecommendedService.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended service'**
+  String get aiRecommendedService;
+
+  /// No description provided for @aiFindProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Suitable Providers'**
+  String get aiFindProviders;
+
+  /// No description provided for @aiFindNearbySecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Find nearby service providers'**
+  String get aiFindNearbySecondary;
+
+  /// No description provided for @aiSeekImmediateHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek immediate help'**
+  String get aiSeekImmediateHelp;
+
+  /// No description provided for @aiSeekImmediateHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop driving as soon as it is safe to do so, and seek roadside or emergency assistance now — this is not something to wait on a booking for.'**
+  String get aiSeekImmediateHelpBody;
 }
 
 class _AppLocalizationsDelegate

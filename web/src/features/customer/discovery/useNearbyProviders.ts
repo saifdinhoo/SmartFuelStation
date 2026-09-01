@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { fetchProviders, fetchCategories, fetchRatingSummary } from './discoveryApi';
@@ -6,7 +7,18 @@ import { mapProvider } from './providerHelpers';
 import { useGeolocation } from './useGeolocation';
 import type { SortOption } from './types';
 
+// Lets a caller deep-link into this page with a category pre-selected (e.g.
+// "?categoryId=5" from the AI assistant's FIND_PROVIDER suggestion) without
+// adding a full URL-synced filter state — read once on mount, same as any
+// other initial value.
+function readInitialCategoryId(searchParams: URLSearchParams): number | 'all' {
+  const raw = searchParams.get('categoryId');
+  const parsed = raw ? Number(raw) : NaN;
+  return Number.isInteger(parsed) ? parsed : 'all';
+}
+
 export function useNearbyProviders() {
+  const [searchParams] = useSearchParams();
   const { status: locationStatus, coordinates, retry: retryLocation } = useGeolocation();
 
   const providersQuery = useQuery({
@@ -30,7 +42,9 @@ export function useNearbyProviders() {
   });
 
   const [search, setSearch] = useState('');
-  const [categoryId, setCategoryId] = useState<number | 'all'>('all');
+  const [categoryId, setCategoryId] = useState<number | 'all'>(() =>
+    readInitialCategoryId(searchParams),
+  );
   const [sort, setSort] = useState<SortOption>('distance');
   const [openNowOnly, setOpenNowOnly] = useState(false);
 

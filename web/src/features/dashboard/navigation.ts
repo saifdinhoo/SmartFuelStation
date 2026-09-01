@@ -17,6 +17,7 @@ import {
   Car,
   Fuel,
   Banknote,
+  Bot,
   type LucideIcon,
 } from 'lucide-react';
 import type { AuthUser } from '@/features/auth/authApi';
@@ -29,6 +30,7 @@ export interface NavItem {
 
 const customerNav: NavItem[] = [
   { label: 'Find Services', path: '/customer/search', icon: Search },
+  { label: 'AI Assistant', path: '/assistant', icon: Bot },
   { label: 'Bookings', path: '/customer/bookings', icon: CalendarCheck },
   { label: 'Favorites', path: '/customer/favorites', icon: Heart },
   { label: 'Reviews', path: '/customer/reviews', icon: Star },
@@ -38,6 +40,7 @@ const customerNav: NavItem[] = [
 
 const providerNav: NavItem[] = [
   { label: 'Overview', path: '/provider/dashboard', icon: LayoutDashboard },
+  { label: 'AI Assistant', path: '/assistant', icon: Bot },
   { label: 'Business Profile', path: '/provider/profile', icon: Building2 },
   { label: 'Services', path: '/provider/services', icon: Wrench },
   { label: 'Live Status', path: '/provider/live-status', icon: Radio },
@@ -51,6 +54,7 @@ const providerNav: NavItem[] = [
 
 const adminNav: NavItem[] = [
   { label: 'Overview', path: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'AI Assistant', path: '/assistant', icon: Bot },
   { label: 'Providers', path: '/admin/providers', icon: Users },
   { label: 'Customers', path: '/admin/customers', icon: UserRound },
   { label: 'Categories', path: '/admin/categories', icon: Tags },
