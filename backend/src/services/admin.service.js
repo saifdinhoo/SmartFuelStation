@@ -154,9 +154,12 @@ async function getAnalytics(rangeKey = '30d') {
     throw badRequest(`range must be one of: ${Object.keys(RANGE_DAYS).join(', ')}`);
   }
 
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  // UTC-based and inclusive of today (see the dayKeys loop below for why —
+  // this used to be local-time, which let today's rows silently disappear
+  // from bookingTrend/userGrowth on a server whose local zone runs ahead
+  // of UTC).
+  const now = new Date();
+  const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (days - 1)));
 
   const [bookings, signups, reviews, providers] = await Promise.all([
     prisma.booking.findMany({
@@ -185,10 +188,13 @@ async function getAnalytics(rangeKey = '30d') {
     }),
   ]);
 
+  // UTC dates throughout — matching how b.scheduledAt/u.createdAt are keyed
+  // just below, so today's rows always land in today's bucket regardless
+  // of the server's local timezone.
   const dayKeys = [];
   for (let i = 0; i < days; i += 1) {
-    const d = new Date(since);
-    d.setDate(d.getDate() + i);
+    const d = new Date(since.getTime());
+    d.setUTCDate(d.getUTCDate() + i);
     dayKeys.push(d.toISOString().slice(0, 10));
   }
 

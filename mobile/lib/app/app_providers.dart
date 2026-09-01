@@ -12,6 +12,7 @@ import '../core/storage/secure_token_store.dart';
 import '../core/theme/theme_controller.dart';
 import '../features/admin/data/admin_realtime_handler.dart';
 import '../features/admin/data/admin_repository.dart';
+import '../features/ai/data/ai_repository.dart';
 import '../features/auth/data/auth_api.dart';
 import '../features/auth/state/auth_state.dart';
 import '../features/customer/data/customer_realtime_handler.dart';
@@ -42,6 +43,7 @@ class _AppProvidersState extends State<AppProviders> {
   late final AuthState _auth;
   late final ApiClient _apiClient;
   late final AdminRepository _adminRepo;
+  late final AiRepository _aiRepo;
   late final QueryCache _queryCache;
   late final CustomerRepository _customerRepo;
   late final ProviderRepository _providerRepo;
@@ -68,6 +70,10 @@ class _AppProvidersState extends State<AppProviders> {
 
     _auth.api = AuthApi(_apiClient);
     _adminRepo = AdminRepository(_apiClient, _queryCache);
+    // Stateless — just wraps ApiClient for the one POST /ai/chat call. Chat
+    // conversation state itself is screen-scoped (see AiChatState), not
+    // registered here.
+    _aiRepo = AiRepository(_apiClient);
     _customerRepo = CustomerRepository(_apiClient, _queryCache);
     _providerRepo = ProviderRepository(_apiClient, _queryCache);
     _notificationRepo = NotificationRepository(_apiClient, _queryCache);
@@ -139,6 +145,7 @@ class _AppProvidersState extends State<AppProviders> {
         ChangeNotifierProvider<QueryCache>.value(value: _queryCache),
         Provider<ApiClient>.value(value: _apiClient),
         Provider<AdminRepository>.value(value: _adminRepo),
+        Provider<AiRepository>.value(value: _aiRepo),
         Provider<CustomerRepository>.value(value: _customerRepo),
         Provider<ProviderRepository>.value(value: _providerRepo),
         Provider<NotificationRepository>.value(value: _notificationRepo),

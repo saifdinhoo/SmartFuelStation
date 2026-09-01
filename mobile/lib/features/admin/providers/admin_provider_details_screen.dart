@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/models/admin_models.dart';
 import '../../../core/state/async_view.dart';
 import '../../../core/state/query_cache.dart';
 import '../../../core/widgets/empty_view.dart';
+import '../../../core/widgets/location_action_buttons.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../data/admin_repository.dart';
+import '../finance/admin_commission_sheet.dart';
 import '../widgets/admin_widgets.dart';
 import 'admin_providers_screen.dart';
 
@@ -107,6 +111,13 @@ class AdminProviderDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                LocationActionButtons(
+                  latitude: row.latitude,
+                  longitude: row.longitude,
+                  address: row.address,
+                  showDirections: false,
+                ),
 
                 const SizedBox(height: 20),
                 AdminSectionHeader(title: l10n.aOverviewCatalog),
@@ -131,6 +142,23 @@ class AdminProviderDetailsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                ),
+
+                const SizedBox(height: 20),
+                OutlinedButton.icon(
+                  onPressed: () => context.push(Routes.adminProviderFuel(providerId)),
+                  icon: const Icon(Icons.local_gas_station_outlined, size: 18),
+                  label: Text(l10n.aFuelManageButton),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () => showAdminCommissionSheet(
+                    context,
+                    providerId: providerId,
+                    providerName: row.businessName,
+                  ),
+                  icon: const Icon(Icons.percent, size: 18),
+                  label: Text(l10n.aFinanceCommissionEdit),
                 ),
 
                 const SizedBox(height: 24),

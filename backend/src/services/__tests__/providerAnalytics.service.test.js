@@ -127,6 +127,42 @@ describe('wait-time metric', () => {
   });
 });
 
+describe('trend day-bucketing (timezone regression)', () => {
+  // A live Phase D verification found the same bug in finance.service.js's
+  // day-bucketing: a local-time window boundary combined with UTC-sliced
+  // bucket keys silently dropped "today"'s rows on a server whose local
+  // timezone runs ahead of UTC (e.g. UTC+3). This service used the exact
+  // same pattern — fixed the same way (UTC throughout, inclusive of today).
+
+  it("a booking scheduled right now lands in today's bucket, not off the end", async () => {
+    prisma.booking.findMany.mockResolvedValue([
+      { status: 'PENDING', scheduledAt: new Date(), providerService: { id: 1, name: 'Oil Change' } },
+    ]);
+
+    const { trend } = await analytics.getProviderAnalytics(OWNER_USER_ID, '7d');
+
+    const lastPoint = trend[trend.length - 1];
+    expect(lastPoint.bookings).toBe(1);
+  });
+
+  it('the trend window always includes today as its last bucket', async () => {
+    const { trend } = await analytics.getProviderAnalytics(OWNER_USER_ID, '7d');
+    const todayKey = new Date().toISOString().slice(0, 10);
+    expect(trend[trend.length - 1].label).toBe(todayKey);
+  });
+
+  it('no off-by-one: exactly `days` distinct labels, each one calendar day apart', async () => {
+    const { trend } = await analytics.getProviderAnalytics(OWNER_USER_ID, '30d');
+    expect(trend).toHaveLength(30);
+    expect(new Set(trend.map((p) => p.label)).size).toBe(30);
+    for (let i = 1; i < trend.length; i += 1) {
+      const prev = new Date(`${trend[i - 1].label}T00:00:00.000Z`);
+      const curr = new Date(`${trend[i].label}T00:00:00.000Z`);
+      expect(curr.getTime() - prev.getTime()).toBe(24 * 60 * 60 * 1000);
+    }
+  });
+});
+
 describe('ownership', () => {
   it('refuses an account with no provider profile', async () => {
     prisma.provider.findUnique.mockResolvedValue(null);

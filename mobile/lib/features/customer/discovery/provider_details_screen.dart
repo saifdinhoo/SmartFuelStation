@@ -2,30 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/location/location_service.dart';
 import '../../../core/models/models.dart';
 import '../../../core/state/async_view.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/location_action_buttons.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../booking/create_booking_sheet.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
+import '../widgets/favorite_toggle_button.dart';
+import '../widgets/fuel_history_chart.dart';
+import '../widgets/fuel_status_list.dart';
+import '../widgets/operating_hours_list.dart';
 import '../widgets/rating_stars.dart';
 
-class ProviderDetailsScreen extends StatefulWidget {
+class ProviderDetailsScreen extends StatelessWidget {
   const ProviderDetailsScreen({super.key, required this.providerId});
 
   final int providerId;
-
-  @override
-  State<ProviderDetailsScreen> createState() => _ProviderDetailsScreenState();
-}
-
-class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
-  /// Favourites have no backend column, so this is intentionally local and
-  /// in-memory only. It is labelled as such in the UI rather than pretending
-  /// to sync.
-  bool _favorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +31,16 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     final repo = context.read<CustomerRepository>();
     // Rebuild when any watched cache key resolves or is invalidated.
     context.watchQueries();
+    final location = context.watch<LocationService>();
 
     // There is no GET /providers/:id endpoint; the list is the source, and
     // it is already cached, so this costs nothing extra.
     final providersState = repo.watchProviders();
-    final ratingState = repo.watchRating(widget.providerId);
-    final reviewsState = repo.watchProviderReviews(widget.providerId);
-    final queueState = repo.watchQueueSummary(widget.providerId);
+    final ratingState = repo.watchRating(providerId);
+    final reviewsState = repo.watchProviderReviews(providerId);
+    final queueState = repo.watchQueueSummary(providerId);
+    final hoursState = repo.watchProviderHours(providerId);
+    final fuelState = repo.watchProviderFuel(providerId);
 
     return Scaffold(
       appBar: AppBar(),
@@ -50,7 +49,7 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
         onRetry: repo.refreshProviders,
         builder: (context, providers) {
           final provider = providers
-              .where((p) => p.id == widget.providerId)
+              .where((p) => p.id == providerId)
               .firstOrNull;
 
           if (provider == null) {
@@ -61,6 +60,16 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
           final reviews = reviewsState.valueOrNull ?? const <Review>[];
           final queue = queueState.valueOrNull;
           final bookable = provider.bookableServices;
+          final distanceKm =
+              location.position != null &&
+                  provider.latitude != null &&
+                  provider.longitude != null
+              ? distanceKmBetween(
+                  location.position!,
+                  provider.latitude!,
+                  provider.longitude!,
+                )
+              : null;
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
@@ -100,7 +109,9 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      provider.address,
+                      distanceKm != null
+                          ? '${l10n.providerDistanceKm(distanceKm.toStringAsFixed(1))} · ${provider.address}'
+                          : provider.address,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: status.mutedForeground,
                       ),
@@ -110,46 +121,14 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
               ),
 
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      // No maps integration yet; saying so beats a button
-                      // that silently does nothing.
-                      onPressed: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.providerDirectionsUnavailable),
-                            ),
-                          ),
-                      icon: const Icon(Icons.directions_outlined, size: 18),
-                      label: Text(l10n.providerDirections),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() => _favorite = !_favorite);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.providerFavoriteLocalOnly),
-                          ),
-                        );
-                      },
-                      icon: Icon(
-                        _favorite ? Icons.favorite : Icons.favorite_border,
-                        size: 18,
-                      ),
-                      label: Text(
-                        _favorite
-                            ? l10n.providerUnfavorite
-                            : l10n.providerFavorite,
-                      ),
-                    ),
-                  ),
-                ],
+              LocationActionButtons(
+                latitude: provider.latitude,
+                longitude: provider.longitude,
+                address: provider.address,
+                origin: location.position,
               ),
+              const SizedBox(height: 10),
+              FavoriteToggleButton(providerId: providerId),
 
               if (provider.description != null &&
                   provider.description!.isNotEmpty) ...[
@@ -158,6 +137,43 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
                 const SizedBox(height: 6),
                 Text(provider.description!, style: theme.textTheme.bodyMedium),
               ],
+
+              const SizedBox(height: 20),
+              _Section(title: l10n.providerHoursTitle),
+              const SizedBox(height: 6),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: hoursState.map(
+                    onData: (hours) => OperatingHoursList(hours: hours),
+                    onLoading: (previous) => previous == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : OperatingHoursList(hours: previous),
+                    onError: (error, previous) => previous != null
+                        ? OperatingHoursList(hours: previous)
+                        : Text(
+                            error.message,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: status.mutedForeground,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+
+              // Only shown once real fuel inventory rows exist — never a
+              // fabricated card for a provider that doesn't sell fuel.
+              ...fuelState.map(
+                onData: (items) => items.isEmpty
+                    ? const []
+                    : _fuelSections(l10n, theme, providerId, items),
+                onLoading: (previous) => (previous == null || previous.isEmpty)
+                    ? const []
+                    : _fuelSections(l10n, theme, providerId, previous),
+                onError: (error, previous) => (previous == null || previous.isEmpty)
+                    ? const []
+                    : _fuelSections(l10n, theme, providerId, previous),
+              ),
 
               const SizedBox(height: 20),
               _Section(title: l10n.providerQueueNow),
@@ -295,6 +311,28 @@ class _ProviderDetailsScreenState extends State<ProviderDetailsScreen> {
     );
   }
 }
+
+List<Widget> _fuelSections(
+  AppLocalizations l10n,
+  ThemeData theme,
+  int providerId,
+  List<FuelInventoryItem> items,
+) => [
+  const SizedBox(height: 20),
+  _Section(title: l10n.fuelAvailabilityTitle),
+  const SizedBox(height: 6),
+  Card(
+    child: Padding(
+      padding: const EdgeInsets.all(14),
+      child: FuelStatusList(items: items),
+    ),
+  ),
+  const SizedBox(height: 20),
+  FuelHistoryChart(
+    providerId: providerId,
+    fuelTypes: items.map((i) => i.fuelType).toList(),
+  ),
+];
 
 class _Section extends StatelessWidget {
   const _Section({required this.title});

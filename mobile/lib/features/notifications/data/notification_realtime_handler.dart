@@ -50,4 +50,13 @@ class NotificationRealtimeHandler implements RealtimeEventHandler {
 
   @override
   void onProviderStatusChanged(Map<String, dynamic> payload) {}
+
+  @override
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
+
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {}
+
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {}
 }

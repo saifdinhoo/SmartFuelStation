@@ -39,8 +39,12 @@ class ApiClient {
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) =>
       _send(() => _dio.get(path, queryParameters: query));
 
-  Future<dynamic> post(String path, {Object? body}) =>
-      _send(() => _dio.post(path, data: body));
+  /// [options] lets one call override a base setting (e.g. a longer
+  /// receiveTimeout for a slow endpoint) without changing the shared
+  /// default every other request still uses — see AiRepository for why
+  /// this exists.
+  Future<dynamic> post(String path, {Object? body, Options? options}) =>
+      _send(() => _dio.post(path, data: body, options: options));
 
   Future<dynamic> put(String path, {Object? body}) =>
       _send(() => _dio.put(path, data: body));

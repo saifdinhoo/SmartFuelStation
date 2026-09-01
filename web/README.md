@@ -1,32 +1,28 @@
-# React + TypeScript + Vite
+# Smart Automotive Service Platform — Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript + Vite dashboard for the Customer, Provider, and Admin roles. See the [root README](../README.md) for the full-project setup (database, backend, mobile).
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+`VITE_API_URL` in `.env` must point at the backend's `/api` base (`http://localhost:5000/api` for local development). The dev server runs on `http://localhost:5173`.
+
+## Scripts
+
+- `npm run dev` — Vite dev server
+- `npm run build` — type-check (`tsc -b`) then production build
+- `npm run lint` — ESLint
+- `npm test` / `npm run test:watch` — Vitest
+- `npm run format` / `npm run format:check` — Prettier
+
+## Structure
+
+- `src/features/<role>/<area>/` — one folder per feature area (e.g. `features/customer/vehicles`), each typically holding its API client, TanStack Query hooks, and page/component files together.
+- `src/components/ui/` — shared, role-agnostic UI primitives (Button, Card, Modal, etc.).
+- `src/app/providers/` — app-wide context (auth, theme, direction/locale, toast, socket).
+- `src/routes/AppRoutes.tsx` — the route table; role gating goes through `RoleRoute`.

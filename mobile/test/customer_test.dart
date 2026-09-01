@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:smart_automotive_service_app/core/l10n/day_labels.dart';
+import 'package:smart_automotive_service_app/core/l10n/fuel_labels.dart';
 import 'package:smart_automotive_service_app/core/l10n/generated/app_localizations.dart';
 import 'package:smart_automotive_service_app/core/l10n/locale_controller.dart';
 import 'package:smart_automotive_service_app/core/location/location_service.dart';
@@ -9,8 +11,12 @@ import 'package:smart_automotive_service_app/core/models/models.dart';
 import 'package:smart_automotive_service_app/core/network/api_exception.dart';
 import 'package:smart_automotive_service_app/core/state/async_value.dart';
 import 'package:smart_automotive_service_app/core/state/query_cache.dart';
+import 'package:smart_automotive_service_app/core/theme/app_theme.dart';
+import 'package:smart_automotive_service_app/features/customer/data/customer_repository.dart';
 import 'package:smart_automotive_service_app/features/customer/queue/queue_display.dart';
 import 'package:smart_automotive_service_app/features/customer/widgets/booking_status_ui.dart';
+import 'package:smart_automotive_service_app/features/customer/widgets/fuel_status_list.dart';
+import 'package:smart_automotive_service_app/features/customer/widgets/operating_hours_list.dart';
 
 Future<AppLocalizations> loadL10n(String code) =>
     AppLocalizations.delegate.load(Locale(code));
@@ -103,6 +109,113 @@ void main() {
       });
       expect(entry.position, 3);
       expect(entry.status.isActive, isTrue);
+    });
+
+    test('OperatingHour parses a closed day with null times', () {
+      final hour = OperatingHour.fromJson({
+        'dayOfWeek': 'FRIDAY',
+        'isClosed': true,
+        'openTime': null,
+        'closeTime': null,
+      });
+      expect(hour.dayOfWeek, DayOfWeekModel.friday);
+      expect(hour.isClosed, isTrue);
+      expect(hour.openTime, isNull);
+    });
+
+    test('Availability parses OPEN status with its slot list', () {
+      final availability = Availability.fromJson({
+        'providerId': 2,
+        'serviceId': 5,
+        'date': '2026-09-01',
+        'status': 'OPEN',
+        'openingTime': '09:00',
+        'closingTime': '18:00',
+        'serviceDurationMinutes': 60,
+        'slots': [
+          {'startTime': '09:00', 'endTime': '10:00', 'status': 'AVAILABLE'},
+          {'startTime': '10:00', 'endTime': '11:00', 'status': 'BOOKED'},
+          {'startTime': '08:00', 'endTime': '09:00', 'status': 'PAST'},
+        ],
+      });
+
+      expect(availability.status, AvailabilityStatusModel.open);
+      expect(availability.slots, hasLength(3));
+      expect(availability.slots[0].status, SlotStatusModel.available);
+      expect(availability.slots[1].status, SlotStatusModel.booked);
+      expect(availability.slots[2].status, SlotStatusModel.past);
+    });
+
+    test('Availability parses HOURS_NOT_CONFIGURED with an empty slot list — never fabricated', () {
+      final availability = Availability.fromJson({
+        'providerId': 2,
+        'serviceId': 5,
+        'date': '2026-09-01',
+        'status': 'HOURS_NOT_CONFIGURED',
+        'serviceDurationMinutes': 60,
+        'slots': [],
+      });
+
+      expect(availability.status, AvailabilityStatusModel.hoursNotConfigured);
+      expect(availability.openingTime, isNull);
+      expect(availability.slots, isEmpty);
+    });
+
+    test('an availability slot never carries a customer identity or booking id', () {
+      final slot = AvailabilitySlot.fromJson({
+        'startTime': '10:00',
+        'endTime': '11:00',
+        'status': 'BOOKED',
+      });
+      // Nothing to assert against by name — the type itself has no such
+      // field, so a leaked identity would be a compile error, not a
+      // runtime one.
+      expect(slot.status, SlotStatusModel.booked);
+    });
+
+    test('FuelInventoryItem parses the public shape with no admin fields', () {
+      final item = FuelInventoryItem.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'displayName': 'Gasoline 95',
+        'capacityLiters': '20000.00',
+        'currentLiters': '7450.00',
+        'percentageRemaining': 37.3,
+        'pricePerLiter': '6.80',
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(item.fuelType, FuelTypeModel.gasoline95);
+      expect(item.currentLiters, 7450.0);
+      expect(item.percentageRemaining, 37.3);
+      expect(item.pricePerLiter, 6.8);
+    });
+
+    test('FuelInventoryItem tolerates a null price', () {
+      final item = FuelInventoryItem.fromJson({
+        'fuelType': 'DIESEL',
+        'displayName': 'Diesel / Solar',
+        'capacityLiters': 30000,
+        'currentLiters': 22100,
+        'percentageRemaining': 73.7,
+        'pricePerLiter': null,
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(item.pricePerLiter, isNull);
+    });
+
+    test('FuelHistoryPoint carries only fuelType/liters/timestamp', () {
+      final point = FuelHistoryPoint.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'liters': 15000,
+        'timestamp': '2026-08-01T00:00:00.000Z',
+      });
+      expect(point.fuelType, FuelTypeModel.gasoline95);
+      expect(point.liters, 15000.0);
+    });
+
+    test('FuelTypeModel.api round-trips every value back to the backend enum', () {
+      for (final type in FuelTypeModel.values) {
+        expect(FuelTypeModel.fromApi(type.api), type);
+      }
     });
 
     test('rating summary keeps null distinct from zero', () {
@@ -293,6 +406,26 @@ void main() {
       expect(ar.bookingSubmit, isNot('Request booking'));
     });
 
+    test('operating-hours and availability strings are translated in both locales', () async {
+      final en = await loadL10n('en');
+      final ar = await loadL10n('ar');
+
+      for (final day in DayOfWeekModel.week) {
+        final english = dayLabel(en, day);
+        final arabic = dayLabel(ar, day);
+        expect(english, isNotEmpty);
+        expect(arabic, isNotEmpty);
+        expect(arabic, isNot(english), reason: '$day must actually be translated');
+      }
+
+      expect(ar.providerHoursNone, isNot(en.providerHoursNone));
+      expect(ar.providerHoursNotSet, isNot(en.providerHoursNotSet));
+      expect(ar.pHoursClosed, isNot(en.pHoursClosed));
+      expect(ar.bookingConflictRetry, isNot(en.bookingConflictRetry));
+      expect(ar.bookingHoursNotConfigured, isNot(en.bookingHoursNotConfigured));
+      expect(ar.bookingOpenHours('09:00', '18:00'), isNot(en.bookingOpenHours('09:00', '18:00')));
+    });
+
     testWidgets('customer strings render right-to-left in Arabic', (
       tester,
     ) async {
@@ -314,6 +447,270 @@ void main() {
       );
 
       final text = find.text('الحجوزات');
+      expect(text, findsOneWidget);
+      expect(Directionality.of(tester.element(text)), TextDirection.rtl);
+    });
+
+    testWidgets('operating-hours strings render right-to-left in Arabic', (
+      tester,
+    ) async {
+      final ar = await loadL10n('ar');
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ar'),
+          supportedLocales: LocaleController.supported,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Builder(
+            builder: (context) =>
+                Scaffold(body: Text(AppLocalizations.of(context)!.providerHoursTitle)),
+          ),
+        ),
+      );
+
+      final text = find.text(ar.providerHoursTitle);
+      expect(text, findsOneWidget);
+      expect(Directionality.of(tester.element(text)), TextDirection.rtl);
+    });
+  });
+
+  group('availability cache keys', () {
+    test('a different service or date is a separate cached read', () {
+      expect(
+        CacheKeys.availability(2, 5, '2026-09-01'),
+        isNot(CacheKeys.availability(2, 6, '2026-09-01')),
+      );
+      expect(
+        CacheKeys.availability(2, 5, '2026-09-01'),
+        isNot(CacheKeys.availability(2, 5, '2026-09-02')),
+      );
+    });
+
+    test('every availability key for a provider sits under its invalidation prefix', () {
+      expect(
+        CacheKeys.availability(2, 5, '2026-09-01').startsWith(CacheKeys.availabilityPrefix(2)),
+        isTrue,
+      );
+      expect(
+        CacheKeys.availability(9, 5, '2026-09-01').startsWith(CacheKeys.availabilityPrefix(2)),
+        isFalse,
+      );
+    });
+
+    test('invalidatePrefix marks only the named provider\'s availability stale', () async {
+      final cache = QueryCache();
+      await cache.refresh(CacheKeys.availability(2, 5, '2026-09-01'), () async => 'a');
+      await cache.refresh(CacheKeys.availability(9, 1, '2026-09-01'), () async => 'b');
+
+      cache.invalidatePrefix(CacheKeys.availabilityPrefix(2));
+
+      expect(cache.read<String>(CacheKeys.availability(2, 5, '2026-09-01')).valueOrNull, 'a');
+      expect(cache.read<String>(CacheKeys.availability(9, 1, '2026-09-01')).valueOrNull, 'b');
+    });
+  });
+
+  group('OperatingHoursList', () {
+    late AppLocalizations en;
+    setUp(() async => en = await loadL10n('en'));
+
+    Widget wrap(Widget child) => MaterialApp(
+      locale: const Locale('en'),
+      theme: AppTheme.light,
+      supportedLocales: LocaleController.supported,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: Scaffold(body: child),
+    );
+
+    testWidgets('shows a not-configured message when nothing is set at all', (tester) async {
+      await tester.pumpWidget(wrap(const OperatingHoursList(hours: [])));
+      expect(find.text(en.providerHoursNone), findsOneWidget);
+    });
+
+    testWidgets('shows the open interval for a configured day', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const OperatingHoursList(
+            hours: [
+              OperatingHour(
+                dayOfWeek: DayOfWeekModel.monday,
+                isClosed: false,
+                openTime: '09:00',
+                closeTime: '18:00',
+              ),
+            ],
+          ),
+        ),
+      );
+      expect(find.text(en.dayMonday), findsOneWidget);
+      expect(find.text('09:00 – 18:00'), findsOneWidget);
+      // The other 6 weekdays have no entry in the fixture above — never
+      // fabricated.
+      expect(find.text(en.providerHoursNotSet), findsNWidgets(6));
+    });
+
+    testWidgets('shows Closed for an explicitly closed day', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          const OperatingHoursList(
+            hours: [
+              OperatingHour(dayOfWeek: DayOfWeekModel.friday, isClosed: true),
+            ],
+          ),
+        ),
+      );
+      expect(find.text(en.pHoursClosed), findsOneWidget);
+    });
+  });
+
+  group('fuel cache keys', () {
+    test('a different fuelType or range is a separate cached history read', () {
+      expect(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        isNot(CacheKeys.fuelHistory(2, 'DIESEL', '7d')),
+      );
+      expect(
+        CacheKeys.fuelHistory(2, 'GASOLINE_95', '7d'),
+        isNot(CacheKeys.fuelHistory(2, 'GASOLINE_95', '30d')),
+      );
+    });
+
+    test('every fuel-history key for a provider sits under its invalidation prefix', () {
+      expect(
+        CacheKeys.fuelHistory(2, 'DIESEL', '7d').startsWith(CacheKeys.fuelHistoryPrefix(2)),
+        isTrue,
+      );
+      expect(
+        CacheKeys.fuelHistory(9, 'DIESEL', '7d').startsWith(CacheKeys.fuelHistoryPrefix(2)),
+        isFalse,
+      );
+    });
+
+    test('the current-status key sits under the shared provider/ prefix', () {
+      expect(CacheKeys.fuel(2).startsWith(CacheKeys.providerPrefix), isTrue);
+    });
+  });
+
+  group('FuelStatusList', () {
+    Widget wrap(Widget child) => MaterialApp(
+      locale: const Locale('en'),
+      theme: AppTheme.light,
+      supportedLocales: LocaleController.supported,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: Scaffold(body: SingleChildScrollView(child: child)),
+    );
+
+    FuelInventoryItem item({
+      FuelTypeModel fuelType = FuelTypeModel.gasoline95,
+      String displayName = 'Gasoline 95',
+      double current = 7450,
+      double capacity = 20000,
+      double pct = 37.3,
+      double? price = 6.8,
+    }) => FuelInventoryItem(
+      fuelType: fuelType,
+      displayName: displayName,
+      capacityLiters: capacity,
+      currentLiters: current,
+      percentageRemaining: pct,
+      pricePerLiter: price,
+      updatedAt: DateTime.now(),
+    );
+
+    testWidgets('renders nothing for an empty list', (tester) async {
+      await tester.pumpWidget(wrap(const FuelStatusList(items: [])));
+      expect(find.byType(FuelStatusList), findsOneWidget);
+      // No card/progress bar content should be rendered.
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+
+    testWidgets('shows the display name, percentage and a real progress bar', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()])));
+      expect(find.text('Gasoline 95'), findsOneWidget);
+      expect(find.text('37.3%'), findsOneWidget);
+      final bar = tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator));
+      expect(bar.value, closeTo(0.373, 0.001));
+    });
+
+    testWidgets('hides price when showPrice is false — provider read-only view', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()], showPrice: false)));
+      expect(find.textContaining('/L'), findsNothing);
+    });
+
+    testWidgets('renders no buttons or text fields — this is a read-only display', (tester) async {
+      await tester.pumpWidget(wrap(FuelStatusList(items: [item()])));
+      expect(find.byType(ElevatedButton), findsNothing);
+      expect(find.byType(OutlinedButton), findsNothing);
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('shows every fuel type independently', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          FuelStatusList(
+            items: [
+              item(),
+              item(fuelType: FuelTypeModel.diesel, displayName: 'Diesel / Solar', current: 22100, capacity: 30000, pct: 73.7),
+            ],
+          ),
+        ),
+      );
+      expect(find.text('Gasoline 95'), findsOneWidget);
+      expect(find.text('Diesel / Solar'), findsOneWidget);
+    });
+  });
+
+  group('fuel localization', () {
+    test('fuel type and status strings are translated in both locales', () async {
+      final en = await loadL10n('en');
+      final ar = await loadL10n('ar');
+
+      for (final type in FuelTypeModel.values) {
+        final english = fuelTypeLabel(en, type);
+        final arabic = fuelTypeLabel(ar, type);
+        expect(english, isNotEmpty);
+        expect(arabic, isNotEmpty);
+        expect(arabic, isNot(english), reason: '$type must actually be translated');
+      }
+
+      expect(ar.fuelAvailabilityTitle, isNot(en.fuelAvailabilityTitle));
+      expect(ar.fuelHistorySinglePoint, isNot(en.fuelHistorySinglePoint));
+      expect(ar.fuelManagedByAdminNote, isNot(en.fuelManagedByAdminNote));
+    });
+
+    testWidgets('fuel strings render right-to-left in Arabic', (tester) async {
+      final ar = await loadL10n('ar');
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('ar'),
+          supportedLocales: LocaleController.supported,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Builder(
+            builder: (context) =>
+                Scaffold(body: Text(AppLocalizations.of(context)!.fuelAvailabilityTitle)),
+          ),
+        ),
+      );
+
+      final text = find.text(ar.fuelAvailabilityTitle);
       expect(text, findsOneWidget);
       expect(Directionality.of(tester.element(text)), TextDirection.rtl);
     });

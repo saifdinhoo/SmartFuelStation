@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Building2, ShieldCheck, User, Users } from 'lucide-react';
+import { Building2, MapPin, ShieldCheck, User, Users } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { getErrorMessage } from '@/utils/getErrorMessage';
+import { buildViewLocationUrl, openExternalUrl } from '@/utils/location';
 import { fetchAdminUser, fetchAdminUsers, type UserRole } from '@/features/admin/adminApi';
 
 const ROLE_OPTIONS = [
@@ -72,7 +73,6 @@ function UserDetailModal({ userId, onClose }: { userId: number | null; onClose: 
               <div className="flex flex-col gap-2">
                 {[
                   ['Name', user.provider.businessName],
-                  ['Address', user.provider.address],
                   ['Approved', user.provider.isApproved ? 'Yes' : 'No'],
                   ['Open', user.provider.isOpen ? 'Yes' : 'No'],
                   ['Services', String(user.provider._count.services)],
@@ -83,6 +83,30 @@ function UserDetailModal({ userId, onClose }: { userId: number | null; onClose: 
                     <span className="text-foreground">{value}</span>
                   </div>
                 ))}
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Address</span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-foreground">{user.provider.address}</span>
+                    {(() => {
+                      // This response carries no coordinates, only the raw
+                      // address — the shared helper falls back to a text
+                      // search rather than needing lat/long here.
+                      const url = buildViewLocationUrl(null, null, user.provider!.address);
+                      return (
+                        <Button
+                          variant="ghost"
+                          className="h-7 px-2 text-xs"
+                          disabled={!url}
+                          aria-disabled={!url}
+                          onClick={() => url && openExternalUrl(url)}
+                        >
+                          <MapPin className="h-3.5 w-3.5" />
+                          View
+                        </Button>
+                      );
+                    })()}
+                  </span>
+                </div>
               </div>
             </div>
           )}

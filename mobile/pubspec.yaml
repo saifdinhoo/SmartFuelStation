@@ -54,6 +54,22 @@ dependencies:
   intl: 0.20.2
   geolocator: ^14.0.3
   socket_io_client: ^3.1.6
+  # Fuel-history line charts (Phase B). No chart package existed in this
+  # app before — fl_chart is pure Dart (no native platform code), small,
+  # and actively maintained, so it was added rather than hand-rolling a
+  # CustomPainter chart.
+  fl_chart: ^0.69.2
+  # Opens an external Maps app/URL for View location / Get directions
+  # (Phase C). The official Flutter-team package for launching URLs —
+  # no Maps SDK or API key involved, just an https:// link.
+  url_launcher: ^6.3.1
+  # Live gas-station camera view-only proof of concept (Phase F). The
+  # official Flutter-team video player — supports custom HTTP headers on
+  # both ExoPlayer (Android) and AVPlayer (iOS) natively, so the JWT can be
+  # attached without a query-param fallback and no extra HLS package is
+  # needed. Deliberately not paired with Chewie or any other player-UI
+  # wrapper — this feature stays to a plain muted/autoplay/no-controls view.
+  video_player: ^2.14.0
 
 dev_dependencies:
   flutter_test:

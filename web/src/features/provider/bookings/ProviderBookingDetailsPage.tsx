@@ -10,6 +10,8 @@ import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { useBookingDetails } from '@/features/customer/bookings/useBookingDetails';
 import { BookingStatusBadge } from '@/features/customer/bookings/BookingStatusBadge';
 import { BookingStatusTimeline } from '@/features/customer/bookings/BookingStatusTimeline';
+import { SettlementStatusBadge } from '@/features/finance/SettlementStatusBadge';
+import { useOwnFinanceTransactions } from '@/features/provider/finance/useProviderFinance';
 import { BookingActions } from './BookingActions';
 import { useProviderQueueIndex } from './useProviderBookingActions';
 import { getProviderActions } from './types';
@@ -22,9 +24,18 @@ export function ProviderBookingDetailsPage() {
   // rather than being filtered client-side.
   const { booking, isPending, isError, errorMessage, reload } = useBookingDetails(id ?? '');
   const { byBookingId } = useProviderQueueIndex();
+  // Never fetched by booking id directly — there is no such endpoint, and
+  // adding one for a single-row lookup here would duplicate what the
+  // existing finance transactions list already returns. This same list is
+  // already cached for the My Earnings page.
+  const { transactions: financeTransactions } = useOwnFinanceTransactions();
 
   const queueEntry = booking ? byBookingId.get(booking.id) : undefined;
   const hasActions = booking ? getProviderActions(booking.status).length > 0 : false;
+  const financeSnapshot =
+    booking?.status === 'COMPLETED'
+      ? financeTransactions?.find((t) => t.bookingId === booking.id)
+      : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -138,6 +149,31 @@ export function ProviderBookingDetailsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {financeSnapshot && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <h2 className="text-heading-3">Earnings</h2>
+                <SettlementStatusBadge status={financeSnapshot.settlementStatus} />
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2 text-sm">
+                <div className="flex justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Gross</span>
+                  <span className="text-foreground">${financeSnapshot.grossAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Platform fee</span>
+                  <span className="text-foreground">
+                    {financeSnapshot.commissionRate}% (${financeSnapshot.commissionAmount.toFixed(2)})
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Your net</span>
+                  <span className="text-foreground">${financeSnapshot.providerNetAmount.toFixed(2)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>

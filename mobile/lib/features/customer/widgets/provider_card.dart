@@ -4,6 +4,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/models/models.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/status_chip.dart';
+import 'favorite_toggle_button.dart';
 import 'rating_stars.dart';
 
 /// One business in a discovery list.
@@ -60,6 +61,7 @@ class ProviderCard extends StatelessWidget {
                         ? StatusTone.success
                         : StatusTone.neutral,
                   ),
+                  FavoriteToggleButton(providerId: provider.id, compact: true),
                 ],
               ),
               const SizedBox(height: 4),

@@ -39,6 +39,14 @@ async function create(req, res, next) {
         relatedBookingId: booking.id,
       }),
     );
+
+    // The new booking occupies a slot other customers may currently be
+    // looking at on the same provider's availability screen.
+    await safely(() =>
+      socketEvents.notifyProviderAvailabilityChanged({
+        providerId: booking.providerService.provider.id,
+      }),
+    );
   } catch (err) {
     next(err);
   }
@@ -89,6 +97,28 @@ async function updateStatus(req, res, next) {
         booking.providerService?.provider?.id ?? null,
       ),
     );
+
+    // A cancellation/rejection/completion frees the slot back up; any other
+    // transition still changes what "today's calendar" looks like. Cheap
+    // and side-effect-free to broadcast unconditionally rather than
+    // special-case which statuses actually flip a slot's blocking status.
+    if (booking.providerService?.provider?.id != null) {
+      await safely(() =>
+        socketEvents.notifyProviderAvailabilityChanged({
+          providerId: booking.providerService.provider.id,
+        }),
+      );
+    }
+
+    // A COMPLETED transition atomically created (or found — idempotent)
+    // this booking's FinancialTransaction inside booking.service.js, so by
+    // the time this response has already been sent, the ledger row is
+    // already committed — safe to announce it now.
+    if (booking.status === 'COMPLETED' && booking.providerService?.provider?.id != null) {
+      await safely(() =>
+        socketEvents.notifyFinanceUpdated({ providerId: booking.providerService.provider.id }),
+      );
+    }
 
     const notification = bookingStatusNotification(
       {

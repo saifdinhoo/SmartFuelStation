@@ -13,16 +13,17 @@ import { ProviderDashboardPage } from '@/features/provider/DashboardPage';
 import { AdminDashboardPage } from '@/features/admin/DashboardPage';
 import { RoleRoute } from '@/components/auth/RoleRoute';
 import { AuthenticatedDashboardLayout } from '@/components/dashboard/AuthenticatedDashboardLayout';
-import { ComingSoonPage } from '@/components/dashboard/ComingSoonPage';
-import { getNavForRole } from '@/features/dashboard/navigation';
 import { DesignSystemPreview } from '@/pages/DesignSystemPreview';
 import { ComponentShowcase } from '@/pages/ComponentShowcase';
 import { DashboardShellPreview } from '@/pages/DashboardShellPreview';
 import { ServicesPage } from '@/features/provider/services/ServicesPage';
 import { QueuePage } from '@/features/provider/queue/QueuePage';
 import { AnalyticsPage } from '@/features/provider/analytics/AnalyticsPage';
+import { ProviderFinancePage } from '@/features/provider/finance/ProviderFinancePage';
+import { AdminFinancePage } from '@/features/admin/finance/AdminFinancePage';
 import { DiscoveryPage } from '@/features/customer/discovery/DiscoveryPage';
 import { ProviderDetailsPage } from '@/features/customer/discovery/ProviderDetailsPage';
+import { LiveStationPage } from '@/features/liveStation/LiveStationPage';
 import { CategoriesPage } from '@/features/admin/categories/CategoriesPage';
 import { AdminProvidersPage } from '@/features/admin/providers/AdminProvidersPage';
 import { AdminUsersPage } from '@/features/admin/users/AdminUsersPage';
@@ -31,6 +32,7 @@ import { AdminReviewsPage } from '@/features/admin/reviews/AdminReviewsPage';
 import { AdminComplaintsPage } from '@/features/admin/complaints/AdminComplaintsPage';
 import { AdminAnalyticsPage } from '@/features/admin/analytics/AdminAnalyticsPage';
 import { AdminSettingsPage } from '@/features/admin/settings/AdminSettingsPage';
+import { AdminFuelPage } from '@/features/admin/fuel/AdminFuelPage';
 import { BookingHistoryPage } from '@/features/customer/bookings/BookingHistoryPage';
 import { BookingDetailsPage } from '@/features/customer/bookings/BookingDetailsPage';
 import { ProviderBookingsPage } from '@/features/provider/bookings/ProviderBookingsPage';
@@ -40,20 +42,12 @@ import { LiveStatusPage } from '@/features/provider/livestatus/LiveStatusPage';
 import { ProviderReviewsPage } from '@/features/provider/reviews/ProviderReviewsPage';
 import { ProviderSettingsPage } from '@/features/provider/settings/ProviderSettingsPage';
 import { NotificationsPage } from '@/features/notifications/NotificationsPage';
-
-// Every nav item except "Overview" (which has its own real dashboard page)
-// gets a shared ComingSoonPage — the shell is done, page details are not.
-// Every provider nav item now has a real page, so no ComingSoonPage stubs
-// remain for this role.
-const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
-// Every admin nav item now has a real page, so no ComingSoonPage stubs
-// remain for this role either.
-const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
-// "Find Services" and "Bookings" have real pages; the rest of the
-// customer nav is still ComingSoonPage, same convention as above.
-const customerSubRoutes = getNavForRole('CUSTOMER').filter(
-  (item) => item.path !== '/customer/search' && item.path !== '/customer/bookings',
-);
+import { AiAssistantPage } from '@/features/ai/AiAssistantPage';
+import { CustomerSettingsPage } from '@/features/customer/settings/CustomerSettingsPage';
+import { MyReviewsPage } from '@/features/customer/reviews/MyReviewsPage';
+import { MyComplaintsPage } from '@/features/customer/complaints/MyComplaintsPage';
+import { FavoritesPage } from '@/features/customer/favorites/FavoritesPage';
+import { MyVehiclesPage } from '@/features/customer/vehicles/MyVehiclesPage';
 
 export function AppRoutes() {
   const location = useLocation();
@@ -228,21 +222,18 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
-          {providerSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['PROVIDER']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
+          <Route
+            path="/provider/finance"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['PROVIDER']}>
+                  <AuthenticatedDashboardLayout>
+                    <ProviderFinancePage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
           <Route
             path="/admin/dashboard"
             element={
@@ -256,12 +247,14 @@ export function AppRoutes() {
           {(
             [
               ['/admin/categories', <CategoriesPage key="cat" />],
+              ['/admin/fuel', <AdminFuelPage key="fuel" />],
               ['/admin/providers', <AdminProvidersPage key="prov" />],
               ['/admin/customers', <AdminUsersPage key="users" />],
               ['/admin/bookings', <AdminBookingsPage key="book" />],
               ['/admin/reviews', <AdminReviewsPage key="rev" />],
               ['/admin/complaints', <AdminComplaintsPage key="comp" />],
               ['/admin/analytics', <AdminAnalyticsPage key="an" />],
+              ['/admin/finance', <AdminFinancePage key="fin" />],
               ['/admin/system-settings', <AdminSettingsPage key="set" />],
             ] as const
           ).map(([path, element]) => (
@@ -272,21 +265,6 @@ export function AppRoutes() {
                 <PageTransition>
                   <RoleRoute roles={['ADMIN']}>
                     <AuthenticatedDashboardLayout>{element}</AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
-          {adminSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['ADMIN']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
                   </RoleRoute>
                 </PageTransition>
               }
@@ -317,6 +295,18 @@ export function AppRoutes() {
             }
           />
           <Route
+            path="/customer/live-station/:providerId"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <LiveStationPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
             path="/customer/bookings"
             element={
               <PageTransition>
@@ -340,21 +330,66 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
-          {customerSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['CUSTOMER']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
+          <Route
+            path="/customer/settings"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <CustomerSettingsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/reviews"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <MyReviewsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/favorites"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <FavoritesPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/complaints"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <MyComplaintsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/vehicles"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <MyVehiclesPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
           <Route
             path="/notifications"
             element={
@@ -362,6 +397,18 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER', 'PROVIDER', 'ADMIN']}>
                   <AuthenticatedDashboardLayout>
                     <NotificationsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/assistant"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER', 'PROVIDER', 'ADMIN']}>
+                  <AuthenticatedDashboardLayout>
+                    <AiAssistantPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

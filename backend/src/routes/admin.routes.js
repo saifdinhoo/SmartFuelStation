@@ -17,4 +17,25 @@ router.get('/reviews', adminController.listReviews);
 router.get('/complaints', adminController.listComplaints);
 router.patch('/complaints/:id', adminController.updateComplaint);
 
+// Fuel inventory — the ONLY place these values may be written. There is no
+// PATCH/PUT for fuel anywhere under /providers/me/* (see provider.routes.js).
+router.get('/providers/:providerId/fuel', adminController.listProviderFuel);
+router.put('/providers/:providerId/fuel/:fuelType', adminController.updateProviderFuel);
+router.get('/providers/:providerId/fuel/history', adminController.listProviderFuelHistory);
+
+// Finance (Phase D) — platform-wide ledger reads and the settlement action.
+// There is no PATCH/PUT for the money fields themselves anywhere: the
+// server computes gross/commission/net at booking-completion time (see
+// finance.service.js) and nothing ever accepts them from a client.
+router.get('/finance/summary', adminController.financeSummary);
+router.get('/finance/transactions', adminController.financeTransactions);
+router.get('/finance/providers/:providerId', adminController.financeProvider);
+router.patch('/finance/transactions/:id/settlement', adminController.settleFinanceTransaction);
+
+// Commission configuration — the ONLY place a provider's commissionRate may
+// be written. There is no PATCH/PUT for it anywhere under /providers/me/*
+// (see provider.routes.js) — a provider may only read its own rate.
+router.get('/providers/:providerId/commission', adminController.getProviderCommission);
+router.put('/providers/:providerId/commission', adminController.setProviderCommission);
+
 module.exports = router;

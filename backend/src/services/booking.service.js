@@ -1,5 +1,18 @@
 const prisma = require('../config/prisma');
+const financeService = require('./finance.service');
 const { ACTIVE_STATUSES, ALL_STATUSES, TRANSITIONS } = require('./shared/bookingTransitions');
+const {
+  parseTimeOnly,
+  timeToMinutes,
+  localDateOnlyOf,
+  localTimeOnlyOf,
+  dayOfWeekOf,
+} = require('./shared/availabilityRules');
+
+// Postgres's serialization_failure SQLSTATE (see the Serializable
+// transaction below) — Prisma's interactive transactions surface it as this
+// known-request-error code rather than a raw Postgres error.
+const SERIALIZATION_FAILURE_CODE = 'P2034';
 
 function badRequest(message) {
   const err = new Error(message);
@@ -41,6 +54,10 @@ const WITH_DETAILS = {
       provider: { select: { id: true, businessName: true, address: true, userId: true } },
     },
   },
+  // Existence only — just enough for a client to know whether "leave a
+  // review" should show at all, never the review's own content (that
+  // already has its own real endpoints, see review.service.js).
+  review: { select: { id: true } },
 };
 
 async function requireOwnProviderId(userId, tx = prisma) {
@@ -83,35 +100,92 @@ async function createBooking({ customerId, providerServiceId, scheduledAt, notes
   const newStart = scheduledDate;
   const newEnd = new Date(newStart.getTime() + service.durationMinutes * 60_000);
 
-  const candidateBookings = await prisma.booking.findMany({
-    where: {
-      status: { in: ACTIVE_STATUSES },
-      providerService: { providerId: service.providerId },
-    },
-    include: { providerService: { select: { durationMinutes: true } } },
-  });
-
-  const hasOverlap = candidateBookings.some((existing) => {
-    const existingStart = existing.scheduledAt;
-    const existingEnd = new Date(
-      existingStart.getTime() + existing.providerService.durationMinutes * 60_000,
-    );
-    return overlaps(newStart, newEnd, existingStart, existingEnd);
-  });
-  if (hasOverlap) {
-    throw conflict('This provider already has a booking that overlaps this time slot');
+  // Operating hours are defined per calendar day (see
+  // availabilityRules.js) and never span midnight, so a booking whose
+  // duration would carry it into the next day can never legally fit —
+  // reject it before even looking up hours, rather than comparing an
+  // end-of-next-day clock time against today's closing time.
+  const startDateOnly = localDateOnlyOf(newStart);
+  const endDateOnly = localDateOnlyOf(newEnd);
+  if (
+    startDateOnly.year !== endDateOnly.year ||
+    startDateOnly.month !== endDateOnly.month ||
+    startDateOnly.day !== endDateOnly.day
+  ) {
+    throw badRequest('This service duration would extend past midnight — choose an earlier time');
   }
 
-  return prisma.booking.create({
-    data: {
-      customerId,
-      providerServiceId: parsedServiceId,
-      scheduledAt: newStart,
-      notes: notes || null,
-      priceAtBooking: service.price,
-    },
-    include: WITH_DETAILS,
+  // The same operating-hours check the availability endpoint uses to build
+  // the slot grid a customer just looked at — enforced again here so a
+  // client can never bypass it by posting directly to this endpoint.
+  const dayOfWeek = dayOfWeekOf(startDateOnly);
+  const hours = await prisma.providerOperatingHour.findUnique({
+    where: { providerId_dayOfWeek: { providerId: service.providerId, dayOfWeek } },
   });
+  if (!hours) {
+    throw badRequest('This provider has not configured operating hours for this day yet');
+  }
+  if (hours.isClosed) {
+    throw badRequest(`This provider is closed on ${dayOfWeek}`);
+  }
+
+  const openMinutes = timeToMinutes(parseTimeOnly(hours.openTime, 'openTime'));
+  const closeMinutes = timeToMinutes(parseTimeOnly(hours.closeTime, 'closeTime'));
+  const startMinutes = timeToMinutes(localTimeOnlyOf(newStart));
+  const endMinutes = timeToMinutes(localTimeOnlyOf(newEnd));
+  if (startMinutes < openMinutes || endMinutes > closeMinutes) {
+    throw badRequest(
+      `This time is outside the provider's operating hours for ${dayOfWeek} (${hours.openTime}–${hours.closeTime})`,
+    );
+  }
+
+  // The overlap check-then-create is wrapped in a Serializable transaction
+  // so two concurrent requests for the same slot cannot both pass the
+  // check before either commits (the read-then-write race the "stale
+  // availability" scenario is about) — Postgres aborts the loser with a
+  // serialization failure, which is mapped to the same 409 a same-process
+  // overlap produces below.
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        const candidateBookings = await tx.booking.findMany({
+          where: {
+            status: { in: ACTIVE_STATUSES },
+            providerService: { providerId: service.providerId },
+          },
+          include: { providerService: { select: { durationMinutes: true } } },
+        });
+
+        const hasOverlap = candidateBookings.some((existing) => {
+          const existingStart = existing.scheduledAt;
+          const existingEnd = new Date(
+            existingStart.getTime() + existing.providerService.durationMinutes * 60_000,
+          );
+          return overlaps(newStart, newEnd, existingStart, existingEnd);
+        });
+        if (hasOverlap) {
+          throw conflict('This provider already has a booking that overlaps this time slot');
+        }
+
+        return tx.booking.create({
+          data: {
+            customerId,
+            providerServiceId: parsedServiceId,
+            scheduledAt: newStart,
+            notes: notes || null,
+            priceAtBooking: service.price,
+          },
+          include: WITH_DETAILS,
+        });
+      },
+      { isolationLevel: 'Serializable' },
+    );
+  } catch (err) {
+    if (err.code === SERIALIZATION_FAILURE_CODE) {
+      throw conflict('This time slot was just booked by someone else — please choose another time');
+    }
+    throw err;
+  }
 }
 
 async function listBookings(requestingUser) {
@@ -160,6 +234,14 @@ async function getBookingById(idParam, requestingUser) {
 // a queue mutation and the booking-status sync it triggers commit or roll
 // back together (see the Queue audit — booking sync must never "silently
 // create an impossible Booking state").
+//
+// A transition to COMPLETED must additionally create the booking's
+// FinancialTransaction atomically with the status flip (Phase D) — if the
+// caller already opened a transaction (tx !== prisma, e.g. queue.service.js
+// syncing a queue completion), the work below simply runs inside it; if
+// not, one is opened here so the status update and the ledger row commit
+// or roll back together either way. Every other transition is a single
+// statement and gains nothing from the wrapper but harmless consistency.
 async function updateBookingStatus(idParam, nextStatus, requestingUser, tx = prisma) {
   const id = toId(idParam, 'booking id');
 
@@ -167,24 +249,35 @@ async function updateBookingStatus(idParam, nextStatus, requestingUser, tx = pri
     throw badRequest('status is not a recognized booking status');
   }
 
-  const booking = await tx.booking.findUnique({ where: { id }, include: WITH_DETAILS });
-  if (!booking) throw notFound('Booking not found');
+  async function run(client) {
+    const booking = await client.booking.findUnique({ where: { id }, include: WITH_DETAILS });
+    if (!booking) throw notFound('Booking not found');
 
-  await assertBookingAccess(booking, requestingUser);
+    await assertBookingAccess(booking, requestingUser);
 
-  const edge = TRANSITIONS[booking.status]?.[nextStatus];
-  if (!edge) {
-    throw badRequest(`Cannot move a booking from ${booking.status} to ${nextStatus}`);
+    const edge = TRANSITIONS[booking.status]?.[nextStatus];
+    if (!edge) {
+      throw badRequest(`Cannot move a booking from ${booking.status} to ${nextStatus}`);
+    }
+    if (!edge.roles.includes(requestingUser.role)) {
+      throw forbidden(`Your role cannot move a booking from ${booking.status} to ${nextStatus}`);
+    }
+
+    const data = { status: nextStatus };
+    if (edge.sets === 'cancelledAt') data.cancelledAt = new Date();
+    if (edge.sets === 'completedAt') data.completedAt = new Date();
+
+    const updated = await client.booking.update({ where: { id }, data, include: WITH_DETAILS });
+
+    if (nextStatus === 'COMPLETED') {
+      await financeService.createTransactionForCompletedBooking(updated, client);
+    }
+
+    return updated;
   }
-  if (!edge.roles.includes(requestingUser.role)) {
-    throw forbidden(`Your role cannot move a booking from ${booking.status} to ${nextStatus}`);
-  }
 
-  const data = { status: nextStatus };
-  if (edge.sets === 'cancelledAt') data.cancelledAt = new Date();
-  if (edge.sets === 'completedAt') data.completedAt = new Date();
-
-  return tx.booking.update({ where: { id }, data, include: WITH_DETAILS });
+  if (tx !== prisma) return run(tx);
+  return prisma.$transaction((txClient) => run(txClient));
 }
 
 async function deleteBooking(idParam, requestingUser) {

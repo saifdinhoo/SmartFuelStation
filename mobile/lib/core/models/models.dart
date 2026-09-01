@@ -127,6 +127,7 @@ class ServiceProvider {
     this.longitude,
     this.phone,
     this.distanceKm,
+    this.liveCameraEnabled = false,
   });
 
   final int id;
@@ -140,6 +141,12 @@ class ServiceProvider {
   final List<ProviderService> services;
   final int reviewCount;
   final String? phone;
+
+  /// Whether this provider has a live camera at all (GET /providers
+  /// includes the raw column). Does not mean a stream is actually
+  /// watchable right now — that is what GET /providers/:id/live-camera's
+  /// `status` is for, fetched separately once a customer opens the feature.
+  final bool liveCameraEnabled;
 
   /// Filled in client-side once device location is known; null when
   /// location is unavailable or the provider has no coordinates.
@@ -172,6 +179,7 @@ class ServiceProvider {
       ).map(ProviderService.fromJson).toList(),
       reviewCount: asInt(count?['reviews']),
       phone: asStringOrNull(user?['phone']),
+      liveCameraEnabled: asBool(json['liveCameraEnabled']),
     );
   }
 
@@ -193,6 +201,7 @@ class ServiceProvider {
     reviewCount: reviewCount,
     phone: phone,
     distanceKm: distanceKm,
+    liveCameraEnabled: liveCameraEnabled,
   );
 
   ServiceProvider copyWithDistance(double? km) => ServiceProvider(
@@ -208,6 +217,7 @@ class ServiceProvider {
     reviewCount: reviewCount,
     phone: phone,
     distanceKm: km,
+    liveCameraEnabled: liveCameraEnabled,
   );
 }
 
@@ -246,6 +256,118 @@ class Review {
       bookingId: asIntOrNull(json['bookingId']),
     );
   }
+}
+
+/// One of the current customer's own reviews — GET /reviews/me. A distinct
+/// shape from [Review] (which is the provider-facing "who reviewed me"
+/// list, keyed by customer): this one is keyed by which provider it was
+/// for, since the customer already knows they wrote it.
+class MyReview {
+  const MyReview({
+    required this.id,
+    required this.rating,
+    required this.createdAt,
+    required this.providerId,
+    required this.providerBusinessName,
+    this.comment,
+    this.bookingId,
+  });
+
+  final int id;
+  final int rating;
+  final String? comment;
+  final DateTime createdAt;
+  final int providerId;
+  final String providerBusinessName;
+  final int? bookingId;
+
+  factory MyReview.fromJson(Map<String, dynamic> json) {
+    final provider = asMapOrNull(json['provider']);
+    return MyReview(
+      id: asInt(json['id']),
+      rating: asInt(json['rating']),
+      comment: asStringOrNull(json['comment']),
+      createdAt: asDate(json['createdAt']),
+      providerId: asInt(provider?['id']),
+      providerBusinessName: asString(provider?['businessName']),
+      bookingId: asIntOrNull(json['bookingId']),
+    );
+  }
+}
+
+/// One of the current customer's saved businesses — GET /favorites/me.
+/// Carries just enough of the provider to render a row without a second
+/// fetch; a real, backend-persisted favorite, shared across web and mobile.
+class Favorite {
+  const Favorite({
+    required this.id,
+    required this.createdAt,
+    required this.providerId,
+    required this.providerBusinessName,
+    required this.providerAddress,
+    required this.providerIsOpen,
+    required this.providerEstimatedWaitMinutes,
+  });
+
+  final int id;
+  final DateTime createdAt;
+  final int providerId;
+  final String providerBusinessName;
+  final String providerAddress;
+  final bool providerIsOpen;
+  final int providerEstimatedWaitMinutes;
+
+  factory Favorite.fromJson(Map<String, dynamic> json) {
+    final provider = asMapOrNull(json['provider']);
+    return Favorite(
+      id: asInt(json['id']),
+      createdAt: asDate(json['createdAt']),
+      providerId: asInt(provider?['id']),
+      providerBusinessName: asString(provider?['businessName']),
+      providerAddress: asString(provider?['address']),
+      providerIsOpen: asBool(provider?['isOpen']),
+      providerEstimatedWaitMinutes: asInt(provider?['estimatedWaitMinutes']),
+    );
+  }
+}
+
+/// A customer's own vehicle — GET/POST/PATCH/DELETE /vehicles. Kept for
+/// their reference when booking (e.g. "which car is this for"), not a
+/// government/VIN-verified record; there is deliberately no VIN decoding.
+/// [fuelType] reuses [FuelTypeModel] (defined below) but, unlike a fuel
+/// station's inventory, is genuinely optional — null must stay null, never
+/// default to gasoline95 the way [FuelTypeModel.fromApi] does for a
+/// required field.
+class Vehicle {
+  const Vehicle({
+    required this.id,
+    required this.make,
+    required this.model,
+    required this.year,
+    this.plate,
+    this.color,
+    this.fuelType,
+  });
+
+  final int id;
+  final String make;
+  final String model;
+  final int year;
+  final String? plate;
+  final String? color;
+  final FuelTypeModel? fuelType;
+
+  factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
+    id: asInt(json['id']),
+    make: asString(json['make']),
+    model: asString(json['model']),
+    year: asInt(json['year']),
+    plate: asStringOrNull(json['plate']),
+    color: asStringOrNull(json['color']),
+    fuelType: json['fuelType'] == null
+        ? null
+        : FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+  );
 }
 
 /// Server-side Prisma aggregation — never computed on the client.
@@ -482,6 +604,329 @@ class QueueEntry {
       queuePosition: asIntOrNull(json['position']),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// Operating hours & availability
+// ---------------------------------------------------------------------------
+
+enum DayOfWeekModel {
+  monday,
+  tuesday,
+  wednesday,
+  thursday,
+  friday,
+  saturday,
+  sunday;
+
+  static DayOfWeekModel fromApi(String? value) => switch (value) {
+    'MONDAY' => monday,
+    'TUESDAY' => tuesday,
+    'WEDNESDAY' => wednesday,
+    'THURSDAY' => thursday,
+    'FRIDAY' => friday,
+    'SATURDAY' => saturday,
+    _ => sunday,
+  };
+
+  /// The exact enum value the backend expects back on PUT
+  /// /providers/me/hours.
+  String get api => switch (this) {
+    monday => 'MONDAY',
+    tuesday => 'TUESDAY',
+    wednesday => 'WEDNESDAY',
+    thursday => 'THURSDAY',
+    friday => 'FRIDAY',
+    saturday => 'SATURDAY',
+    sunday => 'SUNDAY',
+  };
+
+  /// Matches the Prisma enum's own declaration order, which is also the
+  /// order GET /providers/:id/hours already returns.
+  static const week = [
+    monday,
+    tuesday,
+    wednesday,
+    thursday,
+    friday,
+    saturday,
+    sunday,
+  ];
+}
+
+/// One weekday's row from GET /providers/:id/hours or
+/// GET|PUT /providers/me/hours.
+class OperatingHour {
+  const OperatingHour({
+    required this.dayOfWeek,
+    required this.isClosed,
+    this.openTime,
+    this.closeTime,
+  });
+
+  final DayOfWeekModel dayOfWeek;
+  final bool isClosed;
+
+  /// "HH:mm", 24-hour, local wall-clock time. Null exactly when [isClosed]
+  /// is true — the backend forces this pairing server-side too.
+  final String? openTime;
+  final String? closeTime;
+
+  factory OperatingHour.fromJson(Map<String, dynamic> json) => OperatingHour(
+    dayOfWeek: DayOfWeekModel.fromApi(asStringOrNull(json['dayOfWeek'])),
+    isClosed: asBool(json['isClosed']),
+    openTime: asStringOrNull(json['openTime']),
+    closeTime: asStringOrNull(json['closeTime']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'dayOfWeek': dayOfWeek.api,
+    'isClosed': isClosed,
+    'openTime': isClosed ? null : openTime,
+    'closeTime': isClosed ? null : closeTime,
+  };
+}
+
+enum SlotStatusModel {
+  available,
+  booked,
+  past;
+
+  static SlotStatusModel fromApi(String? value) => switch (value) {
+    'AVAILABLE' => available,
+    'BOOKED' => booked,
+    _ => past,
+  };
+}
+
+/// One candidate booking start from GET /providers/:id/availability.
+///
+/// Carries no customer identity or booking id — the backend never sends
+/// either, even for a BOOKED slot, so there is nothing here that could leak
+/// who holds it.
+class AvailabilitySlot {
+  const AvailabilitySlot({
+    required this.startTime,
+    required this.endTime,
+    required this.status,
+  });
+
+  final String startTime;
+  final String endTime;
+  final SlotStatusModel status;
+
+  factory AvailabilitySlot.fromJson(Map<String, dynamic> json) =>
+      AvailabilitySlot(
+        startTime: asString(json['startTime']),
+        endTime: asString(json['endTime']),
+        status: SlotStatusModel.fromApi(asStringOrNull(json['status'])),
+      );
+}
+
+enum AvailabilityStatusModel {
+  open,
+  closed,
+  hoursNotConfigured;
+
+  static AvailabilityStatusModel fromApi(String? value) => switch (value) {
+    'OPEN' => open,
+    'CLOSED' => closed,
+    _ => hoursNotConfigured,
+  };
+}
+
+/// GET /providers/:id/availability?serviceId=&date=. Backend-authoritative
+/// — the booking sheet never computes slots itself, only renders these.
+class Availability {
+  const Availability({
+    required this.providerId,
+    required this.serviceId,
+    required this.date,
+    required this.status,
+    required this.serviceDurationMinutes,
+    required this.slots,
+    this.openingTime,
+    this.closingTime,
+  });
+
+  final int providerId;
+  final int serviceId;
+
+  /// "YYYY-MM-DD", the same local calendar date that was requested.
+  final String date;
+  final AvailabilityStatusModel status;
+  final String? openingTime;
+  final String? closingTime;
+  final int serviceDurationMinutes;
+  final List<AvailabilitySlot> slots;
+
+  factory Availability.fromJson(Map<String, dynamic> json) => Availability(
+    providerId: asInt(json['providerId']),
+    serviceId: asInt(json['serviceId']),
+    date: asString(json['date']),
+    status: AvailabilityStatusModel.fromApi(asStringOrNull(json['status'])),
+    openingTime: asStringOrNull(json['openingTime']),
+    closingTime: asStringOrNull(json['closingTime']),
+    serviceDurationMinutes: asInt(json['serviceDurationMinutes']),
+    slots: asMapList(json['slots']).map(AvailabilitySlot.fromJson).toList(),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Fuel inventory
+// ---------------------------------------------------------------------------
+
+enum FuelTypeModel {
+  gasoline95,
+  gasoline98,
+  diesel;
+
+  static FuelTypeModel fromApi(String? value) => switch (value) {
+    'GASOLINE_98' => gasoline98,
+    'DIESEL' => diesel,
+    _ => gasoline95,
+  };
+
+  String get api => switch (this) {
+    gasoline95 => 'GASOLINE_95',
+    gasoline98 => 'GASOLINE_98',
+    diesel => 'DIESEL',
+  };
+}
+
+/// Public/provider-own shape from GET /providers/:id/fuel,
+/// /providers/me/fuel. Never carries updatedByAdminId or any other audit
+/// field — that is exactly what separates this from
+/// [AdminFuelInventoryItem].
+class FuelInventoryItem {
+  const FuelInventoryItem({
+    required this.fuelType,
+    required this.displayName,
+    required this.capacityLiters,
+    required this.currentLiters,
+    required this.percentageRemaining,
+    required this.updatedAt,
+    this.pricePerLiter,
+  });
+
+  final FuelTypeModel fuelType;
+  final String displayName;
+  final double capacityLiters;
+  final double currentLiters;
+  final double percentageRemaining;
+  final double? pricePerLiter;
+  final DateTime updatedAt;
+
+  factory FuelInventoryItem.fromJson(Map<String, dynamic> json) => FuelInventoryItem(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    displayName: asString(json['displayName']),
+    capacityLiters: asDouble(json['capacityLiters']),
+    currentLiters: asDouble(json['currentLiters']),
+    percentageRemaining: asDouble(json['percentageRemaining']),
+    pricePerLiter: asDoubleOrNull(json['pricePerLiter']),
+    updatedAt: asDate(json['updatedAt']),
+  );
+}
+
+/// Admin-only shape from GET /admin/providers/:id/fuel — the same public
+/// fields plus who last changed it.
+class AdminFuelInventoryItem extends FuelInventoryItem {
+  const AdminFuelInventoryItem({
+    required super.fuelType,
+    required super.displayName,
+    required super.capacityLiters,
+    required super.currentLiters,
+    required super.percentageRemaining,
+    required super.updatedAt,
+    required this.id,
+    required this.providerId,
+    this.updatedByAdminId,
+    this.updatedByAdminName,
+    super.pricePerLiter,
+  });
+
+  final int id;
+  final int providerId;
+  final int? updatedByAdminId;
+  final String? updatedByAdminName;
+
+  factory AdminFuelInventoryItem.fromJson(Map<String, dynamic> json) => AdminFuelInventoryItem(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    displayName: asString(json['displayName']),
+    capacityLiters: asDouble(json['capacityLiters']),
+    currentLiters: asDouble(json['currentLiters']),
+    percentageRemaining: asDouble(json['percentageRemaining']),
+    pricePerLiter: asDoubleOrNull(json['pricePerLiter']),
+    updatedAt: asDate(json['updatedAt']),
+    id: asInt(json['id']),
+    providerId: asInt(json['providerId']),
+    updatedByAdminId: asIntOrNull(json['updatedByAdminId']),
+    updatedByAdminName: asStringOrNull(json['updatedByAdminName']),
+  );
+}
+
+/// One real chart point from GET /providers/:id/fuel/history — never a
+/// customer/admin identity, only what a chart needs.
+class FuelHistoryPoint {
+  const FuelHistoryPoint({
+    required this.fuelType,
+    required this.liters,
+    required this.timestamp,
+  });
+
+  final FuelTypeModel fuelType;
+  final double liters;
+  final DateTime timestamp;
+
+  factory FuelHistoryPoint.fromJson(Map<String, dynamic> json) => FuelHistoryPoint(
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    liters: asDouble(json['liters']),
+    timestamp: asDate(json['timestamp']),
+  );
+}
+
+/// One row of the Admin-only audit trail from
+/// GET /admin/providers/:id/fuel/history.
+class AdminFuelHistoryEntry {
+  const AdminFuelHistoryEntry({
+    required this.id,
+    required this.fuelType,
+    required this.previousLiters,
+    required this.newLiters,
+    required this.changedByAdminId,
+    required this.changedByAdminName,
+    required this.createdAt,
+    this.previousCapacityLiters,
+    this.newCapacityLiters,
+    this.previousPricePerLiter,
+    this.newPricePerLiter,
+  });
+
+  final int id;
+  final FuelTypeModel fuelType;
+  final double previousLiters;
+  final double newLiters;
+  final double? previousCapacityLiters;
+  final double? newCapacityLiters;
+  final double? previousPricePerLiter;
+  final double? newPricePerLiter;
+  final int changedByAdminId;
+  final String changedByAdminName;
+  final DateTime createdAt;
+
+  factory AdminFuelHistoryEntry.fromJson(Map<String, dynamic> json) => AdminFuelHistoryEntry(
+    id: asInt(json['id']),
+    fuelType: FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+    previousLiters: asDouble(json['previousLiters']),
+    newLiters: asDouble(json['newLiters']),
+    previousCapacityLiters: asDoubleOrNull(json['previousCapacityLiters']),
+    newCapacityLiters: asDoubleOrNull(json['newCapacityLiters']),
+    previousPricePerLiter: asDoubleOrNull(json['previousPricePerLiter']),
+    newPricePerLiter: asDoubleOrNull(json['newPricePerLiter']),
+    changedByAdminId: asInt(json['changedByAdminId']),
+    changedByAdminName: asString(json['changedByAdminName']),
+    createdAt: asDate(json['createdAt']),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -724,4 +1169,290 @@ class QueueSummary {
     queueLength: asInt(json['queueLength']),
     estimatedWaitMinutes: asInt(json['estimatedWaitMinutes']),
   );
+}
+
+// ---------------------------------------------------------------------------
+// Finance / commission ledger (Phase D)
+// ---------------------------------------------------------------------------
+//
+// Every money field below is a real Prisma Decimal computed server-side from
+// completed bookings — there is no client-side arithmetic on money anywhere
+// in this app, only formatting.
+
+/// One point of GET .../finance/summary's `trend` array — real recorded
+/// figures for one day in the requested window, never interpolated.
+class FinanceTrendPoint {
+  const FinanceTrendPoint({
+    required this.label,
+    required this.gross,
+    required this.commission,
+    required this.net,
+  });
+
+  /// "YYYY-MM-DD".
+  final String label;
+  final double gross;
+  final double commission;
+  final double net;
+
+  factory FinanceTrendPoint.fromJson(Map<String, dynamic> json) =>
+      FinanceTrendPoint(
+        label: asString(json['label']),
+        gross: asDouble(json['gross']),
+        commission: asDouble(json['commission']),
+        net: asDouble(json['net']),
+      );
+}
+
+/// One flexible shape covering all three summary endpoints
+/// (GET /admin/finance/summary, GET /admin/finance/providers/:id,
+/// GET /providers/me/finance/summary) rather than three near-identical
+/// classes: [transactionCount] is set only by the platform-wide admin
+/// summary, and [providerId]/[commissionRate] only when the summary is
+/// scoped to one provider ([providerName] additionally only on the admin
+/// side, since a provider's own summary already knows who it is). Every
+/// other field — including [trend] — is shared by all three.
+///
+/// Every total except [trend] is all-time; only [trend] is windowed by
+/// [range].
+class FinanceSummary {
+  const FinanceSummary({
+    required this.range,
+    required this.grossServiceValue,
+    required this.platformCommissionRevenue,
+    required this.providerNetEarnings,
+    required this.pendingSettlementAmount,
+    required this.settledAmount,
+    required this.trend,
+    this.transactionCount,
+    this.providerId,
+    this.providerName,
+    this.commissionRate,
+  });
+
+  final String range;
+  final double grossServiceValue;
+  final double platformCommissionRevenue;
+  final double providerNetEarnings;
+  final double pendingSettlementAmount;
+  final double settledAmount;
+  final List<FinanceTrendPoint> trend;
+
+  /// Platform-wide admin summary only.
+  final int? transactionCount;
+
+  /// Set when this summary is scoped to one provider.
+  final int? providerId;
+
+  /// Admin per-provider summary only.
+  final String? providerName;
+  final double? commissionRate;
+
+  factory FinanceSummary.fromJson(Map<String, dynamic> json) =>
+      FinanceSummary(
+        range: asString(json['range'], fallback: '30d'),
+        grossServiceValue: asDouble(json['grossServiceValue']),
+        platformCommissionRevenue: asDouble(json['platformCommissionRevenue']),
+        providerNetEarnings: asDouble(json['providerNetEarnings']),
+        pendingSettlementAmount: asDouble(json['pendingSettlementAmount']),
+        settledAmount: asDouble(json['settledAmount']),
+        trend: asMapList(
+          json['trend'],
+        ).map(FinanceTrendPoint.fromJson).toList(),
+        transactionCount: asIntOrNull(json['transactionCount']),
+        providerId: asIntOrNull(json['providerId']),
+        providerName: asStringOrNull(json['providerName']),
+        commissionRate: asDoubleOrNull(json['commissionRate']),
+      );
+}
+
+enum SettlementStatusModel {
+  pending,
+  settled;
+
+  static SettlementStatusModel fromApi(String? value) => switch (value) {
+    'SETTLED' => settled,
+    _ => pending,
+  };
+
+  String get api => switch (this) {
+    pending => 'PENDING',
+    settled => 'SETTLED',
+  };
+}
+
+/// The linked booking, trimmed to what a transaction row displays — never
+/// the full [Booking] graph, which this payload does not carry.
+class FinanceBookingRef {
+  const FinanceBookingRef({
+    required this.id,
+    required this.status,
+    required this.scheduledAt,
+    required this.serviceName,
+  });
+
+  final int id;
+  final BookingStatus status;
+  final DateTime scheduledAt;
+  final String serviceName;
+
+  factory FinanceBookingRef.fromJson(Map<String, dynamic> json) =>
+      FinanceBookingRef(
+        id: asInt(json['id']),
+        status: BookingStatus.fromApi(asStringOrNull(json['status'])),
+        scheduledAt: asDate(json['scheduledAt']),
+        serviceName: asString(json['serviceName']),
+      );
+}
+
+/// Provider-safe shape from GET /providers/me/finance/transactions. Never
+/// carries providerId/providerName (a provider's own list already implies
+/// whose it is) or settledByAdminId/settledByAdminName — a provider must
+/// never see internal admin identity. See [AdminFinanceTransaction] for the
+/// admin shape, exactly the split [FuelInventoryItem]/[AdminFuelInventoryItem]
+/// already draw.
+class FinanceTransaction {
+  const FinanceTransaction({
+    required this.id,
+    required this.bookingId,
+    required this.grossAmount,
+    required this.commissionRate,
+    required this.commissionAmount,
+    required this.providerNetAmount,
+    required this.settlementStatus,
+    required this.createdAt,
+    this.settledAt,
+    this.updatedAt,
+    this.booking,
+  });
+
+  final int id;
+  final int bookingId;
+  final double grossAmount;
+  final double commissionRate;
+  final double commissionAmount;
+  final double providerNetAmount;
+  final SettlementStatusModel settlementStatus;
+  final DateTime? settledAt;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
+  final FinanceBookingRef? booking;
+
+  factory FinanceTransaction.fromJson(Map<String, dynamic> json) {
+    final booking = asMapOrNull(json['booking']);
+    return FinanceTransaction(
+      id: asInt(json['id']),
+      bookingId: asInt(json['bookingId']),
+      grossAmount: asDouble(json['grossAmount']),
+      commissionRate: asDouble(json['commissionRate']),
+      commissionAmount: asDouble(json['commissionAmount']),
+      providerNetAmount: asDouble(json['providerNetAmount']),
+      settlementStatus: SettlementStatusModel.fromApi(
+        asStringOrNull(json['settlementStatus']),
+      ),
+      settledAt: asDateOrNull(json['settledAt']),
+      createdAt: asDate(json['createdAt']),
+      updatedAt: asDateOrNull(json['updatedAt']),
+      booking: booking == null ? null : FinanceBookingRef.fromJson(booking),
+    );
+  }
+}
+
+/// Admin-only shape from GET /admin/finance/transactions and the settlement
+/// PATCH response — the same fields plus which business it belongs to and
+/// who settled it, if anyone yet.
+class AdminFinanceTransaction extends FinanceTransaction {
+  const AdminFinanceTransaction({
+    required super.id,
+    required super.bookingId,
+    required super.grossAmount,
+    required super.commissionRate,
+    required super.commissionAmount,
+    required super.providerNetAmount,
+    required super.settlementStatus,
+    required super.createdAt,
+    required this.providerId,
+    required this.providerName,
+    super.settledAt,
+    super.updatedAt,
+    super.booking,
+    this.settledByAdminId,
+    this.settledByAdminName,
+  });
+
+  final int providerId;
+  final String providerName;
+  final int? settledByAdminId;
+  final String? settledByAdminName;
+
+  factory AdminFinanceTransaction.fromJson(Map<String, dynamic> json) {
+    final booking = asMapOrNull(json['booking']);
+    return AdminFinanceTransaction(
+      id: asInt(json['id']),
+      bookingId: asInt(json['bookingId']),
+      providerId: asInt(json['providerId']),
+      providerName: asString(json['providerName']),
+      grossAmount: asDouble(json['grossAmount']),
+      commissionRate: asDouble(json['commissionRate']),
+      commissionAmount: asDouble(json['commissionAmount']),
+      providerNetAmount: asDouble(json['providerNetAmount']),
+      settlementStatus: SettlementStatusModel.fromApi(
+        asStringOrNull(json['settlementStatus']),
+      ),
+      settledAt: asDateOrNull(json['settledAt']),
+      settledByAdminId: asIntOrNull(json['settledByAdminId']),
+      settledByAdminName: asStringOrNull(json['settledByAdminName']),
+      createdAt: asDate(json['createdAt']),
+      updatedAt: asDateOrNull(json['updatedAt']),
+      booking: booking == null ? null : FinanceBookingRef.fromJson(booking),
+    );
+  }
+}
+
+/// GET /admin/finance/providers/:id — a [FinanceSummary] scoped to one
+/// provider, plus that provider's complete (all-time) transaction list.
+/// Kept as a thin wrapper rather than folding `transactions` into
+/// [FinanceSummary] itself, since neither the platform-wide nor the
+/// provider's-own summary endpoint carries a transaction list at all.
+class AdminProviderFinance {
+  const AdminProviderFinance({
+    required this.summary,
+    required this.transactions,
+  });
+
+  final FinanceSummary summary;
+  final List<AdminFinanceTransaction> transactions;
+
+  factory AdminProviderFinance.fromJson(Map<String, dynamic> json) =>
+      AdminProviderFinance(
+        summary: FinanceSummary.fromJson(json),
+        transactions: asMapList(
+          json['transactions'],
+        ).map(AdminFinanceTransaction.fromJson).toList(),
+      );
+}
+
+/// GET/PUT .../commission. The same shape for both the admin's read/write
+/// endpoints and the provider's read-only one — none of them ever return
+/// who last changed it by name, only by id.
+class ProviderCommission {
+  const ProviderCommission({
+    required this.providerId,
+    required this.commissionRate,
+    this.updatedAt,
+    this.updatedByAdminId,
+  });
+
+  final int providerId;
+  final double commissionRate;
+  final DateTime? updatedAt;
+  final int? updatedByAdminId;
+
+  factory ProviderCommission.fromJson(Map<String, dynamic> json) =>
+      ProviderCommission(
+        providerId: asInt(json['providerId']),
+        commissionRate: asDouble(json['commissionRate']),
+        updatedAt: asDateOrNull(json['updatedAt']),
+        updatedByAdminId: asIntOrNull(json['updatedByAdminId']),
+      );
 }

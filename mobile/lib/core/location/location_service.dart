@@ -19,9 +19,24 @@ class LocationService extends ChangeNotifier {
   bool get isDenied => _denied;
   bool get hasPosition => _position != null;
 
+  /// Returns the cached position if one is already known, fetching only
+  /// when there isn't one yet. Use [refreshPosition] to force a fresh
+  /// reading even when a position is already cached.
   Future<LatLng?> ensurePosition() async {
     if (_position != null || _loading) return _position;
+    return _fetchPosition();
+  }
 
+  /// Always asks the device for a fresh reading, regardless of any cached
+  /// position — this is what backs an explicit "Update my location" /
+  /// "Use current location" action, as opposed to the one-time lookup
+  /// [ensurePosition] does on first use.
+  Future<LatLng?> refreshPosition() {
+    if (_loading) return Future.value(_position);
+    return _fetchPosition();
+  }
+
+  Future<LatLng?> _fetchPosition() async {
     _loading = true;
     _denied = false;
     notifyListeners();

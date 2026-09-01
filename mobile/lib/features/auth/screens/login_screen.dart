@@ -119,6 +119,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         : () => context.push(Routes.register),
                     child: Text(l10n.loginNoAccount),
                   ),
+                  TextButton(
+                    onPressed: _submitting
+                        ? null
+                        : () => context.push(Routes.forgotPassword),
+                    child: Text(l10n.loginForgotPassword),
+                  ),
                 ],
               ),
             ),

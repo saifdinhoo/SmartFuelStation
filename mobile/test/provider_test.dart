@@ -241,6 +241,29 @@ void main() {
       expect(handler.appliedEvents, 0);
     });
 
+    test('the provider area has no availability screen, so this is a no-op', () {
+      handler.onProviderAvailabilityChanged({'providerId': 1});
+      expect(handler.appliedEvents, 0);
+    });
+
+    test('onProviderFuelUpdated invalidates the own-fuel key', () async {
+      var loads = 0;
+      await cache.refresh<List<FuelInventoryItem>>(ProviderKeys.fuel, () async {
+        loads++;
+        return const [];
+      });
+
+      handler.onProviderFuelUpdated({'providerId': 1});
+      expect(handler.appliedEvents, 1);
+
+      cache.watch<List<FuelInventoryItem>>(ProviderKeys.fuel, () async {
+        loads++;
+        return const [];
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(loads, 2, reason: 'an Admin fuel update must refresh the provider\'s own view');
+    });
+
     test(
       'a customer cancellation refreshes the provider booking keys',
       () async {
@@ -306,6 +329,57 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(loads, 2, reason: 'reconnect must resync from REST');
     });
+
+    group('onFinanceUpdated (Phase D)', () {
+      test('invalidates own finance summary, transactions and commission', () async {
+        var summaryLoads = 0;
+        var txLoads = 0;
+        var commissionLoads = 0;
+        await cache.refresh<int>(
+          ProviderKeys.financeSummaryFor('30d'),
+          () async {
+            summaryLoads++;
+            return 0;
+          },
+        );
+        await cache.refresh<int>(ProviderKeys.financeTransactions, () async {
+          txLoads++;
+          return 0;
+        });
+        await cache.refresh<int>(ProviderKeys.commission, () async {
+          commissionLoads++;
+          return 0;
+        });
+
+        handler.onFinanceUpdated({'providerId': 2});
+
+        cache.watch<int>(ProviderKeys.financeSummaryFor('30d'), () async {
+          summaryLoads++;
+          return 0;
+        });
+        cache.watch<int>(ProviderKeys.financeTransactions, () async {
+          txLoads++;
+          return 0;
+        });
+        cache.watch<int>(ProviderKeys.commission, () async {
+          commissionLoads++;
+          return 0;
+        });
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(summaryLoads, 2);
+        expect(txLoads, 2);
+        expect(commissionLoads, 2);
+        expect(handler.appliedEvents, 1);
+      });
+
+      test('always invalidates — a broadcast payload has no id to match against "is this me"', () {
+        // Mirrors onProviderFuelUpdated's own reasoning: there is no way to
+        // locally tell whether the event was about this session's own
+        // business, so it is always treated as relevant.
+        handler.onFinanceUpdated({'providerId': 999});
+        expect(handler.appliedEvents, 1);
+      });
+    });
   });
 
   group('provider models', () {
@@ -353,6 +427,78 @@ void main() {
       expect(entry.customerName, 'Sami');
       expect(entry.queuePosition, 2);
       expect(entry.status, QueueStatus.inService);
+    });
+
+    test('OperatingHour round-trips through toJson for an open day', () {
+      final hour = OperatingHour(
+        dayOfWeek: DayOfWeekModel.monday,
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      );
+      expect(hour.toJson(), {
+        'dayOfWeek': 'MONDAY',
+        'isClosed': false,
+        'openTime': '09:00',
+        'closeTime': '18:00',
+      });
+    });
+
+    test('OperatingHour.toJson forces null times for a closed day even if set', () {
+      final hour = OperatingHour(
+        dayOfWeek: DayOfWeekModel.friday,
+        isClosed: true,
+        openTime: '09:00',
+        closeTime: '18:00',
+      );
+      expect(hour.toJson()['openTime'], isNull);
+      expect(hour.toJson()['closeTime'], isNull);
+    });
+
+    test('DayOfWeekModel.api round-trips every value back to the backend enum', () {
+      for (final day in DayOfWeekModel.week) {
+        expect(DayOfWeekModel.fromApi(day.api), day);
+      }
+    });
+
+    test('AdminFuelInventoryItem carries the audit fields the public shape omits', () {
+      final item = AdminFuelInventoryItem.fromJson({
+        'fuelType': 'GASOLINE_95',
+        'displayName': 'Gasoline 95',
+        'capacityLiters': 20000,
+        'currentLiters': 7450,
+        'percentageRemaining': 37.3,
+        'pricePerLiter': 6.8,
+        'updatedAt': '2026-08-31T10:35:00.000Z',
+        'id': 1,
+        'providerId': 2,
+        'updatedByAdminId': 3,
+        'updatedByAdminName': 'Site Admin',
+        'createdAt': '2026-08-01T00:00:00.000Z',
+      });
+      expect(item.updatedByAdminId, 3);
+      expect(item.updatedByAdminName, 'Site Admin');
+      expect(item.currentLiters, 7450.0);
+    });
+
+    test('AdminFuelHistoryEntry parses previous/new values and the acting admin', () {
+      final entry = AdminFuelHistoryEntry.fromJson({
+        'id': 4,
+        'fuelType': 'DIESEL',
+        'previousLiters': 15000,
+        'newLiters': 10000,
+        'previousCapacityLiters': 20000,
+        'newCapacityLiters': 20000,
+        'previousPricePerLiter': null,
+        'newPricePerLiter': null,
+        'changedByAdminId': 3,
+        'changedByAdminName': 'Site Admin',
+        'createdAt': '2026-08-31T10:35:00.000Z',
+      });
+      expect(entry.previousLiters, 15000.0);
+      expect(entry.newLiters, 10000.0);
+      expect(entry.changedByAdminName, 'Site Admin');
+      expect(entry.previousPricePerLiter, isNull);
     });
 
     test('analytics parses without any revenue field', () {

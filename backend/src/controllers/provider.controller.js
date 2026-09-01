@@ -2,6 +2,11 @@ const providerService = require('../services/provider.service');
 const reviewService = require('../services/review.service');
 const profileService = require('../services/providerProfile.service');
 const analyticsService = require('../services/providerAnalytics.service');
+const hoursService = require('../services/providerHours.service');
+const availabilityService = require('../services/availability.service');
+const fuelService = require('../services/fuelInventory.service');
+const financeService = require('../services/finance.service');
+const liveCameraService = require('../services/liveCamera.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
 
@@ -179,6 +184,149 @@ async function deleteMyService(req, res, next) {
   }
 }
 
+// --- operating hours --------------------------------------------------------
+
+async function getMyHours(req, res, next) {
+  try {
+    const hours = await hoursService.getOwnHours(req.user.userId);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateMyHours(req, res, next) {
+  try {
+    const hours = await hoursService.updateOwnHours(req.user.userId, req.body);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getHours(req, res, next) {
+  try {
+    const hours = await hoursService.getHours(req.params.id, req.user);
+    res.json({ success: true, data: hours });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getAvailability(req, res, next) {
+  try {
+    const availability = await availabilityService.getAvailability(
+      {
+        providerId: req.params.id,
+        serviceId: req.query.serviceId,
+        date: req.query.date,
+      },
+      req.user,
+    );
+    res.json({ success: true, data: availability });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- fuel inventory ---------------------------------------------------------
+// Read-only from this controller: only /admin/providers/:id/fuel routes may
+// write. A provider reading their own inventory and a customer reading a
+// public one both go through the same public-shaped service functions.
+
+async function getMyFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.getOwnFuel(req.user.userId);
+    res.json({ success: true, data: fuel });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getFuel(req, res, next) {
+  try {
+    const fuel = await fuelService.getPublicFuel(req.params.id, req.user);
+    res.json({ success: true, data: fuel });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getFuelHistory(req, res, next) {
+  try {
+    const history = await fuelService.getPublicHistory(
+      req.params.id,
+      { fuelType: req.query.fuelType, range: req.query.range },
+      req.user,
+    );
+    res.json({ success: true, data: history });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- finance (read-only — Phase D) ------------------------------------------
+// Every handler resolves the provider from req.user.userId inside the
+// service layer (financeService.*'s requireOwnProvider), so none of these
+// accept a provider id from the client — a provider can never address
+// another business's ledger.
+
+async function myFinanceSummary(req, res, next) {
+  try {
+    const summary = await financeService.getOwnSummary(req.user.userId, req.query.range);
+    res.json({ success: true, data: summary });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function myFinanceTransactions(req, res, next) {
+  try {
+    const transactions = await financeService.listOwnTransactions(req.user.userId);
+    res.json({ success: true, data: transactions });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function myCommission(req, res, next) {
+  try {
+    const commission = await financeService.getOwnCommission(req.user.userId);
+    res.json({ success: true, data: commission });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- live camera (Phase F — read-only, customer-safe) -----------------------
+
+async function getLiveCameraStatus(req, res, next) {
+  try {
+    const status = await liveCameraService.getStatus(req.params.id);
+    res.json({ success: true, data: status });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Streams bytes directly to the response rather than returning JSON — the
+// one deliberate exception to this controller's usual res.json() shape.
+// If the upstream fetch fails after headers are already written, the
+// connection is simply torn down rather than trying to send a second,
+// conflicting response.
+async function streamLiveCamera(req, res, next) {
+  try {
+    const subPath = req.params[0] || '';
+    await liveCameraService.proxyStream(req.params.id, subPath, res);
+  } catch (err) {
+    if (res.headersSent) {
+      res.destroy();
+      return;
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   list,
   approve,
@@ -191,4 +339,16 @@ module.exports = {
   createMyService,
   updateMyService,
   deleteMyService,
+  getMyHours,
+  updateMyHours,
+  getHours,
+  getAvailability,
+  getMyFuel,
+  getFuel,
+  getFuelHistory,
+  myFinanceSummary,
+  myFinanceTransactions,
+  myCommission,
+  getLiveCameraStatus,
+  streamLiveCamera,
 };

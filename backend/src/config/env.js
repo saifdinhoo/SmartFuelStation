@@ -8,4 +8,9 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
   googleTranslateApiKey: process.env.GOOGLE_TRANSLATE_API_KEY,
+  aiProvider: process.env.AI_PROVIDER || 'gemini',
+  geminiApiKey: process.env.GEMINI_API_KEY,
+  webAppUrl: process.env.WEB_APP_URL || 'http://localhost:5173',
+  gmailUser: process.env.GMAIL_USER,
+  gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
 };

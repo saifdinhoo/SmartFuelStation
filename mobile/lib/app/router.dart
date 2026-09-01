@@ -8,14 +8,18 @@ import '../features/admin/bookings/admin_booking_details_screen.dart';
 import '../features/admin/bookings/admin_bookings_screen.dart';
 import '../features/admin/categories/admin_categories_screen.dart';
 import '../features/admin/complaints/admin_complaints_screen.dart';
+import '../features/admin/finance/admin_finance_screen.dart';
 import '../features/admin/more/admin_more_screen.dart';
 import '../features/admin/overview/admin_overview_screen.dart';
+import '../features/admin/fuel/admin_fuel_screen.dart';
 import '../features/admin/providers/admin_provider_details_screen.dart';
 import '../features/admin/providers/admin_providers_screen.dart';
 import '../features/admin/reviews/admin_reviews_screen.dart';
 import '../features/admin/shell/admin_shell.dart';
 import '../features/admin/users/admin_user_details_screen.dart';
 import '../features/admin/users/admin_users_screen.dart';
+import '../features/ai/screens/ai_assistant_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/state/auth_state.dart';
@@ -24,13 +28,19 @@ import '../features/customer/booking/bookings_screen.dart';
 import '../features/customer/discovery/explore_screen.dart';
 import '../features/customer/discovery/provider_details_screen.dart';
 import '../features/customer/home/customer_home_screen.dart';
+import '../features/customer/live_station/live_station_screen.dart';
 import '../features/customer/profile/customer_profile_screen.dart';
 import '../features/customer/queue/queue_screen.dart';
+import '../features/customer/complaints/my_complaints_screen.dart';
+import '../features/customer/favorites/favorites_screen.dart';
+import '../features/customer/reviews/my_reviews_screen.dart';
+import '../features/customer/vehicles/my_vehicles_screen.dart';
 import '../features/customer/shell/customer_shell.dart';
 import '../features/notifications/screens/notifications_screen.dart';
 import '../features/provider/analytics/provider_analytics_screen.dart';
 import '../features/provider/bookings/provider_booking_details_screen.dart';
 import '../features/provider/bookings/provider_bookings_screen.dart';
+import '../features/provider/finance/provider_finance_screen.dart';
 import '../features/provider/livestatus/live_status_screen.dart';
 import '../features/provider/more/provider_more_screen.dart';
 import '../features/provider/overview/provider_overview_screen.dart';
@@ -48,6 +58,7 @@ class Routes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  static const forgotPassword = '/forgot-password';
   static const unauthorized = '/unauthorized';
 
   // Admin area.
@@ -60,9 +71,11 @@ class Routes {
   static const adminCategories = '/admin/categories';
   static const adminReviews = '/admin/reviews';
   static const adminAnalytics = '/admin/analytics';
+  static const adminFinance = '/admin/finance';
 
   static String adminUserDetails(int id) => '/admin/users/$id';
   static String adminProviderDetails(int id) => '/admin/providers/$id';
+  static String adminProviderFuel(int id) => '/admin/providers/$id/fuel';
   static String adminBookingDetails(int id) => '/admin/bookings/$id';
 
   // Customer area.
@@ -72,9 +85,16 @@ class Routes {
   static const customerQueue = '/customer/queue';
   static const customerProfile = '/customer/profile';
   static const customerNotifications = '/customer/notifications';
+  static const customerAssistant = '/customer/assistant';
+  static const customerReviews = '/customer/reviews';
+  static const customerComplaints = '/customer/complaints';
+  static const customerFavorites = '/customer/favorites';
+  static const customerVehicles = '/customer/vehicles';
 
   static String customerProviderDetails(int id) => '/customer/providers/$id';
   static String customerBookingDetails(int id) => '/customer/bookings/$id';
+  static String customerLiveStation(int providerId) =>
+      '/customer/live-station/$providerId';
 
   // Provider area.
   static const providerOverview = '/provider/overview';
@@ -86,11 +106,14 @@ class Routes {
   static const providerLiveStatus = '/provider/live-status';
   static const providerReviews = '/provider/reviews';
   static const providerAnalytics = '/provider/analytics';
+  static const providerFinance = '/provider/finance';
   static const providerNotifications = '/provider/notifications';
+  static const providerAssistant = '/provider/assistant';
 
   static String providerBookingDetails(int id) => '/provider/bookings/$id';
 
   static const adminNotifications = '/admin/notifications';
+  static const adminAssistant = '/admin/assistant';
 }
 
 /// Roles allowed on a route prefix, checked by the redirect below.
@@ -162,6 +185,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
       GoRoute(
+        path: Routes.forgotPassword,
+        builder: (_, _) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
         path: Routes.unauthorized,
         builder: (_, _) => const UnauthorizedScreen(),
       ),
@@ -182,8 +209,34 @@ GoRouter createRouter(AuthState auth) {
         ),
       ),
       GoRoute(
+        path: '/customer/live-station/:id',
+        builder: (_, state) => LiveStationScreen(
+          providerId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
         path: Routes.customerNotifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerReviews,
+        builder: (_, _) => const MyReviewsScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerComplaints,
+        builder: (_, _) => const MyComplaintsScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerFavorites,
+        builder: (_, _) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerVehicles,
+        builder: (_, _) => const MyVehiclesScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => CustomerShell(child: child),
@@ -239,8 +292,16 @@ GoRouter createRouter(AuthState auth) {
         builder: (_, _) => const ProviderAnalyticsScreen(),
       ),
       GoRoute(
+        path: Routes.providerFinance,
+        builder: (_, _) => const ProviderFinanceScreen(),
+      ),
+      GoRoute(
         path: Routes.providerNotifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.providerAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => ProviderShell(child: child),
@@ -288,6 +349,12 @@ GoRouter createRouter(AuthState auth) {
         ),
       ),
       GoRoute(
+        path: '/admin/providers/:id/fuel',
+        builder: (_, state) => AdminFuelScreen(
+          providerId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
         path: '/admin/bookings/:id',
         builder: (_, state) => AdminBookingDetailsScreen(
           bookingId: int.parse(state.pathParameters['id']!),
@@ -306,8 +373,16 @@ GoRouter createRouter(AuthState auth) {
         builder: (_, _) => const AdminAnalyticsScreen(),
       ),
       GoRoute(
+        path: Routes.adminFinance,
+        builder: (_, _) => const AdminFinanceScreen(),
+      ),
+      GoRoute(
         path: Routes.adminNotifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminAssistant,
+        builder: (_, _) => const AiAssistantScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => AdminShell(child: child),

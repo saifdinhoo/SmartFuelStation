@@ -108,6 +108,87 @@ describe('notifyProviderStatusChanged', () => {
   });
 });
 
+describe('notifyProviderAvailabilityChanged', () => {
+  const input = { providerId: 7 };
+
+  it('emits under the agreed event name', () => {
+    socketEvents.notifyProviderAvailabilityChanged(input);
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0].event).toBe('provider:availability_changed');
+  });
+
+  it('broadcasts rather than targeting a private room', () => {
+    socketEvents.notifyProviderAvailabilityChanged(input);
+    expect(io.emit).toHaveBeenCalled();
+    expect(io.to).not.toHaveBeenCalled();
+  });
+
+  it('carries only the provider id', () => {
+    socketEvents.notifyProviderAvailabilityChanged(input);
+    expect(emitted[0].payload).toEqual({ providerId: 7 });
+  });
+
+  it('never leaks extra fields it was given', () => {
+    socketEvents.notifyProviderAvailabilityChanged({
+      ...input,
+      customerId: 33,
+      customerName: 'Someone Else',
+      scheduledAt: '2026-01-01T15:00:00Z',
+    });
+    const serialized = JSON.stringify(emitted[0].payload);
+    for (const secret of ['customerId', 'Someone Else', 'scheduledAt']) {
+      expect(serialized).not.toContain(secret);
+    }
+  });
+
+  it('is a no-op when sockets are not initialized', () => {
+    getIO.mockReturnValue(null);
+    expect(() => socketEvents.notifyProviderAvailabilityChanged(input)).not.toThrow();
+    expect(emitted).toHaveLength(0);
+  });
+});
+
+describe('notifyProviderFuelUpdated', () => {
+  const input = { providerId: 2 };
+
+  it('emits under the agreed event name', () => {
+    socketEvents.notifyProviderFuelUpdated(input);
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0].event).toBe('provider:fuel_updated');
+  });
+
+  it('broadcasts rather than targeting a private room', () => {
+    socketEvents.notifyProviderFuelUpdated(input);
+    expect(io.emit).toHaveBeenCalled();
+    expect(io.to).not.toHaveBeenCalled();
+  });
+
+  it('carries only the provider id', () => {
+    socketEvents.notifyProviderFuelUpdated(input);
+    expect(emitted[0].payload).toEqual({ providerId: 2 });
+  });
+
+  it('never leaks the acting admin\'s identity or the new fuel values', () => {
+    socketEvents.notifyProviderFuelUpdated({
+      ...input,
+      changedByAdminId: 1,
+      changedByAdminName: 'Site Admin',
+      currentLiters: 10000,
+      capacityLiters: 20000,
+    });
+    const serialized = JSON.stringify(emitted[0].payload);
+    for (const secret of ['changedByAdminId', 'Site Admin', 'currentLiters', 'capacityLiters']) {
+      expect(serialized).not.toContain(secret);
+    }
+  });
+
+  it('is a no-op when sockets are not initialized', () => {
+    getIO.mockReturnValue(null);
+    expect(() => socketEvents.notifyProviderFuelUpdated(input)).not.toThrow();
+    expect(emitted).toHaveLength(0);
+  });
+});
+
 describe('event separation', () => {
   it('booking status stays addressed to one customer, not broadcast', () => {
     socketEvents.notifyBookingStatusChanged(42, 9, 'CONFIRMED');

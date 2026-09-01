@@ -110,10 +110,60 @@ function notifyProviderStatusChanged({ providerId, isOpen, estimatedWaitMinutes,
   });
 }
 
+// A provider's booking calendar changed (created, or a status transition
+// that moves a booking into or out of the ACTIVE_STATUSES that block a
+// slot — see availabilityRules.js/booking.service.js). Any client
+// currently viewing GET /providers/:id/availability for this provider
+// should treat its last-fetched slot list as stale and refetch.
+//
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderStatusChanged: the payload is strictly less than what the
+// availability endpoint itself already returns to any authenticated
+// caller (just the provider id — no date, no slot data, no customer
+// identity), so broadcasting it exposes nothing a socket couldn't already
+// learn by calling the REST endpoint directly.
+function notifyProviderAvailabilityChanged({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('provider:availability_changed', { providerId });
+}
+
+// An Admin changed a provider's fuel inventory. Any client currently
+// viewing that provider's fuel status or history (customer or provider)
+// should treat its last-fetched data as stale and refetch.
+//
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderStatusChanged/notifyProviderAvailabilityChanged: the
+// payload is strictly less than what GET /providers/:id/fuel already
+// returns to any authenticated caller — just the provider id, never the
+// acting admin's identity or the new values themselves.
+function notifyProviderFuelUpdated({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('provider:fuel_updated', { providerId });
+}
+
+// A booking completed (creating/finding its FinancialTransaction), a
+// settlement status changed, or a provider's commission rate changed.
+// Broadcast rather than room-targeted, for the same reason as
+// notifyProviderFuelUpdated: the payload is strictly less than what the
+// finance endpoints already return to any authenticated, authorized
+// caller — just the provider id, never a money figure or the acting
+// admin's identity (see the Phase D report's "Socket.IO behavior"
+// section).
+function notifyFinanceUpdated({ providerId }) {
+  const io = getIO();
+  if (!io) return;
+  io.emit('finance:updated', { providerId });
+}
+
 module.exports = {
   broadcastProviderQueueUpdate,
   notifyCustomerEntry,
   notifyCustomerRemoved,
   notifyBookingStatusChanged,
   notifyProviderStatusChanged,
+  notifyProviderAvailabilityChanged,
+  notifyProviderFuelUpdated,
+  notifyFinanceUpdated,
 };

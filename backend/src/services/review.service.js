@@ -138,6 +138,18 @@ async function getProviderRatingSummary(providerIdParam, requestingUser) {
   };
 }
 
+// Includes the provider's business name so a customer's own reviews list
+// can render without a second lookup per row.
+const WITH_PROVIDER = { provider: { select: { id: true, businessName: true } } };
+
+async function listMyReviews(customerId) {
+  return prisma.review.findMany({
+    where: { customerId },
+    include: WITH_PROVIDER,
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
 async function deleteReview(reviewIdParam, requestingUser) {
   const reviewId = toId(reviewIdParam, 'review id');
 
@@ -157,6 +169,7 @@ async function deleteReview(reviewIdParam, requestingUser) {
 
 module.exports = {
   createReview,
+  listMyReviews,
   listProviderReviews,
   getProviderRatingSummary,
   deleteReview,

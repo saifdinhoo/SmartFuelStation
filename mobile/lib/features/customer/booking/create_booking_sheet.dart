@@ -6,10 +6,10 @@ import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/models/models.dart';
 import '../../../core/network/api_exception.dart';
+import '../../../core/state/query_cache.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../data/customer_repository.dart';
-import '../widgets/booking_status_ui.dart';
 
 /// Opens the booking form for [provider]. On success the sheet closes and
 /// the new booking's details screen is pushed.
@@ -25,6 +25,28 @@ Future<void> showCreateBookingSheet(
   );
 }
 
+/// Local calendar date, "YYYY-MM-DD" — never derived via
+/// `toIso8601String()` on a full DateTime, which reports UTC and can land
+/// on the wrong day near midnight.
+String _dateOnly(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+/// Combines a local calendar date with a "HH:mm" slot start into a real
+/// instant, via the unambiguous multi-arg local DateTime constructor —
+/// mirroring the backend's own documented strategy (see
+/// availabilityRules.js) so this can never land on the wrong day the way
+/// parsing a concatenated string would.
+DateTime _slotToLocalDateTime(DateTime date, String startTime) {
+  final parts = startTime.split(':');
+  return DateTime(
+    date.year,
+    date.month,
+    date.day,
+    int.parse(parts[0]),
+    int.parse(parts[1]),
+  );
+}
+
 class _CreateBookingSheet extends StatefulWidget {
   const _CreateBookingSheet({required this.provider});
 
@@ -37,9 +59,10 @@ class _CreateBookingSheet extends StatefulWidget {
 class _CreateBookingSheetState extends State<_CreateBookingSheet> {
   final _notes = TextEditingController();
   int? _serviceId;
-  DateTime? _scheduledAt;
+  late DateTime _date;
+  AvailabilitySlot? _selectedSlot;
   String? _serviceError;
-  String? _timeError;
+  String? _slotError;
   String? _submitError;
   bool _submitting = false;
 
@@ -48,6 +71,8 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
     super.initState();
     final services = widget.provider.bookableServices;
     if (services.length == 1) _serviceId = services.first.id;
+    final now = DateTime.now();
+    _date = DateTime(now.year, now.month, now.day);
   }
 
   @override
@@ -56,33 +81,18 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
     super.dispose();
   }
 
-  Future<void> _pickDateTime() async {
+  Future<void> _pickDate() async {
     final now = DateTime.now();
-    final date = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
-      initialDate: _scheduledAt ?? now.add(const Duration(hours: 1)),
-      firstDate: now,
+      initialDate: _date,
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: now.add(const Duration(days: 365)),
     );
-    if (date == null || !mounted) return;
-
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(
-        _scheduledAt ?? now.add(const Duration(hours: 1)),
-      ),
-    );
-    if (time == null || !mounted) return;
-
+    if (picked == null || !mounted) return;
     setState(() {
-      _scheduledAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
-      _timeError = null;
+      _date = DateTime(picked.year, picked.month, picked.day);
+      _selectedSlot = null;
     });
   }
 
@@ -90,25 +100,20 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
     final l10n = AppLocalizations.of(context)!;
 
     setState(() {
-      _serviceError = _serviceId == null
-          ? l10n.bookingErrorSelectService
-          : null;
-      _timeError = _scheduledAt == null
-          ? l10n.bookingErrorSelectTime
-          // The backend rejects a past scheduledAt; catching it here gives
-          // an immediate message instead of a round-trip error.
-          : _scheduledAt!.isAfter(DateTime.now())
-          ? null
-          : l10n.bookingErrorFutureTime;
+      _serviceError = _serviceId == null ? l10n.bookingErrorSelectService : null;
+      _slotError = _selectedSlot == null ? l10n.bookingErrorSelectSlot : null;
       _submitError = null;
     });
-    if (_serviceError != null || _timeError != null) return;
+    if (_serviceError != null || _slotError != null) return;
+
+    final scheduledAt = _slotToLocalDateTime(_date, _selectedSlot!.startTime);
 
     setState(() => _submitting = true);
+    final repo = context.read<CustomerRepository>();
     try {
-      final booking = await context.read<CustomerRepository>().createBooking(
+      final booking = await repo.createBooking(
         providerServiceId: _serviceId!,
-        scheduledAt: _scheduledAt!,
+        scheduledAt: scheduledAt,
         notes: _notes.text,
       );
       if (!mounted) return;
@@ -119,9 +124,22 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
       context.push(Routes.customerBookingDetails(booking.id));
     } on ApiException catch (e) {
       if (!mounted) return;
-      // Overlap conflicts (409) and validation failures arrive with a
-      // server-written message worth showing verbatim.
-      setState(() => _submitError = e.message);
+      if (e.statusCode == 409) {
+        // Someone else took the slot first — refresh so it disappears from
+        // the grid immediately rather than waiting on the cache's normal
+        // staleness window.
+        setState(() {
+          _submitError = l10n.bookingConflictRetry;
+          _selectedSlot = null;
+        });
+        await repo.refreshAvailability(
+          providerId: widget.provider.id,
+          serviceId: _serviceId!,
+          date: _dateOnly(_date),
+        );
+      } else {
+        setState(() => _submitError = e.message);
+      }
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -133,13 +151,22 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
     final theme = Theme.of(context);
     final status = theme.extension<AppStatusColors>()!;
     final services = widget.provider.bookableServices;
+    final repo = context.read<CustomerRepository>();
+    context.watchQueries();
+
+    final availabilityState = _serviceId == null
+        ? null
+        : repo.watchAvailability(
+            providerId: widget.provider.id,
+            serviceId: _serviceId!,
+            date: _dateOnly(_date),
+          );
 
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
         top: 20,
-        // Lifts the sheet above the keyboard while typing notes.
         bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
       ),
       child: SingleChildScrollView(
@@ -181,36 +208,61 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
                   : (value) => setState(() {
                       _serviceId = value;
                       _serviceError = null;
+                      _selectedSlot = null;
                     }),
             ),
             const SizedBox(height: 14),
 
             InkWell(
-              onTap: _submitting ? null : _pickDateTime,
+              onTap: (_submitting || _serviceId == null) ? null : _pickDate,
               borderRadius: BorderRadius.circular(6),
               child: InputDecorator(
                 decoration: InputDecoration(
-                  labelText: l10n.bookingDateTime,
-                  errorText: _timeError,
-                  suffixIcon: const Icon(
-                    Icons.calendar_today_outlined,
-                    size: 18,
-                  ),
+                  labelText: l10n.bookingSelectDate,
+                  suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
                 ),
                 child: Text(
-                  _scheduledAt == null
-                      ? l10n.bookingPickDateTime
-                      : formatBookingDateTime(_scheduledAt!),
-                  style: _scheduledAt == null
-                      ? theme.textTheme.bodyMedium?.copyWith(
-                          color: status.mutedForeground,
-                        )
-                      : theme.textTheme.bodyMedium,
+                  '${_date.year}-${_date.month.toString().padLeft(2, '0')}-${_date.day.toString().padLeft(2, '0')}',
                 ),
               ),
             ),
             const SizedBox(height: 14),
 
+            if (_serviceId != null && availabilityState != null)
+              availabilityState.map(
+                onData: (availability) => _AvailabilityPanel(
+                  availability: availability,
+                  selectedSlot: _selectedSlot,
+                  onSelect: (slot) => setState(() {
+                    _selectedSlot = slot;
+                    _slotError = null;
+                  }),
+                ),
+                onLoading: (previous) => previous == null
+                    ? const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : _AvailabilityPanel(
+                        availability: previous,
+                        selectedSlot: _selectedSlot,
+                        onSelect: (slot) => setState(() {
+                          _selectedSlot = slot;
+                          _slotError = null;
+                        }),
+                      ),
+                onError: (error, previous) => Text(
+                  error.message,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ),
+            if (_slotError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(_slotError!, style: TextStyle(color: theme.colorScheme.error, fontSize: 12)),
+              ),
+
+            const SizedBox(height: 14),
             TextField(
               controller: _notes,
               enabled: !_submitting,
@@ -242,6 +294,119 @@ class _CreateBookingSheetState extends State<_CreateBookingSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AvailabilityPanel extends StatelessWidget {
+  const _AvailabilityPanel({
+    required this.availability,
+    required this.selectedSlot,
+    required this.onSelect,
+  });
+
+  final Availability availability;
+  final AvailabilitySlot? selectedSlot;
+  final ValueChanged<AvailabilitySlot> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final status = theme.extension<AppStatusColors>()!;
+
+    switch (availability.status) {
+      case AvailabilityStatusModel.hoursNotConfigured:
+        return Text(
+          l10n.bookingHoursNotConfigured,
+          style: theme.textTheme.bodyMedium?.copyWith(color: status.mutedForeground),
+        );
+      case AvailabilityStatusModel.closed:
+        return Text(
+          l10n.bookingClosedOnDate,
+          style: theme.textTheme.bodyMedium?.copyWith(color: status.mutedForeground),
+        );
+      case AvailabilityStatusModel.open:
+        if (availability.slots.isEmpty) {
+          return Text(
+            l10n.bookingNoSlotsFit,
+            style: theme.textTheme.bodyMedium?.copyWith(color: status.mutedForeground),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.bookingOpenHours(
+                availability.openingTime ?? '',
+                availability.closingTime ?? '',
+              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: status.mutedForeground),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final slot in availability.slots)
+                  _SlotChip(
+                    slot: slot,
+                    selected: selectedSlot?.startTime == slot.startTime,
+                    bookedLabel: l10n.bookingSlotBookedLabel,
+                    pastLabel: l10n.bookingSlotPastLabel,
+                    onTap: slot.status == SlotStatusModel.available
+                        ? () => onSelect(slot)
+                        : null,
+                  ),
+              ],
+            ),
+          ],
+        );
+    }
+  }
+}
+
+class _SlotChip extends StatelessWidget {
+  const _SlotChip({
+    required this.slot,
+    required this.selected,
+    required this.bookedLabel,
+    required this.pastLabel,
+    required this.onTap,
+  });
+
+  final AvailabilitySlot slot;
+  final bool selected;
+  final String bookedLabel;
+  final String pastLabel;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final status = theme.extension<AppStatusColors>()!;
+    final disabled = onTap == null;
+
+    final semanticLabel = switch (slot.status) {
+      SlotStatusModel.booked => '${slot.startTime} · $bookedLabel',
+      SlotStatusModel.past => '${slot.startTime} · $pastLabel',
+      SlotStatusModel.available => slot.startTime,
+    };
+
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      enabled: !disabled,
+      child: ChoiceChip(
+        label: Text(
+          slot.startTime,
+          style: disabled
+              ? TextStyle(color: status.mutedForeground, decoration: TextDecoration.lineThrough)
+              : null,
+        ),
+        selected: selected,
+        onSelected: disabled ? null : (_) => onTap!(),
       ),
     );
   }

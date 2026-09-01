@@ -6,6 +6,7 @@ import '../../../core/models/admin_models.dart';
 import '../../../core/state/async_view.dart';
 import '../../../core/state/query_cache.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/location_action_buttons.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../../customer/widgets/booking_status_ui.dart';
 import '../../customer/widgets/rating_stars.dart';
@@ -137,6 +138,21 @@ class AdminUserDetailsScreen extends StatelessWidget {
                         value: user.business!.isApproved
                             ? l10n.aProvidersApproved
                             : l10n.aProvidersPending,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          // This response carries no coordinates, only the
+                          // raw address — the shared helper falls back to a
+                          // text search rather than needing lat/long here.
+                          child: LocationActionButtons(
+                            latitude: null,
+                            longitude: null,
+                            address: user.business!.address,
+                            showDirections: false,
+                          ),
+                        ),
                       ),
                       AdminInfoRow(
                         label: l10n.aProvidersServices,

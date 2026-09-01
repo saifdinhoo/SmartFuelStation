@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, MapPin, Clock, Navigation, CalendarPlus } from 'lucide-react';
+import { ArrowLeft, Star, MapPin, Clock, CalendarPlus } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
+import { LocationActions } from '@/components/common/LocationActions';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -9,10 +10,15 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
-import { Tooltip } from '@/components/ui/Tooltip';
 import { TranslateButton } from '@/components/common/TranslateButton';
 import { CreateBookingModal } from '@/features/customer/bookings/CreateBookingModal';
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
+import { FavoriteButton } from '@/features/customer/favorites/FavoriteButton';
+import { useProviderHours } from '@/features/scheduling/useOperatingHours';
+import { OperatingHoursList } from '@/features/scheduling/OperatingHoursList';
+import { useProviderFuel } from '@/features/fuel/useFuel';
+import { FuelStatusList } from '@/features/fuel/FuelStatusList';
+import { FuelHistoryChart } from '@/features/fuel/FuelHistoryChart';
 import { useProviderDetails } from './useProviderDetails';
 import { useProviderRating } from './useProviderRating';
 import { useProviderReviews } from './useProviderReviews';
@@ -22,11 +28,13 @@ export function ProviderDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const providerId = id ?? '';
-  const { provider, isPending, isError, errorMessage, notFound, reload } =
+  const { provider, isPending, isError, errorMessage, notFound, reload, customerCoordinates } =
     useProviderDetails(providerId);
   const rating = useProviderRating(providerId);
   const reviews = useProviderReviews(providerId);
   const queue = useQueueSummary(provider?.id);
+  const hours = useProviderHours(provider?.id);
+  const fuel = useProviderFuel(provider?.id);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   return (
@@ -106,35 +114,22 @@ export function ProviderDetailsPage() {
                 </span>
               </div>
             </div>
-            <StatusIndicator
-              variant={provider.isOpen ? 'success' : 'neutral'}
-              label={provider.isOpen ? 'Open now' : 'Closed'}
-            />
+            <div className="flex shrink-0 items-center gap-2">
+              <StatusIndicator
+                variant={provider.isOpen ? 'success' : 'neutral'}
+                label={provider.isOpen ? 'Open now' : 'Closed'}
+              />
+              <FavoriteButton providerId={provider.id} />
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Tooltip
-              label={
-                provider.latitude === null || provider.longitude === null
-                  ? "This provider hasn't set a location yet"
-                  : 'Open in Google Maps'
-              }
-            >
-              <Button
-                disabled={provider.latitude === null || provider.longitude === null}
-                aria-disabled={provider.latitude === null || provider.longitude === null}
-                onClick={() =>
-                  window.open(
-                    `https://www.google.com/maps/dir/?api=1&destination=${provider.latitude},${provider.longitude}`,
-                    '_blank',
-                    'noopener,noreferrer',
-                  )
-                }
-              >
-                <Navigation className="h-4 w-4" />
-                Get directions
-              </Button>
-            </Tooltip>
+          <div className="flex flex-wrap items-center gap-2">
+            <LocationActions
+              latitude={provider.latitude}
+              longitude={provider.longitude}
+              address={provider.address}
+              origin={customerCoordinates}
+            />
             <Button variant="secondary" onClick={() => setBookingModalOpen(true)}>
               <CalendarPlus className="h-4 w-4" />
               Book now
@@ -156,6 +151,44 @@ export function ProviderDetailsPage() {
               )}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <h2 className="text-heading-3">Operating hours</h2>
+            </CardHeader>
+            <CardContent>
+              {hours.isPending ? (
+                <div className="flex flex-col gap-2">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <Skeleton key={i} className="h-4 w-full rounded" />
+                  ))}
+                </div>
+              ) : hours.isError ? (
+                <p className="text-body-sm text-muted-foreground">
+                  Could not load this provider&apos;s hours.
+                </p>
+              ) : (
+                <OperatingHoursList hours={hours.hours ?? []} />
+              )}
+            </CardContent>
+          </Card>
+
+          {!fuel.isPending && !fuel.isError && fuel.fuel && fuel.fuel.length > 0 && (
+            <>
+              <Card>
+                <CardHeader>
+                  <h2 className="text-heading-3">Fuel Availability</h2>
+                </CardHeader>
+                <CardContent>
+                  <FuelStatusList items={fuel.fuel} />
+                </CardContent>
+              </Card>
+              <FuelHistoryChart
+                providerId={provider.id}
+                fuelTypes={fuel.fuel.map((f) => f.fuelType)}
+              />
+            </>
+          )}
 
           <Card>
             <CardHeader>
@@ -240,6 +273,7 @@ export function ProviderDetailsPage() {
         <CreateBookingModal
           open={bookingModalOpen}
           onClose={() => setBookingModalOpen(false)}
+          providerId={provider.id}
           services={provider.services}
         />
       )}

@@ -1,5 +1,6 @@
 jest.mock('../../config/prisma', () => ({
   providerService: { findUnique: jest.fn() },
+  providerOperatingHour: { findUnique: jest.fn() },
   booking: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
@@ -8,9 +9,14 @@ jest.mock('../../config/prisma', () => ({
     delete: jest.fn(),
   },
   provider: { findUnique: jest.fn() },
+  $transaction: jest.fn(),
+}));
+jest.mock('../finance.service', () => ({
+  createTransactionForCompletedBooking: jest.fn(),
 }));
 
 const prisma = require('../../config/prisma');
+const financeService = require('../finance.service');
 const bookingService = require('../booking.service');
 
 const CUSTOMER = { userId: 33, role: 'CUSTOMER' };
@@ -18,8 +24,23 @@ const OTHER_CUSTOMER = { userId: 99, role: 'CUSTOMER' };
 const PROVIDER_USER = { userId: 77, role: 'PROVIDER' };
 const ADMIN = { userId: 1, role: 'ADMIN' };
 
-const FUTURE = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-const PAST = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+// Fixed at local noon (never near a midnight boundary) so these fixtures
+// stay valid regardless of what wall-clock time the test suite happens to
+// run at, now that createBooking also checks time-of-day against operating
+// hours — a plain `Date.now() + 24h` offset would occasionally land near
+// midnight and spuriously fail the new "fits before closing" check.
+function localNoonOffsetByDays(days) {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, 12, 0, 0, 0);
+}
+
+const FUTURE = localNoonOffsetByDays(1).toISOString();
+const PAST = localNoonOffsetByDays(-1).toISOString();
+
+// Wide open, permissive hours so every pre-existing test (which isn't
+// itself about operating hours) keeps passing unchanged — only the new
+// "operating hours enforcement" tests below override this.
+const ALL_DAY_OPEN = { isClosed: false, openTime: '00:00', closeTime: '23:59' };
 
 function availableService(overrides = {}) {
   return {
@@ -36,6 +57,8 @@ function availableService(overrides = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  prisma.$transaction.mockImplementation(async (fn) => fn(prisma));
+  prisma.providerOperatingHour.findUnique.mockResolvedValue(ALL_DAY_OPEN);
 });
 
 describe('createBooking', () => {
@@ -120,6 +143,176 @@ describe('createBooking', () => {
         data: expect.objectContaining({ customerId: 33, providerServiceId: 5, priceAtBooking: 25 }),
       }),
     );
+  });
+
+  describe('operating hours enforcement', () => {
+    it('rejects when the provider has not configured hours for that day', async () => {
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.providerOperatingHour.findUnique.mockResolvedValue(null);
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.booking.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects a closed weekday', async () => {
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.providerOperatingHour.findUnique.mockResolvedValue({
+        isClosed: true,
+        openTime: null,
+        closeTime: null,
+      });
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.booking.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects a start time before opening', async () => {
+      const early = localNoonOffsetByDays(1);
+      early.setHours(7, 0, 0, 0); // 07:00, before a 09:00 opening
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.providerOperatingHour.findUnique.mockResolvedValue({
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      });
+
+      await expect(
+        bookingService.createBooking({
+          customerId: 33,
+          providerServiceId: 5,
+          scheduledAt: early.toISOString(),
+        }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('rejects a service that would end after closing', async () => {
+      const late = localNoonOffsetByDays(1);
+      late.setHours(17, 30, 0, 0); // 17:30 + 60min duration = 18:30, past an 18:00 close
+      prisma.providerService.findUnique.mockResolvedValue(
+        availableService({ durationMinutes: 60 }),
+      );
+      prisma.providerOperatingHour.findUnique.mockResolvedValue({
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      });
+
+      await expect(
+        bookingService.createBooking({
+          customerId: 33,
+          providerServiceId: 5,
+          scheduledAt: late.toISOString(),
+        }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('allows a booking that ends exactly at closing time', async () => {
+      const boundary = localNoonOffsetByDays(1);
+      boundary.setHours(17, 0, 0, 0); // 17:00 + 60min = exactly 18:00 close
+      prisma.providerService.findUnique.mockResolvedValue(
+        availableService({ durationMinutes: 60 }),
+      );
+      prisma.providerOperatingHour.findUnique.mockResolvedValue({
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      });
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+
+      await expect(
+        bookingService.createBooking({
+          customerId: 33,
+          providerServiceId: 5,
+          scheduledAt: boundary.toISOString(),
+        }),
+      ).resolves.toBeDefined();
+    });
+
+    it('allows a booking starting exactly at opening time', async () => {
+      const opening = localNoonOffsetByDays(1);
+      opening.setHours(9, 0, 0, 0);
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.providerOperatingHour.findUnique.mockResolvedValue({
+        isClosed: false,
+        openTime: '09:00',
+        closeTime: '18:00',
+      });
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+
+      await expect(
+        bookingService.createBooking({
+          customerId: 33,
+          providerServiceId: 5,
+          scheduledAt: opening.toISOString(),
+        }),
+      ).resolves.toBeDefined();
+    });
+
+    it('rejects a service duration that would extend past midnight', async () => {
+      const lateNight = localNoonOffsetByDays(1);
+      lateNight.setHours(23, 45, 0, 0);
+      prisma.providerService.findUnique.mockResolvedValue(
+        availableService({ durationMinutes: 30 }),
+      );
+      // Hours are irrelevant here — the midnight-crossing check runs first.
+      prisma.providerOperatingHour.findUnique.mockResolvedValue(ALL_DAY_OPEN);
+
+      await expect(
+        bookingService.createBooking({
+          customerId: 33,
+          providerServiceId: 5,
+          scheduledAt: lateNight.toISOString(),
+        }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.providerOperatingHour.findUnique).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('concurrency', () => {
+    it('maps a Postgres serialization failure (concurrent booking of the same slot) to 409', async () => {
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      const serializationError = new Error('Transaction failed due to a write conflict');
+      serializationError.code = 'P2034';
+      prisma.$transaction.mockRejectedValue(serializationError);
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+
+    it('does not mask unrelated transaction errors as a conflict', async () => {
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      const unrelatedError = new Error('connection lost');
+      unrelatedError.code = 'P1017';
+      prisma.$transaction.mockRejectedValue(unrelatedError);
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).rejects.toThrow('connection lost');
+    });
+
+    it('runs the overlap check and the create inside the same transaction client', async () => {
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+
+      await bookingService.createBooking({
+        customerId: 33,
+        providerServiceId: 5,
+        scheduledAt: FUTURE,
+      });
+
+      expect(prisma.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        expect.objectContaining({ isolationLevel: 'Serializable' }),
+      );
+    });
   });
 });
 
@@ -284,6 +477,58 @@ describe('updateBookingStatus', () => {
         data: expect.objectContaining({ status: 'COMPLETED', completedAt: expect.any(Date) }),
       }),
     );
+  });
+
+  describe('finance ledger integration (Phase D)', () => {
+    it('creates a financial transaction atomically when a booking completes', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('IN_SERVICE'));
+      const updated = { id: 1, status: 'COMPLETED' };
+      prisma.booking.update.mockResolvedValue(updated);
+
+      await bookingService.updateBookingStatus(1, 'COMPLETED', PROVIDER_USER);
+
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(financeService.createTransactionForCompletedBooking).toHaveBeenCalledWith(
+        updated,
+        prisma,
+      );
+    });
+
+    it('never creates a financial transaction for a non-COMPLETED transition', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('PENDING'));
+      prisma.booking.update.mockResolvedValue({ id: 1, status: 'CONFIRMED' });
+
+      await bookingService.updateBookingStatus(1, 'CONFIRMED', PROVIDER_USER);
+
+      expect(financeService.createTransactionForCompletedBooking).not.toHaveBeenCalled();
+    });
+
+    it('does not create a financial transaction when the transition is rejected', async () => {
+      prisma.booking.findUnique.mockResolvedValue(booking('PENDING'));
+
+      await expect(
+        bookingService.updateBookingStatus(1, 'IN_SERVICE', PROVIDER_USER),
+      ).rejects.toMatchObject({ statusCode: 400 });
+
+      expect(financeService.createTransactionForCompletedBooking).not.toHaveBeenCalled();
+    });
+
+    it('reuses the caller-supplied transaction client instead of opening a new one', async () => {
+      const txClient = {
+        booking: {
+          findUnique: jest.fn().mockResolvedValue(booking('IN_SERVICE')),
+          update: jest.fn().mockResolvedValue({ id: 1, status: 'COMPLETED' }),
+        },
+      };
+
+      await bookingService.updateBookingStatus(1, 'COMPLETED', PROVIDER_USER, txClient);
+
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(financeService.createTransactionForCompletedBooking).toHaveBeenCalledWith(
+        { id: 1, status: 'COMPLETED' },
+        txClient,
+      );
+    });
   });
 });
 

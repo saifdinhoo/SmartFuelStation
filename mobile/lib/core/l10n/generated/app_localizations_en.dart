@@ -72,10 +72,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleAdmin => 'Admin';
 
   @override
+  String get dayMonday => 'Monday';
+
+  @override
+  String get dayTuesday => 'Tuesday';
+
+  @override
+  String get dayWednesday => 'Wednesday';
+
+  @override
+  String get dayThursday => 'Thursday';
+
+  @override
+  String get dayFriday => 'Friday';
+
+  @override
+  String get daySaturday => 'Saturday';
+
+  @override
+  String get daySunday => 'Sunday';
+
+  @override
   String get loginSubmitting => 'Logging in…';
 
   @override
   String get loginNoAccount => 'No account? Register';
+
+  @override
+  String get loginForgotPassword => 'Forgot password?';
 
   @override
   String get registerSubmitting => 'Registering…';
@@ -83,6 +107,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get registerProviderNotice =>
       'Your provider account will need admin approval before it\'s active.';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot your password?';
+
+  @override
+  String get forgotPasswordSubtitle => 'We\'ll email you a link to reset it';
+
+  @override
+  String get forgotPasswordSubmit => 'Send reset link';
+
+  @override
+  String get forgotPasswordCheckEmailTitle => 'Check your email';
+
+  @override
+  String get forgotPasswordCheckEmailBody =>
+      'If an account exists for that email, we\'ve sent a link to reset your password. Open it on this phone or any device to finish resetting your password.';
+
+  @override
+  String get forgotPasswordBackToLogin => 'Back to login';
 
   @override
   String get navDashboard => 'Dashboard';
@@ -206,6 +249,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeFindService => 'Find a service';
 
   @override
+  String get homeQuickActions => 'Quick actions';
+
+  @override
+  String homeQueueCount(int count) {
+    return '$count in queue';
+  }
+
+  @override
   String get exploreTitle => 'Explore';
 
   @override
@@ -236,7 +287,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreSortLabel => 'Sort';
 
   @override
-  String get exploreUseLocation => 'Use my location';
+  String get exploreUseLocation => 'Update my location';
 
   @override
   String get exploreLocationDenied =>
@@ -310,10 +361,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get providerDirections => 'Directions';
+  String get locationViewLocation => 'View location';
 
   @override
-  String get providerDirectionsUnavailable => 'Maps aren\'t wired up yet.';
+  String get locationGetDirections => 'Get directions';
+
+  @override
+  String get locationCouldNotOpenMaps => 'Could not open Maps.';
 
   @override
   String get providerFavorite => 'Save';
@@ -322,14 +376,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get providerUnfavorite => 'Saved';
 
   @override
-  String get providerFavoriteLocalOnly => 'Saved on this device only.';
-
-  @override
   String get providerBookNow => 'Book now';
 
   @override
   String get providerClosedCannotBook =>
       'This business is closed right now, but you can still request a booking.';
+
+  @override
+  String get providerHoursTitle => 'Operating hours';
+
+  @override
+  String get providerHoursNotSet => 'Hours not set';
+
+  @override
+  String get providerHoursNone =>
+      'This provider hasn\'t set their operating hours yet.';
+
+  @override
+  String get fuelGasoline95 => 'Gasoline 95';
+
+  @override
+  String get fuelGasoline98 => 'Gasoline 98';
+
+  @override
+  String get fuelDiesel => 'Diesel / Solar';
+
+  @override
+  String get fuelRemainingLabel => 'Remaining';
+
+  @override
+  String get fuelCapacityLabel => 'Capacity';
+
+  @override
+  String get fuelLastUpdatedLabel => 'Last updated';
+
+  @override
+  String get fuelAvailabilityTitle => 'Fuel Availability';
+
+  @override
+  String get fuelMyInventoryTitle => 'My Fuel Inventory';
+
+  @override
+  String get fuelManagedByAdminNote =>
+      'Fuel inventory is managed by the platform administrator.';
+
+  @override
+  String get fuelHistoryTitle => 'Fuel Remaining Over Time';
+
+  @override
+  String get fuelRange7d => 'Last 7 days';
+
+  @override
+  String get fuelRange30d => 'Last 30 days';
+
+  @override
+  String get fuelHistoryEmpty => 'No fuel history recorded in this range yet.';
+
+  @override
+  String get fuelHistorySinglePoint =>
+      'More history will appear as fuel levels are updated.';
 
   @override
   String serviceDuration(int minutes) {
@@ -349,9 +454,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingDateTime => 'Date & time';
 
   @override
-  String get bookingPickDateTime => 'Pick a date and time';
-
-  @override
   String get bookingNotes => 'Notes (optional)';
 
   @override
@@ -367,10 +469,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bookingErrorSelectService => 'Select a service';
 
   @override
-  String get bookingErrorSelectTime => 'Choose a date and time';
+  String get bookingSelectDate => 'Date';
 
   @override
-  String get bookingErrorFutureTime => 'Pick a time in the future';
+  String bookingOpenHours(String opening, String closing) {
+    return 'Open $opening – $closing';
+  }
+
+  @override
+  String get bookingClosedOnDate =>
+      'This provider is closed on the selected date.';
+
+  @override
+  String get bookingHoursNotConfigured =>
+      'This provider hasn\'t set their operating hours yet, so this date can\'t be booked.';
+
+  @override
+  String get bookingNoSlotsFit =>
+      'No time slots fit this service before closing on this date.';
+
+  @override
+  String get bookingSlotBookedLabel => 'Booked';
+
+  @override
+  String get bookingSlotPastLabel => 'Past';
+
+  @override
+  String get bookingErrorSelectSlot => 'Choose an available time slot';
+
+  @override
+  String get bookingConflictRetry =>
+      'That time was just booked by someone else. Pick another slot below.';
 
   @override
   String get bookingsTitle => 'Bookings';
@@ -566,6 +695,119 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can review a business after they complete your booking.';
 
   @override
+  String get myReviewsTitle => 'My Reviews';
+
+  @override
+  String get myReviewsEmpty => 'You haven\'t reviewed any bookings yet.';
+
+  @override
+  String get myComplaintsTitle => 'My Complaints';
+
+  @override
+  String get myComplaintsEmpty => 'You haven\'t filed any complaints.';
+
+  @override
+  String get complaintFile => 'File a complaint';
+
+  @override
+  String get complaintFileTitle => 'File a complaint';
+
+  @override
+  String get complaintBusiness => 'Business';
+
+  @override
+  String get complaintSubject => 'Subject';
+
+  @override
+  String get complaintSeverity => 'Severity';
+
+  @override
+  String get complaintDetails => 'Details (optional)';
+
+  @override
+  String get complaintSubmit => 'Submit complaint';
+
+  @override
+  String get complaintSubmitted => 'Complaint submitted';
+
+  @override
+  String get complaintErrorProvider => 'Choose a business';
+
+  @override
+  String get complaintErrorSubject => 'Subject is required';
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesEmpty =>
+      'Save a business from its page to find it here later.';
+
+  @override
+  String get myVehiclesTitle => 'My Vehicles';
+
+  @override
+  String get myVehiclesEmpty =>
+      'Add a vehicle so it\'s on hand the next time you book a service.';
+
+  @override
+  String get vehicleAdd => 'Add vehicle';
+
+  @override
+  String get vehicleEdit => 'Edit vehicle';
+
+  @override
+  String get vehicleMake => 'Make';
+
+  @override
+  String get vehicleModel => 'Model';
+
+  @override
+  String get vehicleYear => 'Year';
+
+  @override
+  String get vehiclePlate => 'Plate (optional)';
+
+  @override
+  String get vehicleColor => 'Color (optional)';
+
+  @override
+  String get vehicleFuelType => 'Fuel type (optional)';
+
+  @override
+  String get vehicleFuelTypeNotSet => 'Not set';
+
+  @override
+  String get vehicleSaveChanges => 'Save changes';
+
+  @override
+  String get vehicleAdded => 'Vehicle added';
+
+  @override
+  String get vehicleUpdated => 'Vehicle updated';
+
+  @override
+  String get vehicleDelete => 'Delete vehicle';
+
+  @override
+  String get vehicleDeleteConfirmTitle => 'Remove this vehicle?';
+
+  @override
+  String get vehicleDeleteConfirmBody => 'This cannot be undone.';
+
+  @override
+  String get vehicleDeleted => 'Vehicle removed';
+
+  @override
+  String get vehicleErrorMake => 'Make is required';
+
+  @override
+  String get vehicleErrorModel => 'Model is required';
+
+  @override
+  String get vehicleErrorYear => 'Enter a valid year';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -588,11 +830,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Editing your profile needs a backend endpoint that doesn\'t exist yet.';
 
   @override
-  String get profilePasswordUnsupported =>
-      'There\'s no change-password endpoint yet.';
+  String get profileUnavailable => 'Unavailable';
 
   @override
-  String get profileUnavailable => 'Unavailable';
+  String get profileChangePasswordTitle => 'Change password';
+
+  @override
+  String get fieldCurrentPassword => 'Current password';
+
+  @override
+  String get fieldNewPassword => 'New password';
+
+  @override
+  String get fieldConfirmPassword => 'Confirm new password';
+
+  @override
+  String get changePasswordSubmit => 'Change password';
+
+  @override
+  String get changePasswordSuccess => 'Password changed successfully';
+
+  @override
+  String get changePasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get changePasswordTooShort => 'Password must be at least 6 characters';
 
   @override
   String get pNavOverview => 'Overview';
@@ -930,17 +1192,49 @@ class AppLocalizationsEn extends AppLocalizations {
       'Used to rank your business by distance in customer search.';
 
   @override
-  String get pProfileHoursTitle => 'Operating hours aren\'t available';
+  String get pProfileUseCurrentLocation => 'Use current location';
 
   @override
-  String get pProfileHoursBody =>
-      'There is no field for them in the database, so they can\'t be saved. Use Live Status to mark yourself open or closed right now.';
+  String get pProfilePreviewOnMap => 'Preview on map';
+
+  @override
+  String get pProfileLocationDenied =>
+      'Could not get your current location. Check your permissions and try again.';
 
   @override
   String get pProfileSave => 'Save changes';
 
   @override
   String get pProfileSaved => 'Profile updated';
+
+  @override
+  String get pHoursTitle => 'Operating hours';
+
+  @override
+  String get pHoursSubtitle =>
+      'Shown to customers, and used to decide which times they can book.';
+
+  @override
+  String get pHoursClosed => 'Closed';
+
+  @override
+  String get pHoursOpensLabel => 'Opens';
+
+  @override
+  String get pHoursClosesLabel => 'Closes';
+
+  @override
+  String get pHoursSave => 'Save changes';
+
+  @override
+  String get pHoursDiscard => 'Discard changes';
+
+  @override
+  String get pHoursSaved => 'Operating hours saved';
+
+  @override
+  String get pHoursErrorCloseBeforeOpen =>
+      'Closing time must be after opening time';
 
   @override
   String get pProfileNameRequired => 'Business name is required';
@@ -1064,7 +1358,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pAnalyticsNoRevenue =>
-      'Revenue isn\'t reported — nothing in the database tracks it.';
+      'Revenue is tracked separately — see Finance for real commission and earnings figures.';
+
+  @override
+  String get pFinanceTitle => 'My Earnings';
+
+  @override
+  String get pFinanceCommissionLabel => 'Platform commission';
+
+  @override
+  String get pFinanceCommissionPaid => 'Platform Fees';
+
+  @override
+  String get pFinanceNetEarnings => 'Net Earnings';
+
+  @override
+  String get pFinancePending => 'Pending';
+
+  @override
+  String get pFinanceSettled => 'Settled';
+
+  @override
+  String get pFinanceTrend => 'Net Earnings Over Time';
+
+  @override
+  String get pFinanceTransactions => 'Transaction History';
+
+  @override
+  String get pFinanceNoTransactions => 'No earnings yet';
+
+  @override
+  String get pFinanceReadOnlyNote =>
+      'Set by the platform admin. You cannot edit this — changes only ever apply to future completed bookings.';
 
   @override
   String get pMoreTitle => 'More';
@@ -1082,16 +1407,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pMoreAnalytics => 'Analytics';
 
   @override
+  String get pMoreFinance => 'Finance';
+
+  @override
   String get pMoreAccount => 'Account';
 
   @override
   String get pMorePreferences => 'Preferences';
-
-  @override
-  String get pMoreUnsupported => 'Not available yet';
-
-  @override
-  String get pMoreNoPassword => 'There\'s no change-password endpoint yet.';
 
   @override
   String get realtimeLive => 'Live';
@@ -1297,6 +1619,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aProvidersRevoke => 'Revoke approval';
+
+  @override
+  String get aFuelManageButton => 'Manage Fuel';
+
+  @override
+  String get aFuelTitle => 'Fuel Management';
+
+  @override
+  String get aFuelNotConfigured => 'Not configured yet.';
+
+  @override
+  String get aFuelSetUp => 'Set up';
+
+  @override
+  String get aFuelUpdate => 'Update';
+
+  @override
+  String get aFuelCapacityField => 'Capacity';
+
+  @override
+  String get aFuelRemainingField => 'Remaining';
+
+  @override
+  String get aFuelPriceField => 'Price per liter';
+
+  @override
+  String get aFuelSaved => 'Fuel inventory updated';
+
+  @override
+  String get aFuelCapacityInvalid => 'Capacity must be greater than 0';
+
+  @override
+  String get aFuelRemainingInvalid => 'Remaining must not be negative';
+
+  @override
+  String get aFuelRemainingExceedsCapacity =>
+      'Remaining cannot exceed capacity';
+
+  @override
+  String get aFuelPriceInvalid => 'Price must not be negative';
+
+  @override
+  String get financeGross => 'Gross';
+
+  @override
+  String get financeCommission => 'Commission';
+
+  @override
+  String get financeNet => 'Net';
+
+  @override
+  String get financeCommissionRateField => 'Commission rate';
+
+  @override
+  String get financeStatusAll => 'All statuses';
+
+  @override
+  String get financeStatusPending => 'Pending';
+
+  @override
+  String get financeStatusSettled => 'Settled';
+
+  @override
+  String get financeTrendEmpty =>
+      'No completed bookings recorded in this range yet.';
+
+  @override
+  String get financeTrendSinglePoint =>
+      'More history will appear as bookings complete.';
+
+  @override
+  String get financeUnknownService => 'Booking';
+
+  @override
+  String get commonCreated => 'Created';
+
+  @override
+  String get aFinanceTitle => 'Finance';
+
+  @override
+  String get aFinanceCommissionRevenue => 'Platform Revenue';
+
+  @override
+  String get aFinanceProviderNet => 'Provider Net';
+
+  @override
+  String get aFinancePending => 'Pending Settlement';
+
+  @override
+  String get aFinanceSettled => 'Settled';
+
+  @override
+  String get aFinanceTransactionCount => 'Transactions';
+
+  @override
+  String get aFinanceTrend => 'Revenue Over Time';
+
+  @override
+  String get aFinanceTransactions => 'Transactions';
+
+  @override
+  String get aFinanceProviderFilter => 'Provider';
+
+  @override
+  String get aFinanceAllProviders => 'All providers';
+
+  @override
+  String get aFinanceNoTransactions => 'No transactions match this filter yet.';
+
+  @override
+  String get aFinanceMarkSettled => 'Mark Settled';
+
+  @override
+  String get aFinanceSettleSuccess => 'Transaction marked as settled';
+
+  @override
+  String get aFinanceSettledAt => 'Settled';
+
+  @override
+  String get aFinanceCommissionEdit => 'Manage commission';
+
+  @override
+  String get aFinanceCommissionTitle => 'Platform commission';
+
+  @override
+  String get aFinanceCommissionInvalid =>
+      'Commission rate must be between 0 and 100';
+
+  @override
+  String get aFinanceCommissionSaved => 'Commission rate updated';
 
   @override
   String get aProvidersApproveTitle => 'Approve this business?';
@@ -1516,6 +1968,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aMoreAnalytics => 'Analytics';
 
   @override
+  String get aMoreFinance => 'Finance';
+
+  @override
   String get aMoreAccount => 'Account';
 
   @override
@@ -1526,10 +1981,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aMoreNoPlatformSettings =>
-      'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.';
-
-  @override
-  String get aMoreNoPassword => 'There is no change-password endpoint.';
+      'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.';
 
   @override
   String get aMoreNoAudit =>
@@ -1566,4 +2018,129 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get homeLiveStationSection => 'Live Station';
+
+  @override
+  String get homeLiveStationBody =>
+      'See the current station situation before you go.';
+
+  @override
+  String get homeWatchLive => 'Watch Live';
+
+  @override
+  String get liveCameraLive => 'LIVE';
+
+  @override
+  String get liveCameraOffline => 'Camera Offline';
+
+  @override
+  String get liveCameraUnavailableMessage =>
+      'Live view is currently unavailable';
+
+  @override
+  String get liveCameraPrivacyNote =>
+      'Live view is provided by the station for current conditions.';
+
+  @override
+  String get liveStationAppBarTitle => 'Live Station';
+
+  @override
+  String get liveStationNotAvailable =>
+      'Live camera is not available for this business.';
+
+  @override
+  String get aiAssistantTitle => 'AI Assistant';
+
+  @override
+  String get aiAssistantDescription =>
+      'Ask how the platform works, or describe a vehicle problem for a preliminary diagnosis.';
+
+  @override
+  String get aiAssistantWelcome =>
+      'Hi! I\'m your platform assistant. Ask me how something works, or describe a vehicle problem and I\'ll help narrow down what might be going on.';
+
+  @override
+  String get aiAssistantInputHint => 'Type your message…';
+
+  @override
+  String get aiAssistantClear => 'Clear conversation';
+
+  @override
+  String get aiAssistantUnavailable =>
+      'AI Assistant is temporarily unavailable. Please try again.';
+
+  @override
+  String get aiSend => 'Send';
+
+  @override
+  String get aiThinking => 'Thinking…';
+
+  @override
+  String get aiModeAuto => 'Auto';
+
+  @override
+  String get aiModeSupport => 'Platform Support';
+
+  @override
+  String get aiModeDiagnosis => 'Vehicle Diagnosis';
+
+  @override
+  String get aiDiagnosisTitle => 'Preliminary Diagnosis';
+
+  @override
+  String get aiPossibleCauses => 'Possible causes';
+
+  @override
+  String get aiLikelihood => 'Likelihood';
+
+  @override
+  String get aiLikelihoodLikely => 'Likely';
+
+  @override
+  String get aiLikelihoodPossible => 'Possible';
+
+  @override
+  String get aiLikelihoodLessLikely => 'Less likely';
+
+  @override
+  String get aiLikelihoodUnknown => 'Unspecified';
+
+  @override
+  String get aiUrgencyLow => 'Low';
+
+  @override
+  String get aiUrgencyMedium => 'Medium';
+
+  @override
+  String get aiUrgencyHigh => 'High';
+
+  @override
+  String get aiUrgencyEmergency => 'Emergency';
+
+  @override
+  String get aiUrgencyUnknown => 'Unspecified';
+
+  @override
+  String get aiSafetyAdvice => 'Safety advice';
+
+  @override
+  String get aiNeedMoreInfo => 'I need a little more information.';
+
+  @override
+  String get aiRecommendedService => 'Recommended service';
+
+  @override
+  String get aiFindProviders => 'Find Suitable Providers';
+
+  @override
+  String get aiFindNearbySecondary => 'Find nearby service providers';
+
+  @override
+  String get aiSeekImmediateHelp => 'Seek immediate help';
+
+  @override
+  String get aiSeekImmediateHelpBody =>
+      'Stop driving as soon as it is safe to do so, and seek roadside or emergency assistance now — this is not something to wait on a booking for.';
 }

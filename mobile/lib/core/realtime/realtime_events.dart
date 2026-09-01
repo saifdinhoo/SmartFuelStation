@@ -25,6 +25,26 @@ class RealtimeEvents {
   /// The full created Notification row → the recipient's own room only.
   /// Emitted by `backend/src/services/notification.service.js`.
   static const notificationNew = 'notification:new';
+
+  /// `{ providerId }` → broadcast to every authenticated socket. Fired when
+  /// a booking is created or changes status, so a client currently viewing
+  /// that provider's availability knows its last-fetched slot list may be
+  /// stale. Carries nothing GET /providers/:id/availability does not
+  /// already expose to any authenticated caller.
+  static const providerAvailabilityChanged = 'provider:availability_changed';
+
+  /// `{ providerId }` → broadcast to every authenticated socket. Fired when
+  /// an Admin changes a provider's fuel inventory. Carries nothing GET
+  /// /providers/:id/fuel does not already expose to any authenticated
+  /// caller — never the acting admin's identity.
+  static const providerFuelUpdated = 'provider:fuel_updated';
+
+  /// `{ providerId }` → broadcast to every authenticated socket, same
+  /// pattern as [providerFuelUpdated]. Fired when a booking's commission
+  /// transaction is created/settled or an Admin changes a provider's
+  /// commission rate. Only admin and provider sockets act on it — a
+  /// customer has no finance access at all.
+  static const financeUpdated = 'finance:updated';
 }
 
 /// What the socket layer does with an event, without knowing how.
@@ -49,4 +69,16 @@ abstract class RealtimeEventHandler {
 
   /// A new persistent notification was created for the signed-in user.
   void onNotificationNew(Map<String, dynamic> payload);
+
+  /// A provider's booking calendar changed. Received by every signed-in
+  /// client, including customers browsing discovery.
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload);
+
+  /// A provider's fuel inventory changed. Received by every signed-in
+  /// client, including customers browsing discovery.
+  void onProviderFuelUpdated(Map<String, dynamic> payload);
+
+  /// A provider's commission/settlement ledger changed. Received by every
+  /// signed-in client; only the admin and provider handlers act on it.
+  void onFinanceUpdated(Map<String, dynamic> payload);
 }

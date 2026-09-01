@@ -12,6 +12,7 @@ import { StatCard } from '@/components/dashboard/StatCard';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { fetchBookings } from '@/features/customer/bookings/bookingsApi';
 import { BookingStatusBadge } from '@/features/customer/bookings/BookingStatusBadge';
+import { useAdminFinanceTransactions } from '@/features/admin/finance/useAdminFinance';
 import {
   DATE_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
@@ -37,6 +38,14 @@ export function AdminBookingsPage() {
   // booking.service.js listBookings — no where clause for admins), so this
   // reuses the existing endpoint rather than adding an admin-only twin.
   const query = useQuery({ queryKey: ['bookings'], queryFn: fetchBookings });
+  // Reused as a lookup for the financial snapshot on COMPLETED rows below —
+  // the same real ledger the Finance dashboard reads, never a separate
+  // estimate.
+  const { transactions: financeTransactions } = useAdminFinanceTransactions({ status: 'ALL' });
+  const financeByBookingId = useMemo(
+    () => new Map((financeTransactions ?? []).map((t) => [t.bookingId, t])),
+    [financeTransactions],
+  );
 
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [dateFilter, setDateFilter] = useState('ALL');
@@ -145,22 +154,32 @@ export function AdminBookingsPage() {
 
           {!query.isPending && filtered.length > 0 && (
             <Reveal delay={0.05} className="flex flex-col gap-2">
-              {filtered.map((b) => (
-                <Card key={b.id}>
-                  <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground">
-                        {b.customer.name} → {b.providerService.provider.businessName}
-                      </p>
-                      <p className="text-caption">
-                        {b.providerService.name} · {new Date(b.scheduledAt).toLocaleString()} · $
-                        {b.priceAtBooking}
-                      </p>
-                    </div>
-                    <BookingStatusBadge status={b.status} />
-                  </CardContent>
-                </Card>
-              ))}
+              {filtered.map((b) => {
+                const finance = b.status === 'COMPLETED' ? financeByBookingId.get(b.id) : undefined;
+                return (
+                  <Card key={b.id}>
+                    <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground">
+                          {b.customer.name} → {b.providerService.provider.businessName}
+                        </p>
+                        <p className="text-caption">
+                          {b.providerService.name} · {new Date(b.scheduledAt).toLocaleString()} · $
+                          {b.priceAtBooking}
+                        </p>
+                        {finance && (
+                          <p className="text-caption">
+                            Commission {finance.commissionRate}% (${finance.commissionAmount.toFixed(2)}) ·
+                            Provider net ${finance.providerNetAmount.toFixed(2)} ·{' '}
+                            {finance.settlementStatus === 'SETTLED' ? 'Settled' : 'Settlement pending'}
+                          </p>
+                        )}
+                      </div>
+                      <BookingStatusBadge status={b.status} />
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </Reveal>
           )}
         </>

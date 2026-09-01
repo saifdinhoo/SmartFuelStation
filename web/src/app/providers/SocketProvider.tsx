@@ -33,6 +33,18 @@ interface BookingStatusChangedPayload {
   status: string;
 }
 
+interface ProviderAvailabilityChangedPayload {
+  providerId: number;
+}
+
+interface ProviderFuelUpdatedPayload {
+  providerId: number;
+}
+
+interface FinanceUpdatedPayload {
+  providerId: number;
+}
+
 // Public availability only — the same fields GET /providers already
 // exposes to any authenticated caller. Never carries owner identity,
 // address, approval trail, or queue entries.
@@ -103,6 +115,18 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       // socket alone.
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      // Same reasoning — a booking made by someone else while this client
+      // was offline never pushed a provider:availability_changed event.
+      queryClient.invalidateQueries({ queryKey: ['availability'] });
+      // Same reasoning again — a fuel update made while this client was
+      // offline never pushed a provider:fuel_updated event.
+      queryClient.invalidateQueries({ queryKey: ['fuel'] });
+      queryClient.invalidateQueries({ queryKey: ['fuelHistory'] });
+      // Same reasoning again — a booking completion, settlement, or
+      // commission change made while this client was offline never pushed
+      // a finance:updated event.
+      queryClient.invalidateQueries({ queryKey: ['adminFinance'] });
+      queryClient.invalidateQueries({ queryKey: ['finance'] });
     }
 
     function onDisconnect() {
@@ -129,6 +153,40 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     function onBookingStatusChanged(payload: BookingStatusChangedPayload) {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookings', String(payload.bookingId)] });
+    }
+
+    // A booking was created or changed status for this provider — anyone
+    // currently looking at its availability (e.g. mid-booking, choosing a
+    // slot) has a query keyed ['availability', providerId, ...] that may
+    // now be stale. Matches on the key prefix, so every service/date
+    // combination currently cached for this provider is covered.
+    function onProviderAvailabilityChanged(payload: ProviderAvailabilityChangedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['availability', payload.providerId] });
+    }
+
+    // An Admin changed this provider's fuel inventory — refetch both the
+    // current status cards and the history chart for anyone viewing it.
+    // Also invalidates the provider's own ['fuel','me'] key unconditionally
+    // (cheap and harmless for everyone else) since a numeric providerId
+    // can't be matched against that string key from here.
+    function onProviderFuelUpdated(payload: ProviderFuelUpdatedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['fuel', payload.providerId] });
+      queryClient.invalidateQueries({ queryKey: ['fuelHistory', payload.providerId] });
+      queryClient.invalidateQueries({ queryKey: ['fuel', 'me'] });
+    }
+
+    // A booking completed (creating its FinancialTransaction), an admin
+    // settled a transaction, or a provider's commission rate changed. The
+    // payload is just `{ providerId }` — never a money value or the acting
+    // admin's identity (see notifyFinanceUpdated's own doc comment). An
+    // admin session sees every provider, so it always invalidates its
+    // whole finance area rather than trying to match one providerId
+    // against several different cache keys; a provider session's own
+    // finance/commission keys are invalidated unconditionally for the same
+    // reason onProviderFuelUpdated already documents for 'fuel','me'.
+    function onFinanceUpdated(_payload: FinanceUpdatedPayload) {
+      queryClient.invalidateQueries({ queryKey: ['adminFinance'] });
+      queryClient.invalidateQueries({ queryKey: ['finance', 'me'] });
     }
 
     // Patched in place rather than invalidated: the payload carries every
@@ -176,6 +234,13 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       .off('provider:status_changed', onProviderStatusChanged)
       .on('provider:status_changed', onProviderStatusChanged);
     socket.off('notification:new', onNotificationNew).on('notification:new', onNotificationNew);
+    socket
+      .off('provider:availability_changed', onProviderAvailabilityChanged)
+      .on('provider:availability_changed', onProviderAvailabilityChanged);
+    socket
+      .off('provider:fuel_updated', onProviderFuelUpdated)
+      .on('provider:fuel_updated', onProviderFuelUpdated);
+    socket.off('finance:updated', onFinanceUpdated).on('finance:updated', onFinanceUpdated);
 
     return () => {
       socket.off('connect', onConnect);
@@ -185,6 +250,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       socket.off('booking:status_changed', onBookingStatusChanged);
       socket.off('provider:status_changed', onProviderStatusChanged);
       socket.off('notification:new', onNotificationNew);
+      socket.off('provider:availability_changed', onProviderAvailabilityChanged);
+      socket.off('provider:fuel_updated', onProviderFuelUpdated);
+      socket.off('finance:updated', onFinanceUpdated);
     };
   }, [queryClient]);
 

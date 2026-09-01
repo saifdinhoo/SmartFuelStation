@@ -4,15 +4,21 @@ import { cn } from '@/utils/cn';
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   error?: string;
+  /** Keeps the label for screen readers/htmlFor association but hides it
+   *  visually — for compact contexts like a chat input. */
+  hideLabel?: boolean;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ label, error, id, className, rows = 4, ...props }, ref) => {
+  ({ label, error, hideLabel, id, className, rows = 4, ...props }, ref) => {
     const generatedId = useId();
     const textareaId = id ?? props.name ?? generatedId;
     return (
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={textareaId} className="text-sm font-medium text-muted-foreground">
+        <label
+          htmlFor={textareaId}
+          className={cn('text-sm font-medium text-muted-foreground', hideLabel && 'sr-only')}
+        >
           {label}
         </label>
         <textarea

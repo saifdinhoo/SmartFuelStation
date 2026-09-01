@@ -224,6 +224,48 @@ abstract class AppLocalizations {
   /// **'Admin'**
   String get roleAdmin;
 
+  /// No description provided for @dayMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get dayMonday;
+
+  /// No description provided for @dayTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get dayTuesday;
+
+  /// No description provided for @dayWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get dayWednesday;
+
+  /// No description provided for @dayThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get dayThursday;
+
+  /// No description provided for @dayFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get dayFriday;
+
+  /// No description provided for @daySaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get daySaturday;
+
+  /// No description provided for @daySunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get daySunday;
+
   /// No description provided for @loginSubmitting.
   ///
   /// In en, this message translates to:
@@ -236,6 +278,12 @@ abstract class AppLocalizations {
   /// **'No account? Register'**
   String get loginNoAccount;
 
+  /// No description provided for @loginForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPassword;
+
   /// No description provided for @registerSubmitting.
   ///
   /// In en, this message translates to:
@@ -247,6 +295,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your provider account will need admin approval before it\'s active.'**
   String get registerProviderNotice;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll email you a link to reset it'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @forgotPasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotPasswordSubmit;
+
+  /// No description provided for @forgotPasswordCheckEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get forgotPasswordCheckEmailTitle;
+
+  /// No description provided for @forgotPasswordCheckEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for that email, we\'ve sent a link to reset your password. Open it on this phone or any device to finish resetting your password.'**
+  String get forgotPasswordCheckEmailBody;
+
+  /// No description provided for @forgotPasswordBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get forgotPasswordBackToLogin;
 
   /// No description provided for @navDashboard.
   ///
@@ -470,6 +554,18 @@ abstract class AppLocalizations {
   /// **'Find a service'**
   String get homeFindService;
 
+  /// No description provided for @homeQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get homeQuickActions;
+
+  /// No description provided for @homeQueueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in queue'**
+  String homeQueueCount(int count);
+
   /// No description provided for @exploreTitle.
   ///
   /// In en, this message translates to:
@@ -533,7 +629,7 @@ abstract class AppLocalizations {
   /// No description provided for @exploreUseLocation.
   ///
   /// In en, this message translates to:
-  /// **'Use my location'**
+  /// **'Update my location'**
   String get exploreUseLocation;
 
   /// No description provided for @exploreLocationDenied.
@@ -626,17 +722,23 @@ abstract class AppLocalizations {
   /// **'{count} in line'**
   String providerInLine(int count);
 
-  /// No description provided for @providerDirections.
+  /// No description provided for @locationViewLocation.
   ///
   /// In en, this message translates to:
-  /// **'Directions'**
-  String get providerDirections;
+  /// **'View location'**
+  String get locationViewLocation;
 
-  /// No description provided for @providerDirectionsUnavailable.
+  /// No description provided for @locationGetDirections.
   ///
   /// In en, this message translates to:
-  /// **'Maps aren\'t wired up yet.'**
-  String get providerDirectionsUnavailable;
+  /// **'Get directions'**
+  String get locationGetDirections;
+
+  /// No description provided for @locationCouldNotOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Maps.'**
+  String get locationCouldNotOpenMaps;
 
   /// No description provided for @providerFavorite.
   ///
@@ -650,12 +752,6 @@ abstract class AppLocalizations {
   /// **'Saved'**
   String get providerUnfavorite;
 
-  /// No description provided for @providerFavoriteLocalOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved on this device only.'**
-  String get providerFavoriteLocalOnly;
-
   /// No description provided for @providerBookNow.
   ///
   /// In en, this message translates to:
@@ -667,6 +763,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This business is closed right now, but you can still request a booking.'**
   String get providerClosedCannotBook;
+
+  /// No description provided for @providerHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours'**
+  String get providerHoursTitle;
+
+  /// No description provided for @providerHoursNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours not set'**
+  String get providerHoursNotSet;
+
+  /// No description provided for @providerHoursNone.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider hasn\'t set their operating hours yet.'**
+  String get providerHoursNone;
+
+  /// No description provided for @fuelGasoline95.
+  ///
+  /// In en, this message translates to:
+  /// **'Gasoline 95'**
+  String get fuelGasoline95;
+
+  /// No description provided for @fuelGasoline98.
+  ///
+  /// In en, this message translates to:
+  /// **'Gasoline 98'**
+  String get fuelGasoline98;
+
+  /// No description provided for @fuelDiesel.
+  ///
+  /// In en, this message translates to:
+  /// **'Diesel / Solar'**
+  String get fuelDiesel;
+
+  /// No description provided for @fuelRemainingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get fuelRemainingLabel;
+
+  /// No description provided for @fuelCapacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get fuelCapacityLabel;
+
+  /// No description provided for @fuelLastUpdatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get fuelLastUpdatedLabel;
+
+  /// No description provided for @fuelAvailabilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Availability'**
+  String get fuelAvailabilityTitle;
+
+  /// No description provided for @fuelMyInventoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Fuel Inventory'**
+  String get fuelMyInventoryTitle;
+
+  /// No description provided for @fuelManagedByAdminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel inventory is managed by the platform administrator.'**
+  String get fuelManagedByAdminNote;
+
+  /// No description provided for @fuelHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Remaining Over Time'**
+  String get fuelHistoryTitle;
+
+  /// No description provided for @fuelRange7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get fuelRange7d;
+
+  /// No description provided for @fuelRange30d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get fuelRange30d;
+
+  /// No description provided for @fuelHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No fuel history recorded in this range yet.'**
+  String get fuelHistoryEmpty;
+
+  /// No description provided for @fuelHistorySinglePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'More history will appear as fuel levels are updated.'**
+  String get fuelHistorySinglePoint;
 
   /// No description provided for @serviceDuration.
   ///
@@ -698,12 +896,6 @@ abstract class AppLocalizations {
   /// **'Date & time'**
   String get bookingDateTime;
 
-  /// No description provided for @bookingPickDateTime.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a date and time'**
-  String get bookingPickDateTime;
-
   /// No description provided for @bookingNotes.
   ///
   /// In en, this message translates to:
@@ -734,17 +926,59 @@ abstract class AppLocalizations {
   /// **'Select a service'**
   String get bookingErrorSelectService;
 
-  /// No description provided for @bookingErrorSelectTime.
+  /// No description provided for @bookingSelectDate.
   ///
   /// In en, this message translates to:
-  /// **'Choose a date and time'**
-  String get bookingErrorSelectTime;
+  /// **'Date'**
+  String get bookingSelectDate;
 
-  /// No description provided for @bookingErrorFutureTime.
+  /// No description provided for @bookingOpenHours.
   ///
   /// In en, this message translates to:
-  /// **'Pick a time in the future'**
-  String get bookingErrorFutureTime;
+  /// **'Open {opening} – {closing}'**
+  String bookingOpenHours(String opening, String closing);
+
+  /// No description provided for @bookingClosedOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider is closed on the selected date.'**
+  String get bookingClosedOnDate;
+
+  /// No description provided for @bookingHoursNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider hasn\'t set their operating hours yet, so this date can\'t be booked.'**
+  String get bookingHoursNotConfigured;
+
+  /// No description provided for @bookingNoSlotsFit.
+  ///
+  /// In en, this message translates to:
+  /// **'No time slots fit this service before closing on this date.'**
+  String get bookingNoSlotsFit;
+
+  /// No description provided for @bookingSlotBookedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get bookingSlotBookedLabel;
+
+  /// No description provided for @bookingSlotPastLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get bookingSlotPastLabel;
+
+  /// No description provided for @bookingErrorSelectSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an available time slot'**
+  String get bookingErrorSelectSlot;
+
+  /// No description provided for @bookingConflictRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'That time was just booked by someone else. Pick another slot below.'**
+  String get bookingConflictRetry;
 
   /// No description provided for @bookingsTitle.
   ///
@@ -1094,6 +1328,228 @@ abstract class AppLocalizations {
   /// **'You can review a business after they complete your booking.'**
   String get reviewOnlyAfterCompleted;
 
+  /// No description provided for @myReviewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reviews'**
+  String get myReviewsTitle;
+
+  /// No description provided for @myReviewsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t reviewed any bookings yet.'**
+  String get myReviewsEmpty;
+
+  /// No description provided for @myComplaintsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Complaints'**
+  String get myComplaintsTitle;
+
+  /// No description provided for @myComplaintsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t filed any complaints.'**
+  String get myComplaintsEmpty;
+
+  /// No description provided for @complaintFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File a complaint'**
+  String get complaintFile;
+
+  /// No description provided for @complaintFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'File a complaint'**
+  String get complaintFileTitle;
+
+  /// No description provided for @complaintBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get complaintBusiness;
+
+  /// No description provided for @complaintSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get complaintSubject;
+
+  /// No description provided for @complaintSeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity'**
+  String get complaintSeverity;
+
+  /// No description provided for @complaintDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get complaintDetails;
+
+  /// No description provided for @complaintSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit complaint'**
+  String get complaintSubmit;
+
+  /// No description provided for @complaintSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint submitted'**
+  String get complaintSubmitted;
+
+  /// No description provided for @complaintErrorProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a business'**
+  String get complaintErrorProvider;
+
+  /// No description provided for @complaintErrorSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject is required'**
+  String get complaintErrorSubject;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a business from its page to find it here later.'**
+  String get favoritesEmpty;
+
+  /// No description provided for @myVehiclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Vehicles'**
+  String get myVehiclesTitle;
+
+  /// No description provided for @myVehiclesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a vehicle so it\'s on hand the next time you book a service.'**
+  String get myVehiclesEmpty;
+
+  /// No description provided for @vehicleAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get vehicleAdd;
+
+  /// No description provided for @vehicleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit vehicle'**
+  String get vehicleEdit;
+
+  /// No description provided for @vehicleMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make'**
+  String get vehicleMake;
+
+  /// No description provided for @vehicleModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get vehicleModel;
+
+  /// No description provided for @vehicleYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get vehicleYear;
+
+  /// No description provided for @vehiclePlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate (optional)'**
+  String get vehiclePlate;
+
+  /// No description provided for @vehicleColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color (optional)'**
+  String get vehicleColor;
+
+  /// No description provided for @vehicleFuelType.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel type (optional)'**
+  String get vehicleFuelType;
+
+  /// No description provided for @vehicleFuelTypeNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get vehicleFuelTypeNotSet;
+
+  /// No description provided for @vehicleSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get vehicleSaveChanges;
+
+  /// No description provided for @vehicleAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle added'**
+  String get vehicleAdded;
+
+  /// No description provided for @vehicleUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle updated'**
+  String get vehicleUpdated;
+
+  /// No description provided for @vehicleDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete vehicle'**
+  String get vehicleDelete;
+
+  /// No description provided for @vehicleDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this vehicle?'**
+  String get vehicleDeleteConfirmTitle;
+
+  /// No description provided for @vehicleDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone.'**
+  String get vehicleDeleteConfirmBody;
+
+  /// No description provided for @vehicleDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle removed'**
+  String get vehicleDeleted;
+
+  /// No description provided for @vehicleErrorMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make is required'**
+  String get vehicleErrorMake;
+
+  /// No description provided for @vehicleErrorModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model is required'**
+  String get vehicleErrorModel;
+
+  /// No description provided for @vehicleErrorYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid year'**
+  String get vehicleErrorYear;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:
@@ -1136,17 +1592,59 @@ abstract class AppLocalizations {
   /// **'Editing your profile needs a backend endpoint that doesn\'t exist yet.'**
   String get profileEditUnsupported;
 
-  /// No description provided for @profilePasswordUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'There\'s no change-password endpoint yet.'**
-  String get profilePasswordUnsupported;
-
   /// No description provided for @profileUnavailable.
   ///
   /// In en, this message translates to:
   /// **'Unavailable'**
   String get profileUnavailable;
+
+  /// No description provided for @profileChangePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get profileChangePasswordTitle;
+
+  /// No description provided for @fieldCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get fieldCurrentPassword;
+
+  /// No description provided for @fieldNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get fieldNewPassword;
+
+  /// No description provided for @fieldConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get fieldConfirmPassword;
+
+  /// No description provided for @changePasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePasswordSubmit;
+
+  /// No description provided for @changePasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get changePasswordSuccess;
+
+  /// No description provided for @changePasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get changePasswordMismatch;
+
+  /// No description provided for @changePasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get changePasswordTooShort;
 
   /// No description provided for @pNavOverview.
   ///
@@ -1772,17 +2270,23 @@ abstract class AppLocalizations {
   /// **'Used to rank your business by distance in customer search.'**
   String get pProfileLocationHint;
 
-  /// No description provided for @pProfileHoursTitle.
+  /// No description provided for @pProfileUseCurrentLocation.
   ///
   /// In en, this message translates to:
-  /// **'Operating hours aren\'t available'**
-  String get pProfileHoursTitle;
+  /// **'Use current location'**
+  String get pProfileUseCurrentLocation;
 
-  /// No description provided for @pProfileHoursBody.
+  /// No description provided for @pProfilePreviewOnMap.
   ///
   /// In en, this message translates to:
-  /// **'There is no field for them in the database, so they can\'t be saved. Use Live Status to mark yourself open or closed right now.'**
-  String get pProfileHoursBody;
+  /// **'Preview on map'**
+  String get pProfilePreviewOnMap;
+
+  /// No description provided for @pProfileLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your current location. Check your permissions and try again.'**
+  String get pProfileLocationDenied;
 
   /// No description provided for @pProfileSave.
   ///
@@ -1795,6 +2299,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile updated'**
   String get pProfileSaved;
+
+  /// No description provided for @pHoursTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours'**
+  String get pHoursTitle;
+
+  /// No description provided for @pHoursSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown to customers, and used to decide which times they can book.'**
+  String get pHoursSubtitle;
+
+  /// No description provided for @pHoursClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get pHoursClosed;
+
+  /// No description provided for @pHoursOpensLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens'**
+  String get pHoursOpensLabel;
+
+  /// No description provided for @pHoursClosesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes'**
+  String get pHoursClosesLabel;
+
+  /// No description provided for @pHoursSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get pHoursSave;
+
+  /// No description provided for @pHoursDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get pHoursDiscard;
+
+  /// No description provided for @pHoursSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating hours saved'**
+  String get pHoursSaved;
+
+  /// No description provided for @pHoursErrorCloseBeforeOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing time must be after opening time'**
+  String get pHoursErrorCloseBeforeOpen;
 
   /// No description provided for @pProfileNameRequired.
   ///
@@ -2027,8 +2585,68 @@ abstract class AppLocalizations {
   /// No description provided for @pAnalyticsNoRevenue.
   ///
   /// In en, this message translates to:
-  /// **'Revenue isn\'t reported — nothing in the database tracks it.'**
+  /// **'Revenue is tracked separately — see Finance for real commission and earnings figures.'**
   String get pAnalyticsNoRevenue;
+
+  /// No description provided for @pFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Earnings'**
+  String get pFinanceTitle;
+
+  /// No description provided for @pFinanceCommissionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform commission'**
+  String get pFinanceCommissionLabel;
+
+  /// No description provided for @pFinanceCommissionPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fees'**
+  String get pFinanceCommissionPaid;
+
+  /// No description provided for @pFinanceNetEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Earnings'**
+  String get pFinanceNetEarnings;
+
+  /// No description provided for @pFinancePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pFinancePending;
+
+  /// No description provided for @pFinanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get pFinanceSettled;
+
+  /// No description provided for @pFinanceTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Earnings Over Time'**
+  String get pFinanceTrend;
+
+  /// No description provided for @pFinanceTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction History'**
+  String get pFinanceTransactions;
+
+  /// No description provided for @pFinanceNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No earnings yet'**
+  String get pFinanceNoTransactions;
+
+  /// No description provided for @pFinanceReadOnlyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Set by the platform admin. You cannot edit this — changes only ever apply to future completed bookings.'**
+  String get pFinanceReadOnlyNote;
 
   /// No description provided for @pMoreTitle.
   ///
@@ -2060,6 +2678,12 @@ abstract class AppLocalizations {
   /// **'Analytics'**
   String get pMoreAnalytics;
 
+  /// No description provided for @pMoreFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get pMoreFinance;
+
   /// No description provided for @pMoreAccount.
   ///
   /// In en, this message translates to:
@@ -2071,18 +2695,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preferences'**
   String get pMorePreferences;
-
-  /// No description provided for @pMoreUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available yet'**
-  String get pMoreUnsupported;
-
-  /// No description provided for @pMoreNoPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'There\'s no change-password endpoint yet.'**
-  String get pMoreNoPassword;
 
   /// No description provided for @realtimeLive.
   ///
@@ -2491,6 +3103,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Revoke approval'**
   String get aProvidersRevoke;
+
+  /// No description provided for @aFuelManageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Fuel'**
+  String get aFuelManageButton;
+
+  /// No description provided for @aFuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel Management'**
+  String get aFuelTitle;
+
+  /// No description provided for @aFuelNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured yet.'**
+  String get aFuelNotConfigured;
+
+  /// No description provided for @aFuelSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up'**
+  String get aFuelSetUp;
+
+  /// No description provided for @aFuelUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get aFuelUpdate;
+
+  /// No description provided for @aFuelCapacityField.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity'**
+  String get aFuelCapacityField;
+
+  /// No description provided for @aFuelRemainingField.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get aFuelRemainingField;
+
+  /// No description provided for @aFuelPriceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per liter'**
+  String get aFuelPriceField;
+
+  /// No description provided for @aFuelSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel inventory updated'**
+  String get aFuelSaved;
+
+  /// No description provided for @aFuelCapacityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacity must be greater than 0'**
+  String get aFuelCapacityInvalid;
+
+  /// No description provided for @aFuelRemainingInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining must not be negative'**
+  String get aFuelRemainingInvalid;
+
+  /// No description provided for @aFuelRemainingExceedsCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining cannot exceed capacity'**
+  String get aFuelRemainingExceedsCapacity;
+
+  /// No description provided for @aFuelPriceInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must not be negative'**
+  String get aFuelPriceInvalid;
+
+  /// No description provided for @financeGross.
+  ///
+  /// In en, this message translates to:
+  /// **'Gross'**
+  String get financeGross;
+
+  /// No description provided for @financeCommission.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission'**
+  String get financeCommission;
+
+  /// No description provided for @financeNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get financeNet;
+
+  /// No description provided for @financeCommissionRateField.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate'**
+  String get financeCommissionRateField;
+
+  /// No description provided for @financeStatusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get financeStatusAll;
+
+  /// No description provided for @financeStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get financeStatusPending;
+
+  /// No description provided for @financeStatusSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get financeStatusSettled;
+
+  /// No description provided for @financeTrendEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed bookings recorded in this range yet.'**
+  String get financeTrendEmpty;
+
+  /// No description provided for @financeTrendSinglePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'More history will appear as bookings complete.'**
+  String get financeTrendSinglePoint;
+
+  /// No description provided for @financeUnknownService.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking'**
+  String get financeUnknownService;
+
+  /// No description provided for @commonCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get commonCreated;
+
+  /// No description provided for @aFinanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get aFinanceTitle;
+
+  /// No description provided for @aFinanceCommissionRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Revenue'**
+  String get aFinanceCommissionRevenue;
+
+  /// No description provided for @aFinanceProviderNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Net'**
+  String get aFinanceProviderNet;
+
+  /// No description provided for @aFinancePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Settlement'**
+  String get aFinancePending;
+
+  /// No description provided for @aFinanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get aFinanceSettled;
+
+  /// No description provided for @aFinanceTransactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get aFinanceTransactionCount;
+
+  /// No description provided for @aFinanceTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Revenue Over Time'**
+  String get aFinanceTrend;
+
+  /// No description provided for @aFinanceTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get aFinanceTransactions;
+
+  /// No description provided for @aFinanceProviderFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get aFinanceProviderFilter;
+
+  /// No description provided for @aFinanceAllProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'All providers'**
+  String get aFinanceAllProviders;
+
+  /// No description provided for @aFinanceNoTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match this filter yet.'**
+  String get aFinanceNoTransactions;
+
+  /// No description provided for @aFinanceMarkSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark Settled'**
+  String get aFinanceMarkSettled;
+
+  /// No description provided for @aFinanceSettleSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction marked as settled'**
+  String get aFinanceSettleSuccess;
+
+  /// No description provided for @aFinanceSettledAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get aFinanceSettledAt;
+
+  /// No description provided for @aFinanceCommissionEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage commission'**
+  String get aFinanceCommissionEdit;
+
+  /// No description provided for @aFinanceCommissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform commission'**
+  String get aFinanceCommissionTitle;
+
+  /// No description provided for @aFinanceCommissionInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate must be between 0 and 100'**
+  String get aFinanceCommissionInvalid;
+
+  /// No description provided for @aFinanceCommissionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate updated'**
+  String get aFinanceCommissionSaved;
 
   /// No description provided for @aProvidersApproveTitle.
   ///
@@ -2912,6 +3776,12 @@ abstract class AppLocalizations {
   /// **'Analytics'**
   String get aMoreAnalytics;
 
+  /// No description provided for @aMoreFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get aMoreFinance;
+
   /// No description provided for @aMoreAccount.
   ///
   /// In en, this message translates to:
@@ -2933,14 +3803,8 @@ abstract class AppLocalizations {
   /// No description provided for @aMoreNoPlatformSettings.
   ///
   /// In en, this message translates to:
-  /// **'No settings table exists, so booking windows, commission rates and similar values have nowhere to be stored.'**
+  /// **'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.'**
   String get aMoreNoPlatformSettings;
-
-  /// No description provided for @aMoreNoPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'There is no change-password endpoint.'**
-  String get aMoreNoPassword;
 
   /// No description provided for @aMoreNoAudit.
   ///
@@ -2989,6 +3853,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{You\'re all caught up} =1{1 unread} other{{count} unread}}'**
   String notifUnreadSummary(int count);
+
+  /// No description provided for @homeLiveStationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Station'**
+  String get homeLiveStationSection;
+
+  /// No description provided for @homeLiveStationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See the current station situation before you go.'**
+  String get homeLiveStationBody;
+
+  /// No description provided for @homeWatchLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Live'**
+  String get homeWatchLive;
+
+  /// No description provided for @liveCameraLive.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get liveCameraLive;
+
+  /// No description provided for @liveCameraOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera Offline'**
+  String get liveCameraOffline;
+
+  /// No description provided for @liveCameraUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Live view is currently unavailable'**
+  String get liveCameraUnavailableMessage;
+
+  /// No description provided for @liveCameraPrivacyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Live view is provided by the station for current conditions.'**
+  String get liveCameraPrivacyNote;
+
+  /// No description provided for @liveStationAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Station'**
+  String get liveStationAppBarTitle;
+
+  /// No description provided for @liveStationNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Live camera is not available for this business.'**
+  String get liveStationNotAvailable;
+
+  /// No description provided for @aiAssistantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiAssistantTitle;
+
+  /// No description provided for @aiAssistantDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask how the platform works, or describe a vehicle problem for a preliminary diagnosis.'**
+  String get aiAssistantDescription;
+
+  /// No description provided for @aiAssistantWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I\'m your platform assistant. Ask me how something works, or describe a vehicle problem and I\'ll help narrow down what might be going on.'**
+  String get aiAssistantWelcome;
+
+  /// No description provided for @aiAssistantInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your message…'**
+  String get aiAssistantInputHint;
+
+  /// No description provided for @aiAssistantClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation'**
+  String get aiAssistantClear;
+
+  /// No description provided for @aiAssistantUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant is temporarily unavailable. Please try again.'**
+  String get aiAssistantUnavailable;
+
+  /// No description provided for @aiSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiSend;
+
+  /// No description provided for @aiThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking…'**
+  String get aiThinking;
+
+  /// No description provided for @aiModeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get aiModeAuto;
+
+  /// No description provided for @aiModeSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Support'**
+  String get aiModeSupport;
+
+  /// No description provided for @aiModeDiagnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Diagnosis'**
+  String get aiModeDiagnosis;
+
+  /// No description provided for @aiDiagnosisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preliminary Diagnosis'**
+  String get aiDiagnosisTitle;
+
+  /// No description provided for @aiPossibleCauses.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible causes'**
+  String get aiPossibleCauses;
+
+  /// No description provided for @aiLikelihood.
+  ///
+  /// In en, this message translates to:
+  /// **'Likelihood'**
+  String get aiLikelihood;
+
+  /// No description provided for @aiLikelihoodLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Likely'**
+  String get aiLikelihoodLikely;
+
+  /// No description provided for @aiLikelihoodPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'Possible'**
+  String get aiLikelihoodPossible;
+
+  /// No description provided for @aiLikelihoodLessLikely.
+  ///
+  /// In en, this message translates to:
+  /// **'Less likely'**
+  String get aiLikelihoodLessLikely;
+
+  /// No description provided for @aiLikelihoodUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unspecified'**
+  String get aiLikelihoodUnknown;
+
+  /// No description provided for @aiUrgencyLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get aiUrgencyLow;
+
+  /// No description provided for @aiUrgencyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get aiUrgencyMedium;
+
+  /// No description provided for @aiUrgencyHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get aiUrgencyHigh;
+
+  /// No description provided for @aiUrgencyEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get aiUrgencyEmergency;
+
+  /// No description provided for @aiUrgencyUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unspecified'**
+  String get aiUrgencyUnknown;
+
+  /// No description provided for @aiSafetyAdvice.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety advice'**
+  String get aiSafetyAdvice;
+
+  /// No description provided for @aiNeedMoreInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'I need a little more information.'**
+  String get aiNeedMoreInfo;
+
+  /// No description provided for @aiRecommendedService.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended service'**
+  String get aiRecommendedService;
+
+  /// No description provided for @aiFindProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Suitable Providers'**
+  String get aiFindProviders;
+
+  /// No description provided for @aiFindNearbySecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Find nearby service providers'**
+  String get aiFindNearbySecondary;
+
+  /// No description provided for @aiSeekImmediateHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek immediate help'**
+  String get aiSeekImmediateHelp;
+
+  /// No description provided for @aiSeekImmediateHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop driving as soon as it is safe to do so, and seek roadside or emergency assistance now — this is not something to wait on a booking for.'**
+  String get aiSeekImmediateHelpBody;
 }
 
 class _AppLocalizationsDelegate

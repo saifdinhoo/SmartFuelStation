@@ -8,6 +8,10 @@ const bookingRoutes = require('./booking.routes');
 const queueRoutes = require('./queue.routes');
 const adminRoutes = require('./admin.routes');
 const notificationRoutes = require('./notification.routes');
+const aiRoutes = require('./ai.routes');
+const complaintRoutes = require('./complaint.routes');
+const favoriteRoutes = require('./favorite.routes');
+const vehicleRoutes = require('./vehicle.routes');
 
 const router = express.Router();
 
@@ -21,5 +25,9 @@ router.use('/bookings', bookingRoutes);
 router.use('/queue', queueRoutes);
 router.use('/admin', adminRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/ai', aiRoutes);
+router.use('/complaints', complaintRoutes);
+router.use('/favorites', favoriteRoutes);
+router.use('/vehicles', vehicleRoutes);
 
 module.exports = router;

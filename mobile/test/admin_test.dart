@@ -255,6 +255,32 @@ void main() {
       expect(row.ownerEmail, 'owner@example.com');
     });
 
+    test('admin provider rows parse latitude/longitude for View location', () {
+      final row = AdminProviderRow.fromJson({
+        'id': 2,
+        'businessName': 'Cedars',
+        'address': 'Street 1',
+        'isApproved': true,
+        'isOpen': true,
+        'latitude': '33.8938',
+        'longitude': '35.5018',
+      });
+      expect(row.latitude, 33.8938);
+      expect(row.longitude, 35.5018);
+    });
+
+    test('admin provider rows without coordinates parse as null, never a fabricated 0,0', () {
+      final row = AdminProviderRow.fromJson({
+        'id': 3,
+        'businessName': 'No Location Yet',
+        'address': 'Street 2',
+        'isApproved': true,
+        'isOpen': true,
+      });
+      expect(row.latitude, isNull);
+      expect(row.longitude, isNull);
+    });
+
     test('analytics parses every series and invents no revenue field', () {
       final analytics = AdminAnalytics.fromJson({
         'range': '7d',
@@ -400,6 +426,7 @@ void main() {
       handler.onBookingStatusChanged({'bookingId': 1, 'status': 'CANCELLED'});
       handler.onProviderQueueUpdated({'providerId': 1, 'entries': const []});
       handler.onMyQueueUpdate({'id': 1});
+      handler.onProviderAvailabilityChanged({'providerId': 1});
       expect(handler.appliedEvents, 0);
     });
 
@@ -417,6 +444,90 @@ void main() {
       });
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(loads, 2, reason: 'reconnect must resync from REST');
+    });
+
+    group('onFinanceUpdated (Phase D)', () {
+      test('invalidates the platform-wide finance summary and transactions', () async {
+        var summaryLoads = 0;
+        var txLoads = 0;
+        await cache.refresh<int>(
+          AdminKeys.financeSummaryFor('30d'),
+          () async {
+            summaryLoads++;
+            return 0;
+          },
+        );
+        await cache.refresh<int>(
+          AdminKeys.financeTransactionsFiltered(null, 'ALL'),
+          () async {
+            txLoads++;
+            return 0;
+          },
+        );
+
+        handler.onFinanceUpdated({'providerId': 2});
+
+        cache.watch<int>(AdminKeys.financeSummaryFor('30d'), () async {
+          summaryLoads++;
+          return 0;
+        });
+        cache.watch<int>(
+          AdminKeys.financeTransactionsFiltered(null, 'ALL'),
+          () async {
+            txLoads++;
+            return 0;
+          },
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(summaryLoads, 2);
+        expect(txLoads, 2);
+        expect(handler.appliedEvents, 1);
+      });
+
+      test('invalidates only the named provider\'s commission cache entry', () async {
+        var rate2Loads = 0;
+        var rate3Loads = 0;
+        await cache.refresh<int>(AdminKeys.commission(2), () async {
+          rate2Loads++;
+          return 0;
+        });
+        await cache.refresh<int>(AdminKeys.commission(3), () async {
+          rate3Loads++;
+          return 0;
+        });
+
+        handler.onFinanceUpdated({'providerId': 2});
+
+        cache.watch<int>(AdminKeys.commission(2), () async {
+          rate2Loads++;
+          return 0;
+        });
+        cache.watch<int>(AdminKeys.commission(3), () async {
+          rate3Loads++;
+          return 0;
+        });
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(rate2Loads, 2, reason: 'the named provider\'s commission is stale');
+        expect(rate3Loads, 1, reason: 'a different provider\'s commission is untouched');
+      });
+
+      test('a payload with no providerId still invalidates the platform-wide keys', () async {
+        var loads = 0;
+        await cache.refresh<int>(AdminKeys.financeSummaryFor('30d'), () async {
+          loads++;
+          return 0;
+        });
+
+        handler.onFinanceUpdated({});
+
+        cache.watch<int>(AdminKeys.financeSummaryFor('30d'), () async {
+          loads++;
+          return 0;
+        });
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(loads, 2);
+        expect(handler.appliedEvents, 1);
+      });
     });
   });
 
@@ -456,6 +567,41 @@ void main() {
       );
       expect(AdminKeys.usersFiltered('ALL', 'x'), startsWith(AdminKeys.users));
       expect(AdminKeys.analyticsFor('7d'), startsWith(AdminKeys.analytics));
+    });
+
+    test('fuel keys are scoped per provider, and history keys per range too', () {
+      expect(AdminKeys.fuel(2), isNot(AdminKeys.fuel(3)));
+      expect(AdminKeys.fuelHistory(2, '7d'), isNot(AdminKeys.fuelHistory(2, '30d')));
+    });
+
+    test('finance summary keys are scoped per range (Phase D)', () {
+      expect(
+        AdminKeys.financeSummaryFor('7d'),
+        isNot(AdminKeys.financeSummaryFor('30d')),
+      );
+      expect(
+        AdminKeys.financeSummaryFor('30d'),
+        startsWith(AdminKeys.financeSummary),
+      );
+    });
+
+    test('finance transaction keys are scoped per provider and status filter', () {
+      expect(
+        AdminKeys.financeTransactionsFiltered(null, 'ALL'),
+        isNot(AdminKeys.financeTransactionsFiltered('2', 'ALL')),
+      );
+      expect(
+        AdminKeys.financeTransactionsFiltered('2', 'PENDING'),
+        isNot(AdminKeys.financeTransactionsFiltered('2', 'SETTLED')),
+      );
+      expect(
+        AdminKeys.financeTransactionsFiltered('2', 'ALL'),
+        startsWith(AdminKeys.financeTransactions),
+      );
+    });
+
+    test('commission keys are scoped per provider — never shared across businesses', () {
+      expect(AdminKeys.commission(2), isNot(AdminKeys.commission(3)));
     });
   });
 

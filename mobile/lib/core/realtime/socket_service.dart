@@ -105,6 +105,9 @@ class SocketService extends ChangeNotifier {
       ..off(RealtimeEvents.queueProviderUpdated)
       ..off(RealtimeEvents.providerStatusChanged)
       ..off(RealtimeEvents.notificationNew)
+      ..off(RealtimeEvents.providerAvailabilityChanged)
+      ..off(RealtimeEvents.providerFuelUpdated)
+      ..off(RealtimeEvents.financeUpdated)
       ..on('connect', _onConnect)
       ..on('disconnect', _onDisconnect)
       ..on('connect_error', _onConnectError)
@@ -112,7 +115,13 @@ class SocketService extends ChangeNotifier {
       ..on(RealtimeEvents.queueMyUpdate, _onQueueMyUpdate)
       ..on(RealtimeEvents.queueProviderUpdated, _onProviderQueueUpdated)
       ..on(RealtimeEvents.providerStatusChanged, _onProviderStatusChanged)
-      ..on(RealtimeEvents.notificationNew, _onNotificationNew);
+      ..on(RealtimeEvents.notificationNew, _onNotificationNew)
+      ..on(
+        RealtimeEvents.providerAvailabilityChanged,
+        _onProviderAvailabilityChanged,
+      )
+      ..on(RealtimeEvents.providerFuelUpdated, _onProviderFuelUpdated)
+      ..on(RealtimeEvents.financeUpdated, _onFinanceUpdated);
   }
 
   void _onConnect(dynamic _) {
@@ -174,6 +183,24 @@ class SocketService extends ChangeNotifier {
     final map = _asMap(payload);
     if (map == null) return;
     handler.onNotificationNew(map);
+  }
+
+  void _onProviderAvailabilityChanged(dynamic payload) {
+    final map = _asMap(payload);
+    if (map == null) return;
+    handler.onProviderAvailabilityChanged(map);
+  }
+
+  void _onProviderFuelUpdated(dynamic payload) {
+    final map = _asMap(payload);
+    if (map == null) return;
+    handler.onProviderFuelUpdated(map);
+  }
+
+  void _onFinanceUpdated(dynamic payload) {
+    final map = _asMap(payload);
+    if (map == null) return;
+    handler.onFinanceUpdated(map);
   }
 
   Map<String, dynamic>? _asMap(dynamic payload) =>

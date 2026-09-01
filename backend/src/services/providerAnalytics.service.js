@@ -22,9 +22,11 @@ async function getProviderAnalytics(userId, rangeKey = '30d') {
   }
 
   const provider = await requireOwnProvider(userId);
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  // UTC-based and inclusive of today (see the trend loop below for why —
+  // this used to be local-time, which let today's rows silently disappear
+  // from the trend chart on a server whose local zone runs ahead of UTC).
+  const now = new Date();
+  const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (days - 1)));
 
   const [bookings, queueEntries, reviews] = await Promise.all([
     prisma.booking.findMany({
@@ -67,10 +69,14 @@ async function getProviderAnalytics(userId, rangeKey = '30d') {
       : Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10;
 
   // --- trend: one point per day across the window ---
+  // Bucket keys are UTC dates (see `since` above) — deliberately matching
+  // how `b.scheduledAt` is keyed just below, so a booking scheduled for
+  // "today" always lands in today's bucket regardless of the server's
+  // local timezone.
   const trendMap = new Map();
   for (let i = 0; i < days; i += 1) {
-    const d = new Date(since);
-    d.setDate(d.getDate() + i);
+    const d = new Date(since.getTime());
+    d.setUTCDate(d.getUTCDate() + i);
     trendMap.set(d.toISOString().slice(0, 10), 0);
   }
   for (const b of bookings) {

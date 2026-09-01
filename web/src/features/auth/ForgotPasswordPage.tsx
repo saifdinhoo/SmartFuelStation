@@ -6,11 +6,14 @@ import { Link } from 'react-router-dom';
 import { KeyRound, CheckCircle2 } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { requestPasswordReset } from './authApi';
 import { forgotPasswordSchema, type ForgotPasswordFormValues } from './forgotPasswordSchema';
-import { requestPasswordReset } from './mockPasswordResetApi';
 
 export function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -18,8 +21,13 @@ export function ForgotPasswordPage() {
   } = useForm<ForgotPasswordFormValues>({ resolver: zodResolver(forgotPasswordSchema) });
 
   async function onSubmit(values: ForgotPasswordFormValues) {
-    await requestPasswordReset(values.email);
-    setSubmitted(true);
+    setServerError(null);
+    try {
+      await requestPasswordReset(values.email);
+      setSubmitted(true);
+    } catch (err) {
+      setServerError(getErrorMessage(err, 'Something went wrong. Please try again.'));
+    }
   }
 
   return (
@@ -48,6 +56,12 @@ export function ForgotPasswordPage() {
               <h1 className="text-heading-3">Forgot your password?</h1>
               <p className="text-caption">We&apos;ll email you a link to reset it</p>
             </div>
+
+            {serverError && (
+              <Alert variant="destructive" title="Could not send reset email" className="mb-4">
+                {serverError}
+              </Alert>
+            )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
               <Input

@@ -95,4 +95,34 @@ class ProviderRealtimeHandler implements RealtimeEventHandler {
   /// Handled by NotificationRealtimeHandler, shared by every role.
   @override
   void onNotificationNew(Map<String, dynamic> payload) {}
+
+  /// The provider area has no availability-browsing screen of its own —
+  /// bookings and queue changes already reach it via the events above.
+  @override
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload) {}
+
+  /// `{ providerId }` is broadcast rather than room-targeted (see
+  /// notifyProviderFuelUpdated's own doc comment), so there is no numeric
+  /// id here to compare against this session's own provider — the own-fuel
+  /// key is simply always invalidated, mirroring how onProviderStatusChanged
+  /// above must re-derive relevance from the cached profile instead.
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {
+    _cache.invalidate(ProviderKeys.fuel);
+    appliedEvents++;
+  }
+
+  /// `{ providerId }` is broadcast rather than room-targeted, for the same
+  /// reason [onProviderFuelUpdated] above documents: there is no numeric id
+  /// here that can be locally matched against "is this me" without an extra
+  /// lookup, so the own finance and commission keys are simply always
+  /// invalidated — cheap and harmless even on the sessions it did not
+  /// actually concern.
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {
+    _cache.invalidatePrefix(ProviderKeys.financeSummary);
+    _cache.invalidate(ProviderKeys.financeTransactions);
+    _cache.invalidate(ProviderKeys.commission);
+    appliedEvents++;
+  }
 }

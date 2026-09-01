@@ -29,6 +29,7 @@ class CustomerRealtimeHandler implements RealtimeEventHandler {
     _cache.invalidatePrefix(CacheKeys.providerPrefix);
     // Provider availability can have changed during the gap too.
     _cache.invalidate(CacheKeys.providers);
+    _cache.invalidatePrefix('availability/');
   }
 
   /// `{ bookingId, status }`.
@@ -163,4 +164,33 @@ class CustomerRealtimeHandler implements RealtimeEventHandler {
   /// every role — nothing customer-specific to do here.
   @override
   void onNotificationNew(Map<String, dynamic> payload) {}
+
+  /// `{ providerId }`. Every cached availability query for this provider —
+  /// any service, any date — is marked stale rather than refetched
+  /// immediately; the customer's own booking screen also force-refreshes on
+  /// a 409 independently of this push.
+  @override
+  void onProviderAvailabilityChanged(Map<String, dynamic> payload) {
+    final providerId = asIntOrNull(payload['providerId']);
+    if (providerId == null) return;
+
+    _cache.invalidatePrefix(CacheKeys.availabilityPrefix(providerId));
+    appliedEvents++;
+  }
+
+  /// `{ providerId }`. The current-status card and every cached history
+  /// range/fuelType for this provider are marked stale.
+  @override
+  void onProviderFuelUpdated(Map<String, dynamic> payload) {
+    final providerId = asIntOrNull(payload['providerId']);
+    if (providerId == null) return;
+
+    _cache.invalidate(CacheKeys.fuel(providerId));
+    _cache.invalidatePrefix(CacheKeys.fuelHistoryPrefix(providerId));
+    appliedEvents++;
+  }
+
+  /// A customer has no finance access at all — no-op.
+  @override
+  void onFinanceUpdated(Map<String, dynamic> payload) {}
 }

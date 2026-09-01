@@ -8,6 +8,7 @@ import '../../../core/l10n/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../auth/state/auth_state.dart';
+import '../../auth/widgets/change_password_section.dart';
 import '../widgets/admin_widgets.dart';
 
 /// The long tail of the admin area: the screens that don't earn a
@@ -96,6 +97,12 @@ class AdminMoreScreen extends StatelessWidget {
                   label: l10n.aMoreAnalytics,
                   onTap: () => context.push(Routes.adminAnalytics),
                 ),
+                const Divider(height: 1),
+                _NavTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: l10n.aMoreFinance,
+                  onTap: () => context.push(Routes.adminFinance),
+                ),
               ],
             ),
           ),
@@ -156,6 +163,16 @@ class AdminMoreScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
+          AdminSectionHeader(title: l10n.profileChangePasswordTitle),
+          const SizedBox(height: 8),
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(14),
+              child: ChangePasswordSection(),
+            ),
+          ),
+
+          const SizedBox(height: 20),
           AdminSectionHeader(title: l10n.aMoreUnsupported),
           const SizedBox(height: 8),
           Card(
@@ -167,11 +184,6 @@ class AdminMoreScreen extends StatelessWidget {
                   AdminGapNote(
                     icon: Icons.tune_outlined,
                     text: l10n.aMoreNoPlatformSettings,
-                  ),
-                  const SizedBox(height: 12),
-                  AdminGapNote(
-                    icon: Icons.key_outlined,
-                    text: l10n.aMoreNoPassword,
                   ),
                   const SizedBox(height: 12),
                   AdminGapNote(

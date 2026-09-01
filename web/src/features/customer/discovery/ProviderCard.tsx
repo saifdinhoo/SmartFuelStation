@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusIndicator } from '@/components/ui/StatusIndicator';
 import { Button } from '@/components/ui/Button';
 import { useQueueSummary } from '@/features/customer/queue/useQueueSummary';
+import { FavoriteButton } from '@/features/customer/favorites/FavoriteButton';
 import { getPriceRange, getDistinctCategories } from './providerHelpers';
 import type { Provider } from './types';
 
@@ -36,10 +37,13 @@ export function ProviderCard({ provider }: { provider: Provider }) {
               )}
             </div>
           </div>
-          <StatusIndicator
-            variant={provider.isOpen ? 'success' : 'neutral'}
-            label={provider.isOpen ? 'Open now' : 'Closed'}
-          />
+          <div className="flex shrink-0 items-center gap-2">
+            <StatusIndicator
+              variant={provider.isOpen ? 'success' : 'neutral'}
+              label={provider.isOpen ? 'Open now' : 'Closed'}
+            />
+            <FavoriteButton providerId={provider.id} />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-body-sm text-muted-foreground">

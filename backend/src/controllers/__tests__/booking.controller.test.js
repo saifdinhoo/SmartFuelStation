@@ -39,6 +39,7 @@ describe('create', () => {
     expect(notificationService.createNotification).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 77, type: 'BOOKING_CREATED', relatedBookingId: 1 }),
     );
+    expect(socketEvents.notifyProviderAvailabilityChanged).toHaveBeenCalledWith({ providerId: 2 });
   });
 
   it('a notification failure never turns an already-sent 201 into an error', async () => {
@@ -124,5 +125,14 @@ describe('updateStatus', () => {
     await bookingController.updateStatus(req, fakeRes(), jest.fn());
 
     expect(socketEvents.notifyBookingStatusChanged).toHaveBeenCalledWith(33, 1, 'CONFIRMED', 2);
+  });
+
+  it('also broadcasts an availability-changed event for the owning provider', async () => {
+    bookingService.updateBookingStatus.mockResolvedValue(booking('CANCELLED'));
+    const req = { user: { userId: 33, role: 'CUSTOMER' }, params: { id: 1 }, body: { status: 'CANCELLED' } };
+
+    await bookingController.updateStatus(req, fakeRes(), jest.fn());
+
+    expect(socketEvents.notifyProviderAvailabilityChanged).toHaveBeenCalledWith({ providerId: 2 });
   });
 });

@@ -72,10 +72,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleAdmin => 'مشرف';
 
   @override
+  String get dayMonday => 'الإثنين';
+
+  @override
+  String get dayTuesday => 'الثلاثاء';
+
+  @override
+  String get dayWednesday => 'الأربعاء';
+
+  @override
+  String get dayThursday => 'الخميس';
+
+  @override
+  String get dayFriday => 'الجمعة';
+
+  @override
+  String get daySaturday => 'السبت';
+
+  @override
+  String get daySunday => 'الأحد';
+
+  @override
   String get loginSubmitting => 'جارٍ تسجيل الدخول…';
 
   @override
   String get loginNoAccount => 'ليس لديك حساب؟ أنشئ حسابًا';
+
+  @override
+  String get loginForgotPassword => 'نسيت كلمة المرور؟';
 
   @override
   String get registerSubmitting => 'جارٍ إنشاء الحساب…';
@@ -83,6 +107,25 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get registerProviderNotice =>
       'يحتاج حساب مقدّم الخدمة إلى موافقة المشرف قبل تفعيله.';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordSubtitle => 'سنرسل إليك رابطًا لإعادة تعيينها';
+
+  @override
+  String get forgotPasswordSubmit => 'إرسال رابط إعادة التعيين';
+
+  @override
+  String get forgotPasswordCheckEmailTitle => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String get forgotPasswordCheckEmailBody =>
+      'إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فقد أرسلنا رابطًا لإعادة تعيين كلمة المرور. افتحه على هذا الهاتف أو أي جهاز آخر لإتمام إعادة تعيين كلمة المرور.';
+
+  @override
+  String get forgotPasswordBackToLogin => 'العودة لتسجيل الدخول';
 
   @override
   String get navDashboard => 'الرئيسية';
@@ -206,6 +249,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get homeFindService => 'ابحث عن خدمة';
 
   @override
+  String get homeQuickActions => 'إجراءات سريعة';
+
+  @override
+  String homeQueueCount(int count) {
+    return '$count في الطابور';
+  }
+
+  @override
   String get exploreTitle => 'استكشاف';
 
   @override
@@ -236,7 +287,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exploreSortLabel => 'ترتيب';
 
   @override
-  String get exploreUseLocation => 'استخدم موقعي';
+  String get exploreUseLocation => 'تحديث موقعي';
 
   @override
   String get exploreLocationDenied =>
@@ -314,10 +365,13 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get providerDirections => 'الاتجاهات';
+  String get locationViewLocation => 'عرض الموقع';
 
   @override
-  String get providerDirectionsUnavailable => 'الخرائط غير مفعّلة بعد.';
+  String get locationGetDirections => 'الاتجاهات';
+
+  @override
+  String get locationCouldNotOpenMaps => 'تعذّر فتح الخرائط.';
 
   @override
   String get providerFavorite => 'حفظ';
@@ -326,14 +380,63 @@ class AppLocalizationsAr extends AppLocalizations {
   String get providerUnfavorite => 'محفوظ';
 
   @override
-  String get providerFavoriteLocalOnly => 'محفوظ على هذا الجهاز فقط.';
-
-  @override
   String get providerBookNow => 'احجز الآن';
 
   @override
   String get providerClosedCannotBook =>
       'هذا النشاط مغلق حاليًا، لكن يمكنك طلب حجز.';
+
+  @override
+  String get providerHoursTitle => 'ساعات العمل';
+
+  @override
+  String get providerHoursNotSet => 'لم تُحدَّد الساعات';
+
+  @override
+  String get providerHoursNone => 'لم يحدد هذا النشاط ساعات عمله بعد.';
+
+  @override
+  String get fuelGasoline95 => 'بنزين 95';
+
+  @override
+  String get fuelGasoline98 => 'بنزين 98';
+
+  @override
+  String get fuelDiesel => 'ديزل / مازوت';
+
+  @override
+  String get fuelRemainingLabel => 'المتبقي';
+
+  @override
+  String get fuelCapacityLabel => 'السعة';
+
+  @override
+  String get fuelLastUpdatedLabel => 'آخر تحديث';
+
+  @override
+  String get fuelAvailabilityTitle => 'توفر الوقود';
+
+  @override
+  String get fuelMyInventoryTitle => 'مخزون الوقود لدي';
+
+  @override
+  String get fuelManagedByAdminNote => 'يدير مسؤول المنصة مخزون الوقود.';
+
+  @override
+  String get fuelHistoryTitle => 'الوقود المتبقي عبر الزمن';
+
+  @override
+  String get fuelRange7d => 'آخر 7 أيام';
+
+  @override
+  String get fuelRange30d => 'آخر 30 يومًا';
+
+  @override
+  String get fuelHistoryEmpty => 'لا يوجد سجل وقود في هذه الفترة بعد.';
+
+  @override
+  String get fuelHistorySinglePoint =>
+      'سيظهر المزيد من السجل مع تحديث مستويات الوقود.';
 
   @override
   String serviceDuration(int minutes) {
@@ -353,9 +456,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookingDateTime => 'التاريخ والوقت';
 
   @override
-  String get bookingPickDateTime => 'اختر التاريخ والوقت';
-
-  @override
   String get bookingNotes => 'ملاحظات (اختياري)';
 
   @override
@@ -371,10 +471,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get bookingErrorSelectService => 'اختر خدمة';
 
   @override
-  String get bookingErrorSelectTime => 'اختر التاريخ والوقت';
+  String get bookingSelectDate => 'التاريخ';
 
   @override
-  String get bookingErrorFutureTime => 'اختر وقتًا في المستقبل';
+  String bookingOpenHours(String opening, String closing) {
+    return 'مفتوح من $opening إلى $closing';
+  }
+
+  @override
+  String get bookingClosedOnDate => 'هذا النشاط مغلق في التاريخ المحدد.';
+
+  @override
+  String get bookingHoursNotConfigured =>
+      'لم يحدد هذا النشاط ساعات عمله بعد، لذا لا يمكن الحجز في هذا التاريخ.';
+
+  @override
+  String get bookingNoSlotsFit =>
+      'لا توجد أوقات تتسع لهذه الخدمة قبل الإغلاق في هذا التاريخ.';
+
+  @override
+  String get bookingSlotBookedLabel => 'محجوز';
+
+  @override
+  String get bookingSlotPastLabel => 'فات وقته';
+
+  @override
+  String get bookingErrorSelectSlot => 'اختر وقتًا متاحًا';
+
+  @override
+  String get bookingConflictRetry =>
+      'تم حجز هذا الوقت للتو من قِبل شخص آخر. اختر وقتًا آخر أدناه.';
 
   @override
   String get bookingsTitle => 'الحجوزات';
@@ -569,6 +695,118 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reviewOnlyAfterCompleted => 'يمكنك تقييم النشاط بعد إتمام حجزك.';
 
   @override
+  String get myReviewsTitle => 'مراجعاتي';
+
+  @override
+  String get myReviewsEmpty => 'لم تقيّم أي حجوزات بعد.';
+
+  @override
+  String get myComplaintsTitle => 'شكاواي';
+
+  @override
+  String get myComplaintsEmpty => 'لم تقدّم أي شكاوى بعد.';
+
+  @override
+  String get complaintFile => 'تقديم شكوى';
+
+  @override
+  String get complaintFileTitle => 'تقديم شكوى';
+
+  @override
+  String get complaintBusiness => 'النشاط التجاري';
+
+  @override
+  String get complaintSubject => 'الموضوع';
+
+  @override
+  String get complaintSeverity => 'الخطورة';
+
+  @override
+  String get complaintDetails => 'التفاصيل (اختياري)';
+
+  @override
+  String get complaintSubmit => 'إرسال الشكوى';
+
+  @override
+  String get complaintSubmitted => 'تم إرسال الشكوى';
+
+  @override
+  String get complaintErrorProvider => 'اختر نشاطًا تجاريًا';
+
+  @override
+  String get complaintErrorSubject => 'الموضوع مطلوب';
+
+  @override
+  String get favoritesTitle => 'المفضلة';
+
+  @override
+  String get favoritesEmpty => 'احفظ نشاطًا تجاريًا من صفحته لتجده هنا لاحقًا.';
+
+  @override
+  String get myVehiclesTitle => 'مركباتي';
+
+  @override
+  String get myVehiclesEmpty =>
+      'أضف مركبة لتكون جاهزة في المرة القادمة التي تحجز فيها خدمة.';
+
+  @override
+  String get vehicleAdd => 'إضافة مركبة';
+
+  @override
+  String get vehicleEdit => 'تعديل المركبة';
+
+  @override
+  String get vehicleMake => 'الصانع';
+
+  @override
+  String get vehicleModel => 'الطراز';
+
+  @override
+  String get vehicleYear => 'سنة الصنع';
+
+  @override
+  String get vehiclePlate => 'رقم اللوحة (اختياري)';
+
+  @override
+  String get vehicleColor => 'اللون (اختياري)';
+
+  @override
+  String get vehicleFuelType => 'نوع الوقود (اختياري)';
+
+  @override
+  String get vehicleFuelTypeNotSet => 'غير محدّد';
+
+  @override
+  String get vehicleSaveChanges => 'حفظ التغييرات';
+
+  @override
+  String get vehicleAdded => 'تمت إضافة المركبة';
+
+  @override
+  String get vehicleUpdated => 'تم تحديث المركبة';
+
+  @override
+  String get vehicleDelete => 'حذف المركبة';
+
+  @override
+  String get vehicleDeleteConfirmTitle => 'إزالة هذه المركبة؟';
+
+  @override
+  String get vehicleDeleteConfirmBody => 'لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get vehicleDeleted => 'تمت إزالة المركبة';
+
+  @override
+  String get vehicleErrorMake => 'الصانع مطلوب';
+
+  @override
+  String get vehicleErrorModel => 'الطراز مطلوب';
+
+  @override
+  String get vehicleErrorYear => 'أدخل سنة صحيحة';
+
+  @override
   String get profileTitle => 'حسابي';
 
   @override
@@ -591,11 +829,31 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعديل الملف الشخصي يحتاج إلى واجهة برمجية غير موجودة بعد.';
 
   @override
-  String get profilePasswordUnsupported =>
-      'لا توجد واجهة لتغيير كلمة المرور بعد.';
+  String get profileUnavailable => 'غير متاح';
 
   @override
-  String get profileUnavailable => 'غير متاح';
+  String get profileChangePasswordTitle => 'تغيير كلمة المرور';
+
+  @override
+  String get fieldCurrentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get fieldNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get fieldConfirmPassword => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get changePasswordSubmit => 'تغيير كلمة المرور';
+
+  @override
+  String get changePasswordSuccess => 'تم تغيير كلمة المرور بنجاح';
+
+  @override
+  String get changePasswordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get changePasswordTooShort => 'يجب ألا تقل كلمة المرور عن 6 أحرف';
 
   @override
   String get pNavOverview => 'نظرة عامة';
@@ -929,17 +1187,49 @@ class AppLocalizationsAr extends AppLocalizations {
       'يُستخدم لترتيب نشاطك حسب المسافة في بحث العملاء.';
 
   @override
-  String get pProfileHoursTitle => 'ساعات العمل غير متاحة';
+  String get pProfileUseCurrentLocation => 'استخدم موقعي الحالي';
 
   @override
-  String get pProfileHoursBody =>
-      'لا يوجد حقل لها في قاعدة البيانات، لذا لا يمكن حفظها. استخدم الحالة المباشرة لتحديد إن كنت مفتوحًا الآن.';
+  String get pProfilePreviewOnMap => 'معاينة على الخريطة';
+
+  @override
+  String get pProfileLocationDenied =>
+      'تعذّر تحديد موقعك الحالي. تحقق من الأذونات وحاول مرة أخرى.';
 
   @override
   String get pProfileSave => 'حفظ التغييرات';
 
   @override
   String get pProfileSaved => 'تم تحديث الملف';
+
+  @override
+  String get pHoursTitle => 'ساعات العمل';
+
+  @override
+  String get pHoursSubtitle =>
+      'تُعرض للعملاء، وتُستخدم لتحديد الأوقات التي يمكنهم الحجز فيها.';
+
+  @override
+  String get pHoursClosed => 'مغلق';
+
+  @override
+  String get pHoursOpensLabel => 'يفتح';
+
+  @override
+  String get pHoursClosesLabel => 'يغلق';
+
+  @override
+  String get pHoursSave => 'حفظ التغييرات';
+
+  @override
+  String get pHoursDiscard => 'تجاهل التغييرات';
+
+  @override
+  String get pHoursSaved => 'تم حفظ ساعات العمل';
+
+  @override
+  String get pHoursErrorCloseBeforeOpen =>
+      'يجب أن يكون وقت الإغلاق بعد وقت الفتح';
 
   @override
   String get pProfileNameRequired => 'اسم النشاط مطلوب';
@@ -1060,7 +1350,38 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pAnalyticsNoRevenue =>
-      'لا يتم عرض الإيرادات — لا يوجد ما يتتبعها في قاعدة البيانات.';
+      'تُعرض الإيرادات بشكل منفصل — راجع صفحة المالية لأرقام العمولة والأرباح الفعلية.';
+
+  @override
+  String get pFinanceTitle => 'أرباحي';
+
+  @override
+  String get pFinanceCommissionLabel => 'عمولة المنصة';
+
+  @override
+  String get pFinanceCommissionPaid => 'رسوم المنصة';
+
+  @override
+  String get pFinanceNetEarnings => 'صافي الأرباح';
+
+  @override
+  String get pFinancePending => 'قيد التسوية';
+
+  @override
+  String get pFinanceSettled => 'مُسوّى';
+
+  @override
+  String get pFinanceTrend => 'صافي الأرباح عبر الزمن';
+
+  @override
+  String get pFinanceTransactions => 'سجل المعاملات';
+
+  @override
+  String get pFinanceNoTransactions => 'لا توجد أرباح بعد';
+
+  @override
+  String get pFinanceReadOnlyNote =>
+      'تُحدَّد من قِبل مشرف المنصة. لا يمكنك تعديل هذه النسبة — أي تغيير ينطبق فقط على الحجوزات المكتملة مستقبلًا.';
 
   @override
   String get pMoreTitle => 'المزيد';
@@ -1078,16 +1399,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pMoreAnalytics => 'التحليلات';
 
   @override
+  String get pMoreFinance => 'المالية';
+
+  @override
   String get pMoreAccount => 'الحساب';
 
   @override
   String get pMorePreferences => 'التفضيلات';
-
-  @override
-  String get pMoreUnsupported => 'غير متاح بعد';
-
-  @override
-  String get pMoreNoPassword => 'لا توجد واجهة لتغيير كلمة المرور بعد.';
 
   @override
   String get realtimeLive => 'مباشر';
@@ -1293,6 +1611,135 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aProvidersRevoke => 'سحب الاعتماد';
+
+  @override
+  String get aFuelManageButton => 'إدارة الوقود';
+
+  @override
+  String get aFuelTitle => 'إدارة الوقود';
+
+  @override
+  String get aFuelNotConfigured => 'لم يُضبط بعد.';
+
+  @override
+  String get aFuelSetUp => 'إعداد';
+
+  @override
+  String get aFuelUpdate => 'تحديث';
+
+  @override
+  String get aFuelCapacityField => 'السعة';
+
+  @override
+  String get aFuelRemainingField => 'المتبقي';
+
+  @override
+  String get aFuelPriceField => 'السعر لكل لتر';
+
+  @override
+  String get aFuelSaved => 'تم تحديث مخزون الوقود';
+
+  @override
+  String get aFuelCapacityInvalid => 'يجب أن تكون السعة أكبر من 0';
+
+  @override
+  String get aFuelRemainingInvalid => 'يجب ألا يكون المتبقي بالسالب';
+
+  @override
+  String get aFuelRemainingExceedsCapacity => 'لا يمكن أن يتجاوز المتبقي السعة';
+
+  @override
+  String get aFuelPriceInvalid => 'يجب ألا يكون السعر بالسالب';
+
+  @override
+  String get financeGross => 'الإجمالي';
+
+  @override
+  String get financeCommission => 'العمولة';
+
+  @override
+  String get financeNet => 'الصافي';
+
+  @override
+  String get financeCommissionRateField => 'نسبة العمولة';
+
+  @override
+  String get financeStatusAll => 'كل الحالات';
+
+  @override
+  String get financeStatusPending => 'قيد التسوية';
+
+  @override
+  String get financeStatusSettled => 'مُسوّى';
+
+  @override
+  String get financeTrendEmpty =>
+      'لا توجد حجوزات مكتملة مسجَّلة في هذه الفترة بعد.';
+
+  @override
+  String get financeTrendSinglePoint =>
+      'سيظهر المزيد من السجل مع اكتمال الحجوزات.';
+
+  @override
+  String get financeUnknownService => 'حجز';
+
+  @override
+  String get commonCreated => 'تاريخ الإنشاء';
+
+  @override
+  String get aFinanceTitle => 'المالية';
+
+  @override
+  String get aFinanceCommissionRevenue => 'إيرادات المنصة';
+
+  @override
+  String get aFinanceProviderNet => 'صافي مستحقات المزوّد';
+
+  @override
+  String get aFinancePending => 'التسويات المعلّقة';
+
+  @override
+  String get aFinanceSettled => 'المُسوّى';
+
+  @override
+  String get aFinanceTransactionCount => 'عدد المعاملات';
+
+  @override
+  String get aFinanceTrend => 'الإيرادات عبر الزمن';
+
+  @override
+  String get aFinanceTransactions => 'المعاملات';
+
+  @override
+  String get aFinanceProviderFilter => 'المزوّد';
+
+  @override
+  String get aFinanceAllProviders => 'كل المزوّدين';
+
+  @override
+  String get aFinanceNoTransactions =>
+      'لا توجد معاملات مطابقة لهذا الفلتر بعد.';
+
+  @override
+  String get aFinanceMarkSettled => 'تحديد كمُسوّى';
+
+  @override
+  String get aFinanceSettleSuccess => 'تم تحديد المعاملة كمُسوّاة';
+
+  @override
+  String get aFinanceSettledAt => 'تمت التسوية';
+
+  @override
+  String get aFinanceCommissionEdit => 'إدارة العمولة';
+
+  @override
+  String get aFinanceCommissionTitle => 'عمولة المنصة';
+
+  @override
+  String get aFinanceCommissionInvalid => 'يجب أن تكون نسبة العمولة بين 0 و100';
+
+  @override
+  String get aFinanceCommissionSaved => 'تم تحديث نسبة العمولة';
 
   @override
   String get aProvidersApproveTitle => 'اعتماد هذا النشاط؟';
@@ -1511,6 +1958,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aMoreAnalytics => 'التحليلات';
 
   @override
+  String get aMoreFinance => 'المالية';
+
+  @override
   String get aMoreAccount => 'الحساب';
 
   @override
@@ -1521,10 +1971,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aMoreNoPlatformSettings =>
-      'لا يوجد جدول للإعدادات، لذلك لا مكان لتخزين نوافذ الحجز ونسب العمولة وما شابهها.';
-
-  @override
-  String get aMoreNoPassword => 'لا يوجد إجراء لتغيير كلمة المرور.';
+      'لا يوجد جدول لإعدادات نوافذ الحجز أو ما شابهها من قيم الجدولة — أما نسب العمولة فهي مخزَّنة وقابلة للتعديل من صفحة المالية.';
 
   @override
   String get aMoreNoAudit =>
@@ -1561,4 +2008,127 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get homeLiveStationSection => 'المحطة المباشرة';
+
+  @override
+  String get homeLiveStationBody =>
+      'اطّلع على وضع المحطة الحالي قبل التوجه إليها.';
+
+  @override
+  String get homeWatchLive => 'مشاهدة البث المباشر';
+
+  @override
+  String get liveCameraLive => 'مباشر';
+
+  @override
+  String get liveCameraOffline => 'الكاميرا غير متصلة';
+
+  @override
+  String get liveCameraUnavailableMessage => 'البث المباشر غير متاح حاليًا';
+
+  @override
+  String get liveCameraPrivacyNote =>
+      'البث المباشر مقدَّم من المحطة لعرض الوضع الحالي فقط.';
+
+  @override
+  String get liveStationAppBarTitle => 'المحطة المباشرة';
+
+  @override
+  String get liveStationNotAvailable => 'البث المباشر غير متاح لهذا النشاط.';
+
+  @override
+  String get aiAssistantTitle => 'المساعد الذكي';
+
+  @override
+  String get aiAssistantDescription =>
+      'اسأل عن كيفية عمل المنصة، أو صف مشكلة في سيارتك للحصول على تشخيص أولي.';
+
+  @override
+  String get aiAssistantWelcome =>
+      'مرحبًا! أنا مساعد المنصة. اسألني عن كيفية عمل أي شيء، أو صف مشكلة في سيارتك وسأساعدك في تحديد السبب المحتمل.';
+
+  @override
+  String get aiAssistantInputHint => 'اكتب رسالتك…';
+
+  @override
+  String get aiAssistantClear => 'مسح المحادثة';
+
+  @override
+  String get aiAssistantUnavailable =>
+      'مساعد الذكاء الاصطناعي غير متاح مؤقتًا. حاول مرة أخرى.';
+
+  @override
+  String get aiSend => 'إرسال';
+
+  @override
+  String get aiThinking => 'جارٍ التفكير…';
+
+  @override
+  String get aiModeAuto => 'تلقائي';
+
+  @override
+  String get aiModeSupport => 'دعم المنصة';
+
+  @override
+  String get aiModeDiagnosis => 'تشخيص المركبة';
+
+  @override
+  String get aiDiagnosisTitle => 'تشخيص أولي';
+
+  @override
+  String get aiPossibleCauses => 'الأسباب المحتملة';
+
+  @override
+  String get aiLikelihood => 'الاحتمالية';
+
+  @override
+  String get aiLikelihoodLikely => 'مرجّح';
+
+  @override
+  String get aiLikelihoodPossible => 'محتمل';
+
+  @override
+  String get aiLikelihoodLessLikely => 'أقل احتمالاً';
+
+  @override
+  String get aiLikelihoodUnknown => 'غير محدد';
+
+  @override
+  String get aiUrgencyLow => 'منخفضة';
+
+  @override
+  String get aiUrgencyMedium => 'متوسطة';
+
+  @override
+  String get aiUrgencyHigh => 'عالية';
+
+  @override
+  String get aiUrgencyEmergency => 'طارئة';
+
+  @override
+  String get aiUrgencyUnknown => 'غير محدد';
+
+  @override
+  String get aiSafetyAdvice => 'نصيحة السلامة';
+
+  @override
+  String get aiNeedMoreInfo => 'أحتاج إلى القليل من المعلومات الإضافية.';
+
+  @override
+  String get aiRecommendedService => 'الخدمة الموصى بها';
+
+  @override
+  String get aiFindProviders => 'ابحث عن مزوّدي خدمة مناسبين';
+
+  @override
+  String get aiFindNearbySecondary => 'ابحث عن مزوّدي خدمة قريبين';
+
+  @override
+  String get aiSeekImmediateHelp => 'اطلب المساعدة فورًا';
+
+  @override
+  String get aiSeekImmediateHelpBody =>
+      'توقف عن القيادة بمجرد أن يكون ذلك آمنًا، واطلب المساعدة على الطريق أو المساعدة الطارئة الآن — هذا ليس أمرًا ينتظر حجز موعد.';
 }

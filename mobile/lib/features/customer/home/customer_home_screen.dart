@@ -12,6 +12,7 @@ import '../../auth/state/auth_state.dart';
 import '../../../core/state/query_cache.dart';
 import '../data/customer_repository.dart';
 import '../widgets/booking_card.dart';
+import '../widgets/live_station_card.dart';
 import '../widgets/provider_card.dart';
 
 /// Landing screen: what's open now, categories to jump into, and the
@@ -32,6 +33,9 @@ class CustomerHomeScreen extends StatelessWidget {
     final providersState = repo.watchProviders();
     final categoriesState = repo.watchCategories();
     final bookingsState = repo.watchBookings();
+    final favoritesState = repo.watchMyFavorites();
+    final vehiclesState = repo.watchMyVehicles();
+    final queueState = repo.watchMyQueue();
 
     return Scaffold(
       body: RefreshIndicator(
@@ -48,6 +52,16 @@ class CustomerHomeScreen extends StatelessWidget {
             final active = (bookingsState.valueOrNull ?? const <Booking>[])
                 .where((b) => !b.status.isTerminal)
                 .toList();
+            // At most one provider is expected to have a camera in this
+            // proof of concept, but nothing here assumes that — the first
+            // one found is used, and the architecture supports more being
+            // enabled later with no UI change.
+            final cameraProvider = providers
+                .where((p) => p.liveCameraEnabled)
+                .firstOrNull;
+            final cameraState = cameraProvider == null
+                ? null
+                : repo.watchLiveCameraStatus(cameraProvider.id);
 
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -57,6 +71,45 @@ class CustomerHomeScreen extends StatelessWidget {
                   style: theme.textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 20),
+
+                // --- quick actions ---
+                // Real counts only — a query still loading shows no badge
+                // rather than a fake "0".
+                _SectionHeader(title: l10n.homeQuickActions),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickActionTile(
+                        icon: Icons.favorite_border,
+                        label: l10n.favoritesTitle,
+                        count: favoritesState.valueOrNull?.length,
+                        onTap: () => context.push(Routes.customerFavorites),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _QuickActionTile(
+                        icon: Icons.directions_car_outlined,
+                        label: l10n.myVehiclesTitle,
+                        count: vehiclesState.valueOrNull?.length,
+                        onTap: () => context.push(Routes.customerVehicles),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _QuickActionTile(
+                        icon: Icons.confirmation_number_outlined,
+                        label: l10n.navQueue,
+                        count: queueState.valueOrNull
+                            ?.where((e) => e.status.isActive)
+                            .length,
+                        onTap: () => context.go(Routes.customerQueue),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // --- current activity ---
                 _SectionHeader(title: l10n.homeActiveBooking),
@@ -100,6 +153,22 @@ class CustomerHomeScreen extends StatelessWidget {
                       ),
 
                 const SizedBox(height: 24),
+
+                // --- live station (Phase F) ---
+                // No card at all when no provider has a camera enabled —
+                // never an empty/placeholder card.
+                if (cameraProvider != null) ...[
+                  _SectionHeader(title: l10n.homeLiveStationSection),
+                  const SizedBox(height: 8),
+                  LiveStationCard(
+                    businessName: cameraProvider.businessName,
+                    status: cameraState?.valueOrNull?.status,
+                    onWatchLive: () => context.push(
+                      Routes.customerLiveStation(cameraProvider.id),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
                 // --- categories ---
                 if (categories.isNotEmpty) ...[
@@ -155,6 +224,79 @@ class CustomerHomeScreen extends StatelessWidget {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// A compact shortcut card with an optional real count badge. The badge is
+/// omitted entirely (not shown as "0" or a spinner) while its query hasn't
+/// resolved yet or came back empty — the tile itself is still a real, live
+/// shortcut either way.
+class _QuickActionTile extends StatelessWidget {
+  const _QuickActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.count,
+  });
+
+  final IconData icon;
+  final String label;
+  final int? count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final status = theme.extension<AppStatusColors>()!;
+
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          child: Column(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(icon, color: theme.colorScheme.primary),
+                  if (count != null && count! > 0)
+                    Positioned(
+                      right: -8,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          count.toString(),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: status.mutedForeground,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

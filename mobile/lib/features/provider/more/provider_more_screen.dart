@@ -10,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../../auth/state/auth_state.dart';
+import '../../auth/widgets/change_password_section.dart';
 import '../data/provider_repository.dart';
 
 /// The long tail of the provider area: the screens that don't earn a
@@ -101,6 +102,12 @@ class ProviderMoreScreen extends StatelessWidget {
                   label: l10n.pMoreAnalytics,
                   onTap: () => context.push(Routes.providerAnalytics),
                 ),
+                const Divider(height: 1),
+                _NavTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  label: l10n.pMoreFinance,
+                  onTap: () => context.push(Routes.providerFinance),
+                ),
               ],
             ),
           ),
@@ -165,24 +172,12 @@ class ProviderMoreScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
-          _Heading(l10n.pMoreUnsupported),
+          _Heading(l10n.profileChangePasswordTitle),
           const SizedBox(height: 8),
-          Card(
+          const Card(
             child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Stated rather than shown as a disabled control that
-                  // would imply it is coming imminently.
-                  _Gap(icon: Icons.key_outlined, text: l10n.pMoreNoPassword),
-                  const SizedBox(height: 12),
-                  _Gap(
-                    icon: Icons.schedule_outlined,
-                    text: l10n.pProfileHoursBody,
-                  ),
-                ],
-              ),
+              padding: EdgeInsets.all(14),
+              child: ChangePasswordSection(),
             ),
           ),
 
@@ -277,30 +272,3 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _Gap extends StatelessWidget {
-  const _Gap({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final status = theme.extension<AppStatusColors>()!;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: status.mutedForeground),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: status.mutedForeground,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}

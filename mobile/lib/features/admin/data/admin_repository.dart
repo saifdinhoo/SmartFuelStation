@@ -33,6 +33,25 @@ class AdminKeys {
       'admin/reviews?rating=$rating&provider=$providerId';
   static String analyticsFor(String range) => 'admin/analytics/$range';
   static String user(int id) => 'admin/users/$id';
+  static String fuel(int providerId) => 'admin/providers/$providerId/fuel';
+  static String fuelHistory(int providerId, String range) =>
+      'admin/providers/$providerId/fuel/history/$range';
+
+  // --- finance (Phase D) --------------------------------------------------
+  static const financeSummary = 'admin/finance/summary';
+  static const financeTransactions = 'admin/finance/transactions';
+  static const providerFinancePrefix = 'admin/finance/providers/';
+
+  static String financeSummaryFor(String range) =>
+      'admin/finance/summary/$range';
+  static String financeTransactionsFiltered(
+    String? providerId,
+    String status,
+  ) => 'admin/finance/transactions?providerId=${providerId ?? 'ALL'}&status=$status';
+  static String providerFinance(int providerId, String range) =>
+      'admin/finance/providers/$providerId/$range';
+  static String commission(int providerId) =>
+      'admin/providers/$providerId/commission';
 }
 
 /// Everything the admin area reads and writes.
@@ -360,4 +379,202 @@ class AdminRepository {
     AdminKeys.analyticsFor(range),
     () => _fetchAnalytics(range),
   );
+
+  // --- fuel inventory (ADMIN-only writes, enforced server-side) -----------
+
+  Future<List<AdminFuelInventoryItem>> _loadFuel(int providerId) async {
+    final raw = await _api.get('/admin/providers/$providerId/fuel') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((j) => AdminFuelInventoryItem.fromJson(Map<String, dynamic>.from(j)))
+        .toList();
+  }
+
+  AsyncValue<List<AdminFuelInventoryItem>> watchFuel(int providerId) =>
+      _cache.watch(AdminKeys.fuel(providerId), () => _loadFuel(providerId));
+
+  /// PUT /admin/providers/:id/fuel/:fuelType — create-or-update. The only
+  /// place in the app that writes fuel inventory.
+  Future<FuelInventoryItem> updateFuel(
+    int providerId,
+    FuelTypeModel fuelType, {
+    required double capacityLiters,
+    required double currentLiters,
+    double? pricePerLiter,
+  }) async {
+    final json =
+        await _api.put(
+              '/admin/providers/$providerId/fuel/${fuelType.api}',
+              body: {
+                'capacityLiters': capacityLiters,
+                'currentLiters': currentLiters,
+                'pricePerLiter': pricePerLiter,
+              },
+            )
+            as Map;
+    final updated = FuelInventoryItem.fromJson(Map<String, dynamic>.from(json));
+    _cache.invalidate(AdminKeys.fuel(providerId));
+    _cache.invalidatePrefix('admin/providers/$providerId/fuel/history/');
+    // Public/provider-own reads of the same data. Raw string keys rather
+    // than importing ProviderRepository's key class, matching how
+    // deleteReview below already invalidates 'providers' the same way.
+    _cache.invalidate('provider/$providerId/fuel');
+    _cache.invalidate('provider/me/fuel');
+    return updated;
+  }
+
+  Future<List<AdminFuelHistoryEntry>> _loadFuelHistory(
+    int providerId,
+    String range,
+  ) async {
+    final raw =
+        await _api.get(
+              '/admin/providers/$providerId/fuel/history',
+              query: {'range': range},
+            )
+            as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((j) => AdminFuelHistoryEntry.fromJson(Map<String, dynamic>.from(j)))
+        .toList();
+  }
+
+  AsyncValue<List<AdminFuelHistoryEntry>> watchFuelHistory(
+    int providerId,
+    String range,
+  ) => _cache.watch(
+    AdminKeys.fuelHistory(providerId, range),
+    () => _loadFuelHistory(providerId, range),
+  );
+
+  // --- finance / commission ledger (Phase D, ADMIN-only writes) -----------
+
+  Future<FinanceSummary> _loadFinanceSummary(String range) async {
+    final json =
+        await _api.get('/admin/finance/summary', query: {'range': range})
+            as Map;
+    return FinanceSummary.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<FinanceSummary> watchFinanceSummary(String range) => _cache.watch(
+    AdminKeys.financeSummaryFor(range),
+    () => _loadFinanceSummary(range),
+  );
+
+  Future<FinanceSummary> refreshFinanceSummary(String range) => _cache.refresh(
+    AdminKeys.financeSummaryFor(range),
+    () => _loadFinanceSummary(range),
+  );
+
+  Future<List<AdminFinanceTransaction>> _loadFinanceTransactions(
+    String? providerId,
+    String status,
+  ) async {
+    final raw =
+        await _api.get(
+              '/admin/finance/transactions',
+              query: {
+                'providerId': ?providerId,
+                'status': status,
+              },
+            )
+            as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((j) => AdminFinanceTransaction.fromJson(Map<String, dynamic>.from(j)))
+        .toList();
+  }
+
+  AsyncValue<List<AdminFinanceTransaction>> watchFinanceTransactions({
+    String? providerId,
+    String status = 'ALL',
+  }) => _cache.watch(
+    AdminKeys.financeTransactionsFiltered(providerId, status),
+    () => _loadFinanceTransactions(providerId, status),
+  );
+
+  Future<List<AdminFinanceTransaction>> refreshFinanceTransactions({
+    String? providerId,
+    String status = 'ALL',
+  }) => _cache.refresh(
+    AdminKeys.financeTransactionsFiltered(providerId, status),
+    () => _loadFinanceTransactions(providerId, status),
+  );
+
+  Future<AdminProviderFinance> _loadProviderFinance(
+    int providerId,
+    String range,
+  ) async {
+    final json =
+        await _api.get(
+              '/admin/finance/providers/$providerId',
+              query: {'range': range},
+            )
+            as Map;
+    return AdminProviderFinance.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<AdminProviderFinance> watchProviderFinance(
+    int providerId,
+    String range,
+  ) => _cache.watch(
+    AdminKeys.providerFinance(providerId, range),
+    () => _loadProviderFinance(providerId, range),
+  );
+
+  /// PATCH /admin/finance/transactions/:id/settlement — marks one
+  /// transaction SETTLED. The backend refuses an already-settled row with
+  /// 400 and a message explaining so; that error is surfaced verbatim by the
+  /// caller (a snackbar) rather than swallowed here.
+  Future<AdminFinanceTransaction> settleTransaction(int transactionId) async {
+    final json =
+        await _api.patch(
+              '/admin/finance/transactions/$transactionId/settlement',
+            )
+            as Map;
+    final updated = AdminFinanceTransaction.fromJson(
+      Map<String, dynamic>.from(json),
+    );
+    _cache.invalidatePrefix(AdminKeys.financeSummary);
+    _cache.invalidatePrefix(AdminKeys.financeTransactions);
+    _cache.invalidatePrefix(
+      '${AdminKeys.providerFinancePrefix}${updated.providerId}',
+    );
+    // The provider's own read of the same ledger.
+    _cache.invalidatePrefix('provider/me/finance');
+    return updated;
+  }
+
+  AsyncValue<ProviderCommission> watchCommission(int providerId) =>
+      _cache.watch(AdminKeys.commission(providerId), () async {
+        final json =
+            await _api.get('/admin/providers/$providerId/commission') as Map;
+        return ProviderCommission.fromJson(Map<String, dynamic>.from(json));
+      });
+
+  /// PUT /admin/providers/:id/commission. Changing the rate changes every
+  /// future transaction's split for this business, so the provider's own
+  /// finance keys are invalidated alongside the admin's — mirrors how
+  /// [updateFuel] above invalidates both the admin and provider-own fuel
+  /// keys. Returns 400 for an out-of-range value, surfaced verbatim by the
+  /// caller rather than pre-validated away here (the sheet does its own
+  /// client-side check first, but the server stays authoritative).
+  Future<ProviderCommission> setCommission(int providerId, double rate) async {
+    final json =
+        await _api.put(
+              '/admin/providers/$providerId/commission',
+              body: {'commissionRate': rate},
+            )
+            as Map;
+    final updated = ProviderCommission.fromJson(
+      Map<String, dynamic>.from(json),
+    );
+    _cache.invalidate(AdminKeys.commission(providerId));
+    _cache.invalidatePrefix(AdminKeys.financeSummary);
+    _cache.invalidatePrefix(AdminKeys.financeTransactions);
+    _cache.invalidatePrefix('${AdminKeys.providerFinancePrefix}$providerId');
+    _cache.invalidatePrefix('provider/me/finance');
+    _cache.invalidate('provider/me/commission');
+    return updated;
+  }
 }

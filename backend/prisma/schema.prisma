@@ -61,6 +61,16 @@ enum NotificationType {
   PROVIDER_REJECTED
 }
 
+// PENDING: the provider has earned this money but the platform/provider
+// settlement is not yet reconciled. SETTLED: an admin has marked it paid /
+// accounted for. Deliberately no CANCELLED/VOID — Booking has no
+// COMPLETED -> anything edge (see shared/bookingTransitions.js), so a
+// settled-or-pending FinancialTransaction never needs to be reversed.
+enum SettlementStatus {
+  PENDING
+  SETTLED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -71,14 +81,20 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  provider            Provider?
-  approvedProviders   Provider[]           @relation("ProviderApprover")
-  bookings            Booking[]
-  reviews             Review[]
-  complaints          Complaint[]
-  queueEntries        QueueEntry[]
-  passwordResetTokens PasswordResetToken[]
-  notifications       Notification[]
+  provider             Provider?
+  approvedProviders    Provider[]              @relation("ProviderApprover")
+  bookings             Booking[]
+  reviews              Review[]
+  complaints           Complaint[]
+  queueEntries         QueueEntry[]
+  passwordResetTokens  PasswordResetToken[]
+  notifications        Notification[]
+  fuelInventoryUpdates ProviderFuelInventory[] @relation("FuelInventoryUpdatedBy")
+  fuelHistoryChanges   FuelInventoryHistory[]  @relation("FuelHistoryChangedBy")
+  commissionUpdates    Provider[]              @relation("ProviderCommissionUpdatedBy")
+  settledTransactions  FinancialTransaction[]  @relation("FinanceSettledBy")
+  favorites            Favorite[]
+  vehicles             Vehicle[]
 
   @@index([role])
   @@index([createdAt])
@@ -100,17 +116,117 @@ model Provider {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 
-  user          User              @relation(fields: [userId], references: [id])
-  approvedBy    User?             @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  services      ProviderService[]
-  reviews       Review[]
-  complaints    Complaint[]
-  queueEntries  QueueEntry[]
-  notifications Notification[]
+  // Phase F — whether this business has an authorized live camera at all.
+  // Non-sensitive and safe to expose publicly (mirrors isOpen). The actual
+  // upstream stream URL/credentials are never stored here or anywhere in
+  // Postgres — see liveCamera.service.js, which reads a single
+  // LIVE_CAMERA_STREAM_URL from the server's own environment. A boolean is
+  // enough for this one-camera proof of concept; if a second camera is
+  // added later, this is the field a ProviderCamera table would replace.
+  liveCameraEnabled Boolean @default(false)
+
+  // Platform commission percentage applied to this provider's COMPLETED
+  // bookings — e.g. 10.00 = 10%. Defaulted to 10.00 for every existing and
+  // new provider (see the Phase D migration note). Read by
+  // finance.service.js at the moment a booking completes and snapshotted
+  // onto the resulting FinancialTransaction — changing this value here
+  // only ever affects transactions created *after* the change; every
+  // existing FinancialTransaction keeps the rate it was created with.
+  commissionRate             Decimal  @default(10.00) @db.Decimal(5, 2)
+  commissionUpdatedAt        DateTime?
+  commissionUpdatedByAdminId Int?
+
+  user                    User                    @relation(fields: [userId], references: [id])
+  approvedBy              User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  commissionUpdatedByAdmin User?                  @relation("ProviderCommissionUpdatedBy", fields: [commissionUpdatedByAdminId], references: [id], onDelete: SetNull)
+  services                ProviderService[]
+  reviews                 Review[]
+  complaints              Complaint[]
+  queueEntries            QueueEntry[]
+  notifications           Notification[]
+  operatingHours          ProviderOperatingHour[]
+  fuelInventory           ProviderFuelInventory[]
+  fuelHistory             FuelInventoryHistory[]
+  financialTransactions   FinancialTransaction[]
+  favoritedBy             Favorite[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
   @@index([approvedById])
+}
+
+// A customer saving a provider for later — real, shared, persisted storage
+// replacing what was previously a device-local-only toggle in Flutter (and
+// entirely absent on web). One row per (user, provider); the unique
+// constraint is what makes "favorite" idempotent and prevents duplicates.
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  providerId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@index([userId])
+}
+
+// A customer's own vehicle, kept for their reference when booking (e.g.
+// "which car is this for") — not a government/VIN-verified record, and
+// there is deliberately no VIN decoding or external registry lookup here.
+// fuelType reuses the platform's existing FuelType enum rather than a
+// second, parallel definition.
+model Vehicle {
+  id        Int       @id @default(autoincrement())
+  ownerId   Int
+  make      String
+  model     String
+  year      Int
+  plate     String?
+  color     String?
+  fuelType  FuelType?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// The provider's normal weekly schedule — distinct from Provider.isOpen,
+// which is a manual/live "open right now" toggle (see booking.service.js
+// and availability.service.js for how the two are kept separate).
+//
+// openTime/closeTime are plain "HH:mm" 24-hour strings, not DateTime/Time
+// columns — a wall-clock time of day has no date or timezone component of
+// its own, and storing it as one invites exactly the kind of UTC-shift bug
+// this feature exists to avoid. See availability.service.js's doc comment
+// for the project's documented local-time assumption.
+model ProviderOperatingHour {
+  id         Int       @id @default(autoincrement())
+  providerId Int
+  dayOfWeek  DayOfWeek
+  // Null on a closed day — a closed day has no opening interval.
+  openTime   String?
+  closeTime  String?
+  isClosed   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, dayOfWeek])
 }
 
 model ServiceCategory {
@@ -158,11 +274,12 @@ model Booking {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  customer        User            @relation(fields: [customerId], references: [id])
-  providerService ProviderService @relation(fields: [providerServiceId], references: [id])
-  review          Review?
-  queueEntry      QueueEntry?
-  notifications   Notification[]
+  customer            User                   @relation(fields: [customerId], references: [id])
+  providerService     ProviderService        @relation(fields: [providerServiceId], references: [id])
+  review              Review?
+  queueEntry          QueueEntry?
+  notifications       Notification[]
+  financialTransaction FinancialTransaction?
 
   @@index([customerId, scheduledAt])
   @@index([providerServiceId, scheduledAt])
@@ -273,4 +390,116 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+}
+
+// Only the types this platform's region actually needs — see
+// fuelInventory.service.js's FUEL_TYPE_LABELS for the one place display
+// names are defined (never hardcoded a second time in a frontend).
+enum FuelType {
+  GASOLINE_95
+  GASOLINE_98
+  DIESEL
+}
+
+// A provider "sells fuel" precisely when it has at least one row here —
+// there is deliberately no separate ProviderType/isFuelStation flag. A
+// flag like that could drift from reality (marked as a fuel station with
+// zero real inventory rows, or vice versa); presence of real inventory
+// rows can't drift, because it *is* the data being displayed. See
+// fuelInventory.service.js's doc comment for the full reasoning.
+//
+// currentLiters/capacityLiters are the source of truth for the
+// customer-facing percentage — it is always computed from these, never
+// stored separately (see percentageRemaining() in fuelInventory.service.js).
+model ProviderFuelInventory {
+  id               Int      @id @default(autoincrement())
+  providerId       Int
+  fuelType         FuelType
+  capacityLiters   Decimal  @db.Decimal(12, 2)
+  currentLiters    Decimal  @db.Decimal(12, 2)
+  pricePerLiter    Decimal? @db.Decimal(10, 2)
+  updatedByAdminId Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  provider       Provider               @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  updatedByAdmin User?                  @relation("FuelInventoryUpdatedBy", fields: [updatedByAdminId], references: [id], onDelete: SetNull)
+  history        FuelInventoryHistory[]
+
+  @@unique([providerId, fuelType])
+  @@index([providerId])
+}
+
+// One row per Admin write that actually changed this inventory record —
+// including the very first one, so a real chart always has a first point
+// (see fuelInventory.service.js's createOrUpdate, "initial create" case).
+// Never generated speculatively/backfilled with invented values.
+model FuelInventoryHistory {
+  id          Int      @id @default(autoincrement())
+  inventoryId Int
+  providerId  Int
+  fuelType    FuelType
+
+  previousLiters Decimal @db.Decimal(12, 2)
+  newLiters      Decimal @db.Decimal(12, 2)
+
+  previousCapacityLiters Decimal? @db.Decimal(12, 2)
+  newCapacityLiters      Decimal? @db.Decimal(12, 2)
+
+  previousPricePerLiter Decimal? @db.Decimal(10, 2)
+  newPricePerLiter      Decimal? @db.Decimal(10, 2)
+
+  changedByAdminId Int
+  createdAt        DateTime @default(now())
+
+  inventory      ProviderFuelInventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  provider       Provider              @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  changedByAdmin User                  @relation("FuelHistoryChangedBy", fields: [changedByAdminId], references: [id])
+
+  @@index([inventoryId, createdAt])
+  @@index([providerId, fuelType, createdAt])
+}
+
+// Phase D — the internal Provider <-> Admin/Platform accounting ledger.
+//
+// One immutable row per COMPLETED booking (see finance.service.js's
+// createTransactionForCompletedBooking, called atomically from
+// booking.service.js's updateBookingStatus when a booking reaches
+// COMPLETED — never for any other status). Every money field is a
+// snapshot taken at that moment: grossAmount comes from
+// Booking.priceAtBooking (itself already immutable at booking-creation
+// time) and commissionRate/commissionAmount/providerNetAmount are derived
+// from Provider.commissionRate as it stood *at completion time*. A later
+// change to Provider.commissionRate never rewrites any existing row here
+// — see the Phase D report's "commission configuration" section.
+//
+// Finance begins from the migration that introduced this table forward
+// only. Bookings that were already COMPLETED before this feature existed
+// have no historical commissionRate to snapshot honestly, so no row is
+// backfilled for them — see the Phase D report's "existing-booking
+// strategy" section for the full reasoning.
+model FinancialTransaction {
+  id         Int      @id @default(autoincrement())
+  bookingId  Int      @unique
+  providerId Int
+
+  grossAmount       Decimal @db.Decimal(10, 2)
+  commissionRate    Decimal @db.Decimal(5, 2)
+  commissionAmount  Decimal @db.Decimal(10, 2)
+  providerNetAmount Decimal @db.Decimal(10, 2)
+
+  settlementStatus SettlementStatus @default(PENDING)
+  settledAt        DateTime?
+  settledByAdminId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+  provider       Provider @relation(fields: [providerId], references: [id])
+  settledByAdmin User?    @relation("FinanceSettledBy", fields: [settledByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, settlementStatus])
+  @@index([providerId, createdAt])
+  @@index([settlementStatus])
 }

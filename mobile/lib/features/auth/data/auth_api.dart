@@ -25,4 +25,20 @@ class AuthApi {
 
   Future<Map<String, dynamic>> currentUser() async =>
       Map<String, dynamic>.from(await _client.get('/auth/me') as Map);
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _client.patch(
+      '/auth/change-password',
+      body: {'currentPassword': currentPassword, 'newPassword': newPassword},
+    );
+  }
+
+  /// Always succeeds the same way whether or not the email belongs to a
+  /// real account — the backend's response never reveals which.
+  Future<void> requestPasswordReset(String email) async {
+    await _client.post('/auth/forgot-password', body: {'email': email});
+  }
 }

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../../core/widgets/status_chip.dart';
 import '../../auth/state/auth_state.dart';
+import '../../auth/widgets/change_password_section.dart';
 
 /// Account summary plus the preferences that actually persist.
 ///
@@ -122,24 +125,59 @@ class CustomerProfileScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.star_outline_rounded),
+                  title: Text(l10n.myReviewsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerReviews),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.report_gmailerrorred_outlined),
+                  title: Text(l10n.myComplaintsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerComplaints),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.favorite_border),
+                  title: Text(l10n.favoritesTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerFavorites),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.directions_car_outlined),
+                  title: Text(l10n.myVehiclesTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerVehicles),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          _SectionTitle(l10n.profileChangePasswordTitle),
+          const SizedBox(height: 8),
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(14),
+              child: ChangePasswordSection(),
+            ),
+          ),
+
+          const SizedBox(height: 20),
           _SectionTitle(l10n.profileUnsupportedTitle),
           const SizedBox(height: 8),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Unsupported(
-                    icon: Icons.edit_outlined,
-                    text: l10n.profileEditUnsupported,
-                  ),
-                  const SizedBox(height: 12),
-                  _Unsupported(
-                    icon: Icons.key_outlined,
-                    text: l10n.profilePasswordUnsupported,
-                  ),
-                ],
+              child: _Unsupported(
+                icon: Icons.edit_outlined,
+                text: l10n.profileEditUnsupported,
               ),
             ),
           ),
@@ -243,3 +281,4 @@ class _Unsupported extends StatelessWidget {
     );
   }
 }
+

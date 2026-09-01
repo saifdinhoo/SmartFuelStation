@@ -45,6 +45,7 @@ export function mapProvider(
     })),
     reviewCount: raw._count.reviews,
     averageRating,
+    liveCameraEnabled: raw.liveCameraEnabled,
     distanceKm:
       latitude !== null && longitude !== null
         ? Math.round(haversineKm(origin, { lat: latitude, lng: longitude }) * 10) / 10

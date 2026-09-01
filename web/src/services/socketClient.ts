@@ -3,8 +3,11 @@ import { io, type Socket } from 'socket.io-client';
 // The backend attaches Socket.IO to the same HTTP server the REST API
 // runs on (see backend/src/server.js) — same origin, no separate port.
 // VITE_API_URL is "http://localhost:5000/api"; strip the /api suffix to
-// get the server root Socket.IO listens on.
-const SOCKET_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/api\/?$/, '');
+// get the server root. Exported because it's also the right origin to
+// prefix onto a server-relative path like a live-camera playbackUrl
+// (which already includes its own "/api/..." — see
+// features/liveStation/liveStationApi.ts) — one derivation, two uses.
+export const SOCKET_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/api\/?$/, '');
 
 // Single socket instance for the whole app, matching apiClient.ts's
 // "one shared instance" convention. autoConnect is off — connection is
