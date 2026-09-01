@@ -54,9 +54,11 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
       html: `<p>We received a request to reset your password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>`,
     });
   } catch (err) {
-    // err.message is nodemailer's own transport error (e.g. an SMTP auth
-    // failure code) — never the credentials or the token/URL themselves.
-    console.error('[email] Failed to send password reset email:', err.message);
+    // Only a short transport error CATEGORY (e.g. EAUTH, ECONNECTION,
+    // ETIMEDOUT, or an SMTP response code like 550) — never err.message in
+    // full, which for a mailbox/bounce-type error can itself embed the
+    // recipient's address in the server's raw response text.
+    console.error('[email] Failed to send password reset email. Category:', err.code || err.responseCode || 'UNKNOWN');
   }
 }
 
