@@ -1,13 +1,23 @@
 import { Link } from 'react-router-dom';
-import { Bell, Database, KeyRound, Languages, Palette, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Bell, Database, Languages, Palette, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Alert } from '@/components/ui/Alert';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { LanguageToggle } from '@/components/common/LanguageToggle';
 import { useAuth } from '@/app/providers/AuthProvider';
+import { useToast } from '@/app/providers/ToastProvider';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import {
+  changePasswordSchema,
+  type ChangePasswordFormValues,
+} from '@/features/auth/changePasswordSchema';
+import { useChangePassword } from '@/features/auth/useChangePassword';
 
 // Nothing on this page pretends to be a stored platform setting. There is
 // no settings table in the schema, so the only real controls are the local
@@ -25,12 +35,6 @@ const UNSUPPORTED = [
     reason: 'No notifications backend exists yet.',
   },
   {
-    icon: KeyRound,
-    title: 'Change password',
-    reason:
-      'There is no change-password endpoint. The PasswordResetToken table exists but no route is wired to it.',
-  },
-  {
     icon: Database,
     title: 'Backups & audit log',
     reason:
@@ -40,6 +44,30 @@ const UNSUPPORTED = [
 
 export function AdminSettingsPage() {
   const { user } = useAuth();
+  const { showToast } = useToast();
+  const { changePassword, isPending: isChangingPassword } = useChangePassword();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ChangePasswordFormValues>({ resolver: zodResolver(changePasswordSchema) });
+
+  async function onChangePassword(values: ChangePasswordFormValues) {
+    try {
+      await changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      reset();
+      showToast({ title: 'Password changed successfully', variant: 'success' });
+    } catch (err) {
+      showToast({
+        title: getErrorMessage(err, 'Could not change your password'),
+        variant: 'destructive',
+      });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,6 +122,37 @@ export function AdminSettingsPage() {
               <LanguageToggle />
             </div>
             <p className="text-caption">Saved in this browser only.</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h2 className="text-heading-3">Security</h2>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onChangePassword)} className="flex flex-col gap-4" noValidate>
+              <PasswordInput
+                label="Current password"
+                autoComplete="current-password"
+                error={errors.currentPassword?.message}
+                {...register('currentPassword')}
+              />
+              <PasswordInput
+                label="New password"
+                autoComplete="new-password"
+                error={errors.newPassword?.message}
+                {...register('newPassword')}
+              />
+              <PasswordInput
+                label="Confirm new password"
+                autoComplete="new-password"
+                error={errors.confirmPassword?.message}
+                {...register('confirmPassword')}
+              />
+              <Button type="submit" isLoading={isChangingPassword} className="self-start">
+                Change password
+              </Button>
+            </form>
           </CardContent>
         </Card>
 

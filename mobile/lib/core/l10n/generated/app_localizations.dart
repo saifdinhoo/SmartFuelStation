@@ -3806,12 +3806,6 @@ abstract class AppLocalizations {
   /// **'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.'**
   String get aMoreNoPlatformSettings;
 
-  /// No description provided for @aMoreNoPassword.
-  ///
-  /// In en, this message translates to:
-  /// **'There is no change-password endpoint.'**
-  String get aMoreNoPassword;
-
   /// No description provided for @aMoreNoAudit.
   ///
   /// In en, this message translates to:

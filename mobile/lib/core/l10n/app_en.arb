@@ -693,7 +693,6 @@
   "aMorePreferences": "Preferences",
   "aMoreUnsupported": "Not available",
   "aMoreNoPlatformSettings": "No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.",
-  "aMoreNoPassword": "There is no change-password endpoint.",
   "aMoreNoAudit": "Nothing records administrative actions, so there is no audit log to show.",
   "aMoreRealtimeNote": "Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.",
   "aBookingNotes": "Notes",

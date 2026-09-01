@@ -1984,9 +1984,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.';
 
   @override
-  String get aMoreNoPassword => 'There is no change-password endpoint.';
-
-  @override
   String get aMoreNoAudit =>
       'Nothing records administrative actions, so there is no audit log to show.';
 

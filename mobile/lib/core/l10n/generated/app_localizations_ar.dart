@@ -1974,9 +1974,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يوجد جدول لإعدادات نوافذ الحجز أو ما شابهها من قيم الجدولة — أما نسب العمولة فهي مخزَّنة وقابلة للتعديل من صفحة المالية.';
 
   @override
-  String get aMoreNoPassword => 'لا يوجد إجراء لتغيير كلمة المرور.';
-
-  @override
   String get aMoreNoAudit =>
       'لا يُسجَّل أي إجراء إداري، لذلك لا يوجد سجل تدقيق لعرضه.';
 
