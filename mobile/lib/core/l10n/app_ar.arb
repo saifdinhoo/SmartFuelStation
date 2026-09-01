@@ -253,8 +253,16 @@
   "profileNotSet": "غير محدّد",
   "profileUnsupportedTitle": "غير متاح بعد",
   "profileEditUnsupported": "تعديل الملف الشخصي يحتاج إلى واجهة برمجية غير موجودة بعد.",
-  "profilePasswordUnsupported": "لا توجد واجهة لتغيير كلمة المرور بعد.",
   "profileUnavailable": "غير متاح",
+
+  "profileChangePasswordTitle": "تغيير كلمة المرور",
+  "fieldCurrentPassword": "كلمة المرور الحالية",
+  "fieldNewPassword": "كلمة المرور الجديدة",
+  "fieldConfirmPassword": "تأكيد كلمة المرور الجديدة",
+  "changePasswordSubmit": "تغيير كلمة المرور",
+  "changePasswordSuccess": "تم تغيير كلمة المرور بنجاح",
+  "changePasswordMismatch": "كلمتا المرور غير متطابقتين",
+  "changePasswordTooShort": "يجب ألا تقل كلمة المرور عن 6 أحرف",
 
   "pNavOverview": "نظرة عامة",
   "pNavBookings": "الحجوزات",

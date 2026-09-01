@@ -690,11 +690,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Editing your profile needs a backend endpoint that doesn\'t exist yet.';
 
   @override
-  String get profilePasswordUnsupported =>
-      'There\'s no change-password endpoint yet.';
+  String get profileUnavailable => 'Unavailable';
 
   @override
-  String get profileUnavailable => 'Unavailable';
+  String get profileChangePasswordTitle => 'Change password';
+
+  @override
+  String get fieldCurrentPassword => 'Current password';
+
+  @override
+  String get fieldNewPassword => 'New password';
+
+  @override
+  String get fieldConfirmPassword => 'Confirm new password';
+
+  @override
+  String get changePasswordSubmit => 'Change password';
+
+  @override
+  String get changePasswordSuccess => 'Password changed successfully';
+
+  @override
+  String get changePasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get changePasswordTooShort => 'Password must be at least 6 characters';
 
   @override
   String get pNavOverview => 'Overview';

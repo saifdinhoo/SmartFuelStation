@@ -690,11 +690,31 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعديل الملف الشخصي يحتاج إلى واجهة برمجية غير موجودة بعد.';
 
   @override
-  String get profilePasswordUnsupported =>
-      'لا توجد واجهة لتغيير كلمة المرور بعد.';
+  String get profileUnavailable => 'غير متاح';
 
   @override
-  String get profileUnavailable => 'غير متاح';
+  String get profileChangePasswordTitle => 'تغيير كلمة المرور';
+
+  @override
+  String get fieldCurrentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get fieldNewPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String get fieldConfirmPassword => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get changePasswordSubmit => 'تغيير كلمة المرور';
+
+  @override
+  String get changePasswordSuccess => 'تم تغيير كلمة المرور بنجاح';
+
+  @override
+  String get changePasswordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get changePasswordTooShort => 'يجب ألا تقل كلمة المرور عن 6 أحرف';
 
   @override
   String get pNavOverview => 'نظرة عامة';

@@ -31,3 +31,13 @@ export async function getCurrentUser() {
   const { data } = await apiClient.get<{ success: boolean; data: AuthUser }>('/auth/me');
   return data.data;
 }
+
+export async function changePassword(values: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  await apiClient.patch<{ success: boolean; data: { message: string } }>(
+    '/auth/change-password',
+    values,
+  );
+}

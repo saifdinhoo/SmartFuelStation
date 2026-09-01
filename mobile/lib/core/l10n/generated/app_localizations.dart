@@ -1322,17 +1322,59 @@ abstract class AppLocalizations {
   /// **'Editing your profile needs a backend endpoint that doesn\'t exist yet.'**
   String get profileEditUnsupported;
 
-  /// No description provided for @profilePasswordUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'There\'s no change-password endpoint yet.'**
-  String get profilePasswordUnsupported;
-
   /// No description provided for @profileUnavailable.
   ///
   /// In en, this message translates to:
   /// **'Unavailable'**
   String get profileUnavailable;
+
+  /// No description provided for @profileChangePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get profileChangePasswordTitle;
+
+  /// No description provided for @fieldCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get fieldCurrentPassword;
+
+  /// No description provided for @fieldNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get fieldNewPassword;
+
+  /// No description provided for @fieldConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get fieldConfirmPassword;
+
+  /// No description provided for @changePasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePasswordSubmit;
+
+  /// No description provided for @changePasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get changePasswordSuccess;
+
+  /// No description provided for @changePasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get changePasswordMismatch;
+
+  /// No description provided for @changePasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get changePasswordTooShort;
 
   /// No description provided for @pNavOverview.
   ///

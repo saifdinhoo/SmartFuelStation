@@ -45,6 +45,7 @@ import { ProviderReviewsPage } from '@/features/provider/reviews/ProviderReviews
 import { ProviderSettingsPage } from '@/features/provider/settings/ProviderSettingsPage';
 import { NotificationsPage } from '@/features/notifications/NotificationsPage';
 import { AiAssistantPage } from '@/features/ai/AiAssistantPage';
+import { CustomerSettingsPage } from '@/features/customer/settings/CustomerSettingsPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
@@ -54,13 +55,15 @@ const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
 // Every admin nav item now has a real page, so no ComingSoonPage stubs
 // remain for this role either.
 const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
-// "Find Services", "AI Assistant", and "Bookings" have real pages; the rest
-// of the customer nav is still ComingSoonPage, same convention as above.
+// "Find Services", "AI Assistant", "Bookings", and "Settings" have real
+// pages; the rest of the customer nav is still ComingSoonPage, same
+// convention as above.
 const customerSubRoutes = getNavForRole('CUSTOMER').filter(
   (item) =>
     item.path !== '/customer/search' &&
     item.path !== '/assistant' &&
-    item.path !== '/customer/bookings',
+    item.path !== '/customer/bookings' &&
+    item.path !== '/customer/settings',
 );
 
 export function AppRoutes() {
@@ -369,6 +372,18 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER']}>
                   <AuthenticatedDashboardLayout>
                     <BookingDetailsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/settings"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <CustomerSettingsPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

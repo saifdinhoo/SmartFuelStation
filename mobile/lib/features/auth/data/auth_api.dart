@@ -25,4 +25,14 @@ class AuthApi {
 
   Future<Map<String, dynamic>> currentUser() async =>
       Map<String, dynamic>.from(await _client.get('/auth/me') as Map);
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _client.patch(
+      '/auth/change-password',
+      body: {'currentPassword': currentPassword, 'newPassword': newPassword},
+    );
+  }
 }

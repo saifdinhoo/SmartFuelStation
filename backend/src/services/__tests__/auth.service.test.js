@@ -3,6 +3,7 @@ jest.mock('../../config/prisma', () => ({
     findUnique: jest.fn(),
     findMany: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
   },
 }));
 jest.mock('../../utils/password', () => ({
@@ -265,5 +266,99 @@ describe('email normalization (Phase E)', () => {
       authService.register({ name: 'Someone Else', email: 'LAYLA@SMARTAUTO.LOCAL', password: 'pw' }),
     ).rejects.toMatchObject({ statusCode: 409 });
     expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('changePassword', () => {
+  it('valid change: verifies the current password, hashes the new one, and updates only that user', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ id: 42 }));
+    comparePassword.mockResolvedValue(true);
+    const { hashPassword } = require('../../utils/password');
+    hashPassword.mockResolvedValue('new-hashed-value');
+
+    const result = await authService.changePassword({
+      userId: 42,
+      currentPassword: 'old-real-password',
+      newPassword: 'new-real-password',
+    });
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 42 } });
+    expect(comparePassword).toHaveBeenCalledWith('old-real-password', 'hashed-value-never-real');
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 42 },
+      data: { password: 'new-hashed-value' },
+    });
+    expect(result).not.toHaveProperty('password');
+  });
+
+  it('replaces the stored password outright — the old hash is never kept alongside the new one', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ id: 7, password: 'old-hashed-value' }));
+    comparePassword.mockResolvedValue(true);
+    const { hashPassword } = require('../../utils/password');
+    hashPassword.mockResolvedValue('brand-new-hashed-value');
+
+    await authService.changePassword({
+      userId: 7,
+      currentPassword: 'old-real-password',
+      newPassword: 'brand-new-real-password',
+    });
+
+    const updateCall = prisma.user.update.mock.calls[0][0];
+    expect(updateCall.data.password).toBe('brand-new-hashed-value');
+    expect(updateCall.data.password).not.toBe('old-hashed-value');
+    expect(Object.keys(updateCall.data)).toEqual(['password']);
+  });
+
+  it('rejects an incorrect current password with a 400 (not 401) so the client is never logged out for a typo', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ id: 42 }));
+    comparePassword.mockResolvedValue(false);
+
+    await expect(
+      authService.changePassword({ userId: 42, currentPassword: 'wrong', newPassword: 'new-password' }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects a new password shorter than the project minimum, before ever touching the database', async () => {
+    await expect(
+      authService.changePassword({ userId: 42, currentPassword: 'old-real-password', newPassword: 'ab1' }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects a missing currentPassword or newPassword', async () => {
+    await expect(
+      authService.changePassword({ userId: 42, currentPassword: '', newPassword: 'new-password' }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    await expect(
+      authService.changePassword({ userId: 42, currentPassword: 'old-real-password', newPassword: '' }),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('cannot target another user — the update is always scoped to the exact userId passed in, never the request body', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ id: 99 }));
+    comparePassword.mockResolvedValue(true);
+
+    await authService.changePassword({
+      userId: 99,
+      currentPassword: 'old-real-password',
+      newPassword: 'new-real-password',
+    });
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 99 } });
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 99 } }),
+    );
+  });
+
+  it('returns a safe 404 rather than crashing if the authenticated user no longer exists', async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await expect(
+      authService.changePassword({ userId: 999, currentPassword: 'x', newPassword: 'new-password' }),
+    ).rejects.toMatchObject({ statusCode: 404 });
+    expect(comparePassword).not.toHaveBeenCalled();
   });
 });

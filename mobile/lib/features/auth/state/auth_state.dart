@@ -93,6 +93,14 @@ class AuthState extends ChangeNotifier {
     await _acceptSession(result);
   }
 
+  /// The current session/token is untouched — the backend does not
+  /// invalidate it on a password change, so there is nothing to re-fetch
+  /// or re-authenticate here.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => api.changePassword(currentPassword: currentPassword, newPassword: newPassword);
+
   Future<void> _acceptSession(Map<String, dynamic> result) async {
     final token = result['token'] as String;
     await _tokens.write(token);

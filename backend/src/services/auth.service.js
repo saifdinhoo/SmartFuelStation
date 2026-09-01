@@ -115,6 +115,49 @@ async function getCurrentUser(userId) {
   return sanitizeUser(user);
 }
 
+// The minimum length enforced everywhere a password is created — matches
+// the existing web register/reset-password Zod schemas ("Password must be
+// at least 6 characters"). This is the first place it is enforced
+// server-side; register() never has, and this endpoint intentionally
+// starts holding the line the client already claims to.
+const MIN_PASSWORD_LENGTH = 6;
+
+// userId comes from the caller (the controller, which reads it only from
+// the verified JWT — never from the request body), so this can never be
+// pointed at another account. Wrong-current-password is reported as 400,
+// not 401: this request is already authenticated (a valid session/JWT got
+// it here), so a mismatched *current password* is a validation failure of
+// one submitted field, not a session failure — returning 401 here would
+// trip both the web and Flutter clients' "log the user out on 401"
+// interceptors for what is just a typo.
+async function changePassword({ userId, currentPassword, newPassword }) {
+  if (!currentPassword || !newPassword) {
+    throw badRequest('currentPassword and newPassword are required');
+  }
+  if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    throw badRequest(`newPassword must be at least ${MIN_PASSWORD_LENGTH} characters`);
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    const err = new Error('User not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const isCurrentValid = await comparePassword(currentPassword, user.password);
+  if (!isCurrentValid) {
+    throw badRequest('Current password is incorrect');
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+  // Replaces the stored hash outright — the old password stops working the
+  // instant this commits, since nothing keeps the previous hash around.
+  await prisma.user.update({ where: { id: userId }, data: { password: hashedPassword } });
+
+  return { message: 'Password changed successfully' };
+}
+
 function buildAuthResult(user) {
   const token = signToken({ userId: user.id, role: user.role });
   return { token, user: sanitizeUser(user) };
@@ -126,4 +169,4 @@ function sanitizeUser(user) {
   return rest;
 }
 
-module.exports = { register, login, getCurrentUser };
+module.exports = { register, login, getCurrentUser, changePassword };

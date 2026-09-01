@@ -253,8 +253,16 @@
   "profileNotSet": "Not set",
   "profileUnsupportedTitle": "Not available yet",
   "profileEditUnsupported": "Editing your profile needs a backend endpoint that doesn't exist yet.",
-  "profilePasswordUnsupported": "There's no change-password endpoint yet.",
   "profileUnavailable": "Unavailable",
+
+  "profileChangePasswordTitle": "Change password",
+  "fieldCurrentPassword": "Current password",
+  "fieldNewPassword": "New password",
+  "fieldConfirmPassword": "Confirm new password",
+  "changePasswordSubmit": "Change password",
+  "changePasswordSuccess": "Password changed successfully",
+  "changePasswordMismatch": "Passwords do not match",
+  "changePasswordTooShort": "Password must be at least 6 characters",
 
   "pNavOverview": "Overview",
   "pNavBookings": "Bookings",

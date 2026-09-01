@@ -29,8 +29,24 @@ async function me(req, res, next) {
   }
 }
 
+async function changePassword(req, res, next) {
+  try {
+    // userId always comes from the verified JWT, never req.body — a client
+    // can never target another account's password by shaping the body.
+    const result = await authService.changePassword({
+      userId: req.user.userId,
+      currentPassword: req.body.currentPassword,
+      newPassword: req.body.newPassword,
+    });
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
   me,
+  changePassword,
 };
