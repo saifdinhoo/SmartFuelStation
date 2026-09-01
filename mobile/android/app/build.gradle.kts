@@ -6,7 +6,11 @@ plugins {
 
 android {
     namespace = "com.smartautomotive.smart_automotive_service_app"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_secure_storage requires compiling against API 37 or higher;
+    // Flutter's own default (flutter.compileSdkVersion) currently resolves
+    // to 36. compileSdk is backward compatible, so bumping it doesn't
+    // change minSdk/targetSdk behavior.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
