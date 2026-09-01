@@ -713,6 +713,70 @@ class AppLocalizationsAr extends AppLocalizations {
   String get favoritesEmpty => 'احفظ نشاطًا تجاريًا من صفحته لتجده هنا لاحقًا.';
 
   @override
+  String get myVehiclesTitle => 'مركباتي';
+
+  @override
+  String get myVehiclesEmpty =>
+      'أضف مركبة لتكون جاهزة في المرة القادمة التي تحجز فيها خدمة.';
+
+  @override
+  String get vehicleAdd => 'إضافة مركبة';
+
+  @override
+  String get vehicleEdit => 'تعديل المركبة';
+
+  @override
+  String get vehicleMake => 'الصانع';
+
+  @override
+  String get vehicleModel => 'الطراز';
+
+  @override
+  String get vehicleYear => 'سنة الصنع';
+
+  @override
+  String get vehiclePlate => 'رقم اللوحة (اختياري)';
+
+  @override
+  String get vehicleColor => 'اللون (اختياري)';
+
+  @override
+  String get vehicleFuelType => 'نوع الوقود (اختياري)';
+
+  @override
+  String get vehicleFuelTypeNotSet => 'غير محدّد';
+
+  @override
+  String get vehicleSaveChanges => 'حفظ التغييرات';
+
+  @override
+  String get vehicleAdded => 'تمت إضافة المركبة';
+
+  @override
+  String get vehicleUpdated => 'تم تحديث المركبة';
+
+  @override
+  String get vehicleDelete => 'حذف المركبة';
+
+  @override
+  String get vehicleDeleteConfirmTitle => 'إزالة هذه المركبة؟';
+
+  @override
+  String get vehicleDeleteConfirmBody => 'لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get vehicleDeleted => 'تمت إزالة المركبة';
+
+  @override
+  String get vehicleErrorMake => 'الصانع مطلوب';
+
+  @override
+  String get vehicleErrorModel => 'الطراز مطلوب';
+
+  @override
+  String get vehicleErrorYear => 'أدخل سنة صحيحة';
+
+  @override
   String get profileTitle => 'حسابي';
 
   @override

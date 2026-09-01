@@ -150,6 +150,13 @@ class CustomerProfileScreen extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push(Routes.customerFavorites),
                 ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.directions_car_outlined),
+                  title: Text(l10n.myVehiclesTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerVehicles),
+                ),
               ],
             ),
           ),

@@ -1370,6 +1370,132 @@ abstract class AppLocalizations {
   /// **'Save a business from its page to find it here later.'**
   String get favoritesEmpty;
 
+  /// No description provided for @myVehiclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Vehicles'**
+  String get myVehiclesTitle;
+
+  /// No description provided for @myVehiclesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a vehicle so it\'s on hand the next time you book a service.'**
+  String get myVehiclesEmpty;
+
+  /// No description provided for @vehicleAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vehicle'**
+  String get vehicleAdd;
+
+  /// No description provided for @vehicleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit vehicle'**
+  String get vehicleEdit;
+
+  /// No description provided for @vehicleMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make'**
+  String get vehicleMake;
+
+  /// No description provided for @vehicleModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get vehicleModel;
+
+  /// No description provided for @vehicleYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get vehicleYear;
+
+  /// No description provided for @vehiclePlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate (optional)'**
+  String get vehiclePlate;
+
+  /// No description provided for @vehicleColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color (optional)'**
+  String get vehicleColor;
+
+  /// No description provided for @vehicleFuelType.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel type (optional)'**
+  String get vehicleFuelType;
+
+  /// No description provided for @vehicleFuelTypeNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get vehicleFuelTypeNotSet;
+
+  /// No description provided for @vehicleSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get vehicleSaveChanges;
+
+  /// No description provided for @vehicleAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle added'**
+  String get vehicleAdded;
+
+  /// No description provided for @vehicleUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle updated'**
+  String get vehicleUpdated;
+
+  /// No description provided for @vehicleDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete vehicle'**
+  String get vehicleDelete;
+
+  /// No description provided for @vehicleDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this vehicle?'**
+  String get vehicleDeleteConfirmTitle;
+
+  /// No description provided for @vehicleDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone.'**
+  String get vehicleDeleteConfirmBody;
+
+  /// No description provided for @vehicleDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle removed'**
+  String get vehicleDeleted;
+
+  /// No description provided for @vehicleErrorMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make is required'**
+  String get vehicleErrorMake;
+
+  /// No description provided for @vehicleErrorModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model is required'**
+  String get vehicleErrorModel;
+
+  /// No description provided for @vehicleErrorYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid year'**
+  String get vehicleErrorYear;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

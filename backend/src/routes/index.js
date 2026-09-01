@@ -11,6 +11,7 @@ const notificationRoutes = require('./notification.routes');
 const aiRoutes = require('./ai.routes');
 const complaintRoutes = require('./complaint.routes');
 const favoriteRoutes = require('./favorite.routes');
+const vehicleRoutes = require('./vehicle.routes');
 
 const router = express.Router();
 
@@ -27,5 +28,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/ai', aiRoutes);
 router.use('/complaints', complaintRoutes);
 router.use('/favorites', favoriteRoutes);
+router.use('/vehicles', vehicleRoutes);
 
 module.exports = router;

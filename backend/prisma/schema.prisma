@@ -94,6 +94,7 @@ model User {
   commissionUpdates    Provider[]              @relation("ProviderCommissionUpdatedBy")
   settledTransactions  FinancialTransaction[]  @relation("FinanceSettledBy")
   favorites            Favorite[]
+  vehicles             Vehicle[]
 
   @@index([role])
   @@index([createdAt])
@@ -169,6 +170,28 @@ model Favorite {
 
   @@unique([userId, providerId])
   @@index([userId])
+}
+
+// A customer's own vehicle, kept for their reference when booking (e.g.
+// "which car is this for") — not a government/VIN-verified record, and
+// there is deliberately no VIN decoding or external registry lookup here.
+// fuelType reuses the platform's existing FuelType enum rather than a
+// second, parallel definition.
+model Vehicle {
+  id        Int       @id @default(autoincrement())
+  ownerId   Int
+  make      String
+  model     String
+  year      Int
+  plate     String?
+  color     String?
+  fuelType  FuelType?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
 }
 
 enum DayOfWeek {

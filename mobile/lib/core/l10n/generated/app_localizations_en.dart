@@ -714,6 +714,70 @@ class AppLocalizationsEn extends AppLocalizations {
       'Save a business from its page to find it here later.';
 
   @override
+  String get myVehiclesTitle => 'My Vehicles';
+
+  @override
+  String get myVehiclesEmpty =>
+      'Add a vehicle so it\'s on hand the next time you book a service.';
+
+  @override
+  String get vehicleAdd => 'Add vehicle';
+
+  @override
+  String get vehicleEdit => 'Edit vehicle';
+
+  @override
+  String get vehicleMake => 'Make';
+
+  @override
+  String get vehicleModel => 'Model';
+
+  @override
+  String get vehicleYear => 'Year';
+
+  @override
+  String get vehiclePlate => 'Plate (optional)';
+
+  @override
+  String get vehicleColor => 'Color (optional)';
+
+  @override
+  String get vehicleFuelType => 'Fuel type (optional)';
+
+  @override
+  String get vehicleFuelTypeNotSet => 'Not set';
+
+  @override
+  String get vehicleSaveChanges => 'Save changes';
+
+  @override
+  String get vehicleAdded => 'Vehicle added';
+
+  @override
+  String get vehicleUpdated => 'Vehicle updated';
+
+  @override
+  String get vehicleDelete => 'Delete vehicle';
+
+  @override
+  String get vehicleDeleteConfirmTitle => 'Remove this vehicle?';
+
+  @override
+  String get vehicleDeleteConfirmBody => 'This cannot be undone.';
+
+  @override
+  String get vehicleDeleted => 'Vehicle removed';
+
+  @override
+  String get vehicleErrorMake => 'Make is required';
+
+  @override
+  String get vehicleErrorModel => 'Model is required';
+
+  @override
+  String get vehicleErrorYear => 'Enter a valid year';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override

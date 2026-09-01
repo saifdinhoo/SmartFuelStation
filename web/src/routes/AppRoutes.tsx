@@ -49,6 +49,7 @@ import { CustomerSettingsPage } from '@/features/customer/settings/CustomerSetti
 import { MyReviewsPage } from '@/features/customer/reviews/MyReviewsPage';
 import { MyComplaintsPage } from '@/features/customer/complaints/MyComplaintsPage';
 import { FavoritesPage } from '@/features/customer/favorites/FavoritesPage';
+import { MyVehiclesPage } from '@/features/customer/vehicles/MyVehiclesPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
@@ -59,8 +60,8 @@ const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
 // remain for this role either.
 const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
 // "Find Services", "AI Assistant", "Bookings", "Favorites", "Reviews",
-// "Complaints", and "Settings" have real pages; the rest of the customer
-// nav is still ComingSoonPage, same convention as above.
+// "Vehicles", "Complaints", and "Settings" have real pages; the rest of
+// the customer nav is still ComingSoonPage, same convention as above.
 const customerSubRoutes = getNavForRole('CUSTOMER').filter(
   (item) =>
     item.path !== '/customer/search' &&
@@ -68,6 +69,7 @@ const customerSubRoutes = getNavForRole('CUSTOMER').filter(
     item.path !== '/customer/bookings' &&
     item.path !== '/customer/favorites' &&
     item.path !== '/customer/reviews' &&
+    item.path !== '/customer/vehicles' &&
     item.path !== '/customer/complaints' &&
     item.path !== '/customer/settings',
 );
@@ -426,6 +428,18 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER']}>
                   <AuthenticatedDashboardLayout>
                     <MyComplaintsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/vehicles"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <MyVehiclesPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

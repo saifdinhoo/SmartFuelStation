@@ -16,6 +16,7 @@ class CacheKeys {
   static const myReviews = 'reviews/mine';
   static const myComplaints = 'complaints/mine';
   static const myFavorites = 'favorites/mine';
+  static const myVehicles = 'vehicles/mine';
 
   static String providerReviews(int id) => 'provider/$id/reviews';
   static String providerRating(int id) => 'provider/$id/rating';
@@ -419,5 +420,82 @@ class CustomerRepository {
   Future<void> removeFavorite(int providerId) async {
     await _api.delete('/favorites/$providerId');
     _cache.invalidate(CacheKeys.myFavorites);
+  }
+
+  // --- vehicles --------------------------------------------------------------
+
+  /// GET /vehicles — this customer's own vehicles. Not a government/VIN-
+  /// verified record; there is deliberately no VIN decoding.
+  Future<List<Vehicle>> _loadMyVehicles() async {
+    final raw = await _api.get('/vehicles') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((json) => Vehicle.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  AsyncValue<List<Vehicle>> watchMyVehicles() =>
+      _cache.watch(CacheKeys.myVehicles, _loadMyVehicles);
+
+  Future<List<Vehicle>> refreshMyVehicles() =>
+      _cache.refresh(CacheKeys.myVehicles, _loadMyVehicles);
+
+  Future<Vehicle> createVehicle({
+    required String make,
+    required String model,
+    required int year,
+    String? plate,
+    String? color,
+    FuelTypeModel? fuelType,
+  }) async {
+    final json =
+        await _api.post(
+              '/vehicles',
+              body: {
+                'make': make,
+                'model': model,
+                'year': year,
+                'plate': plate,
+                'color': color,
+                'fuelType': fuelType?.api,
+              },
+            )
+            as Map;
+    _cache.invalidate(CacheKeys.myVehicles);
+    return Vehicle.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  // plate/color/fuelType are always sent — as a value or explicit null,
+  // never omitted — so the backend can tell "leave unchanged" (an absent
+  // key) apart from "the customer cleared this field" (an explicit null).
+  Future<Vehicle> updateVehicle(
+    int id, {
+    required String make,
+    required String model,
+    required int year,
+    String? plate,
+    String? color,
+    FuelTypeModel? fuelType,
+  }) async {
+    final json =
+        await _api.patch(
+              '/vehicles/$id',
+              body: {
+                'make': make,
+                'model': model,
+                'year': year,
+                'plate': plate,
+                'color': color,
+                'fuelType': fuelType?.api,
+              },
+            )
+            as Map;
+    _cache.invalidate(CacheKeys.myVehicles);
+    return Vehicle.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  Future<void> deleteVehicle(int id) async {
+    await _api.delete('/vehicles/$id');
+    _cache.invalidate(CacheKeys.myVehicles);
   }
 }

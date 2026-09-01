@@ -331,6 +331,45 @@ class Favorite {
   }
 }
 
+/// A customer's own vehicle — GET/POST/PATCH/DELETE /vehicles. Kept for
+/// their reference when booking (e.g. "which car is this for"), not a
+/// government/VIN-verified record; there is deliberately no VIN decoding.
+/// [fuelType] reuses [FuelTypeModel] (defined below) but, unlike a fuel
+/// station's inventory, is genuinely optional — null must stay null, never
+/// default to gasoline95 the way [FuelTypeModel.fromApi] does for a
+/// required field.
+class Vehicle {
+  const Vehicle({
+    required this.id,
+    required this.make,
+    required this.model,
+    required this.year,
+    this.plate,
+    this.color,
+    this.fuelType,
+  });
+
+  final int id;
+  final String make;
+  final String model;
+  final int year;
+  final String? plate;
+  final String? color;
+  final FuelTypeModel? fuelType;
+
+  factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
+    id: asInt(json['id']),
+    make: asString(json['make']),
+    model: asString(json['model']),
+    year: asInt(json['year']),
+    plate: asStringOrNull(json['plate']),
+    color: asStringOrNull(json['color']),
+    fuelType: json['fuelType'] == null
+        ? null
+        : FuelTypeModel.fromApi(asStringOrNull(json['fuelType'])),
+  );
+}
+
 /// Server-side Prisma aggregation — never computed on the client.
 /// [averageRating] is null when the provider has no reviews at all, which
 /// must render as a dash rather than 0.0.
