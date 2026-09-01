@@ -13,8 +13,6 @@ import { ProviderDashboardPage } from '@/features/provider/DashboardPage';
 import { AdminDashboardPage } from '@/features/admin/DashboardPage';
 import { RoleRoute } from '@/components/auth/RoleRoute';
 import { AuthenticatedDashboardLayout } from '@/components/dashboard/AuthenticatedDashboardLayout';
-import { ComingSoonPage } from '@/components/dashboard/ComingSoonPage';
-import { getNavForRole } from '@/features/dashboard/navigation';
 import { DesignSystemPreview } from '@/pages/DesignSystemPreview';
 import { ComponentShowcase } from '@/pages/ComponentShowcase';
 import { DashboardShellPreview } from '@/pages/DashboardShellPreview';
@@ -50,29 +48,6 @@ import { MyReviewsPage } from '@/features/customer/reviews/MyReviewsPage';
 import { MyComplaintsPage } from '@/features/customer/complaints/MyComplaintsPage';
 import { FavoritesPage } from '@/features/customer/favorites/FavoritesPage';
 import { MyVehiclesPage } from '@/features/customer/vehicles/MyVehiclesPage';
-
-// Every nav item except "Overview" (which has its own real dashboard page)
-// gets a shared ComingSoonPage — the shell is done, page details are not.
-// Every provider nav item now has a real page, so no ComingSoonPage stubs
-// remain for this role.
-const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
-// Every admin nav item now has a real page, so no ComingSoonPage stubs
-// remain for this role either.
-const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
-// "Find Services", "AI Assistant", "Bookings", "Favorites", "Reviews",
-// "Vehicles", "Complaints", and "Settings" have real pages; the rest of
-// the customer nav is still ComingSoonPage, same convention as above.
-const customerSubRoutes = getNavForRole('CUSTOMER').filter(
-  (item) =>
-    item.path !== '/customer/search' &&
-    item.path !== '/assistant' &&
-    item.path !== '/customer/bookings' &&
-    item.path !== '/customer/favorites' &&
-    item.path !== '/customer/reviews' &&
-    item.path !== '/customer/vehicles' &&
-    item.path !== '/customer/complaints' &&
-    item.path !== '/customer/settings',
-);
 
 export function AppRoutes() {
   const location = useLocation();
@@ -259,21 +234,6 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
-          {providerSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['PROVIDER']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
           <Route
             path="/admin/dashboard"
             element={
@@ -305,21 +265,6 @@ export function AppRoutes() {
                 <PageTransition>
                   <RoleRoute roles={['ADMIN']}>
                     <AuthenticatedDashboardLayout>{element}</AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
-          {adminSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['ADMIN']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
                   </RoleRoute>
                 </PageTransition>
               }
@@ -445,21 +390,6 @@ export function AppRoutes() {
               </PageTransition>
             }
           />
-          {customerSubRoutes.map((item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={
-                <PageTransition>
-                  <RoleRoute roles={['CUSTOMER']}>
-                    <AuthenticatedDashboardLayout>
-                      <ComingSoonPage />
-                    </AuthenticatedDashboardLayout>
-                  </RoleRoute>
-                </PageTransition>
-              }
-            />
-          ))}
           <Route
             path="/notifications"
             element={
