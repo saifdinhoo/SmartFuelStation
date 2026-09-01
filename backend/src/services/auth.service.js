@@ -190,7 +190,7 @@ async function requestPasswordReset(email) {
     },
   });
 
-  const resetUrl = `${env.frontendUrl}/reset-password?token=${token}`;
+  const resetUrl = `${env.webAppUrl}/reset-password?token=${token}`;
   await emailService.sendPasswordResetEmail({ to: user.email, resetUrl });
 }
 

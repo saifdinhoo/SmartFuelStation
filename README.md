@@ -78,7 +78,13 @@ Copy `backend/.env.example` to `backend/.env` and fill in real values before run
 - `GEMINI_API_KEY` — the AI Assistant. Without it, AI requests fail with a real error instead of a canned reply.
 - `GOOGLE_TRANSLATE_API_KEY` — the translate-this-review/description feature.
 - `LIVE_CAMERA_STREAM_URL` — the one demo gas station's live camera. Without it, every camera-enabled provider reports OFFLINE rather than a fabricated LIVE.
-- `GMAIL_USER` / `GMAIL_APP_PASSWORD` — password-reset email (Gmail SMTP). Without them, forgot-password still works end-to-end (the token is created and consumable), but the email is only logged server-side instead of actually sent — see `backend/.env.example` for how to generate a Gmail App Password.
+- `GMAIL_USER` / `GMAIL_APP_PASSWORD` / `WEB_APP_URL` — real password-reset email delivery (Gmail SMTP). Without `GMAIL_USER`/`GMAIL_APP_PASSWORD`, forgot-password still works end-to-end (the token is created and consumable), but no email actually goes out. To enable real delivery:
+  1. Enable 2-Step Verification on the sending Google Account.
+  2. Create a Google [App Password](https://myaccount.google.com/apppasswords).
+  3. Set `GMAIL_USER` to that Gmail address.
+  4. Set `GMAIL_APP_PASSWORD` to the App Password.
+  5. Set `WEB_APP_URL` to the real web app origin (default `http://localhost:5173` is already correct for local development).
+  6. Restart the backend.
 
 ## Web
 

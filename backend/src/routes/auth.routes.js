@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth');
+const { forgotPasswordLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
@@ -18,8 +19,10 @@ router.get('/me', authenticate, authController.me);
 router.patch('/change-password', authenticate, authController.changePassword);
 
 // POST /api/auth/forgot-password — public; always responds the same way
-// regardless of whether the email is registered.
-router.post('/forgot-password', authController.forgotPassword);
+// regardless of whether the email is registered. Rate-limited by IP (not
+// by email — see rateLimit.js) since this is the one endpoint that can
+// trigger a real email send per request.
+router.post('/forgot-password', forgotPasswordLimiter, authController.forgotPassword);
 
 // POST /api/auth/reset-password — public; the token itself (not a
 // session) is what authorizes this request.
