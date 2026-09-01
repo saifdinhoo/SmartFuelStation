@@ -45,6 +45,8 @@ npm run db:studio
 - `QueueEntry`: walk-ins and booked customers in each provider's live queue
 - `Review`: one verified review per booking
 - `Complaint`: customer moderation reports
+- `Favorite`: a customer's saved businesses, shared and persisted across Web and Flutter
+- `Vehicle`: a customer's own vehicles, kept for reference when booking
 - `PasswordResetToken`: hashed, expiring password-reset records
 
 Foreign keys, unique indexes, query indexes, enums, and PostgreSQL `CHECK` constraints protect relational integrity.
@@ -70,3 +72,38 @@ npm run dev
 ```
 
 Check both the API and database connection at `http://localhost:5000/health`.
+
+Copy `backend/.env.example` to `backend/.env` and fill in real values before running. `DATABASE_URL` and `JWT_SECRET` are required; everything else is optional and the affected feature degrades honestly (never fakes success) when left unset:
+
+- `GEMINI_API_KEY` — the AI Assistant. Without it, AI requests fail with a real error instead of a canned reply.
+- `GOOGLE_TRANSLATE_API_KEY` — the translate-this-review/description feature.
+- `LIVE_CAMERA_STREAM_URL` — the one demo gas station's live camera. Without it, every camera-enabled provider reports OFFLINE rather than a fabricated LIVE.
+- `GMAIL_USER` / `GMAIL_APP_PASSWORD` — password-reset email (Gmail SMTP). Without them, forgot-password still works end-to-end (the token is created and consumable), but the email is only logged server-side instead of actually sent — see `backend/.env.example` for how to generate a Gmail App Password.
+
+## Web
+
+```powershell
+cd web
+npm install
+npm run dev
+```
+
+Runs on `http://localhost:5173` by default. Copy `web/.env.example` to `web/.env` first — `VITE_API_URL` should point at the backend's `/api` base (`http://localhost:5000/api` for local development).
+
+Other scripts: `npm run build` (type-check + production build), `npm run lint`, `npm test` (Vitest).
+
+## Mobile (Flutter)
+
+```powershell
+cd mobile
+flutter pub get
+flutter run
+```
+
+The backend host is resolved automatically per platform (`10.0.2.2` for the Android emulator, `localhost` for iOS simulator/desktop/web) — no configuration needed for local development. For a physical device, or a backend that isn't on `localhost:5000`, pass the real address explicitly:
+
+```powershell
+flutter run --dart-define=API_BASE_URL=http://<your-machine-ip>:5000/api
+```
+
+Other commands: `flutter analyze`, `flutter test`.
