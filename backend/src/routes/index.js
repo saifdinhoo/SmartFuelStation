@@ -9,6 +9,7 @@ const queueRoutes = require('./queue.routes');
 const adminRoutes = require('./admin.routes');
 const notificationRoutes = require('./notification.routes');
 const aiRoutes = require('./ai.routes');
+const complaintRoutes = require('./complaint.routes');
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/queue', queueRoutes);
 router.use('/admin', adminRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/ai', aiRoutes);
+router.use('/complaints', complaintRoutes);
 
 module.exports = router;

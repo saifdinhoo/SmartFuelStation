@@ -35,6 +35,7 @@ const customerNav: NavItem[] = [
   { label: 'Favorites', path: '/customer/favorites', icon: Heart },
   { label: 'Reviews', path: '/customer/reviews', icon: Star },
   { label: 'Vehicles', path: '/customer/vehicles', icon: Car },
+  { label: 'Complaints', path: '/customer/complaints', icon: MessageSquareWarning },
   { label: 'Settings', path: '/customer/settings', icon: Settings },
 ];
 

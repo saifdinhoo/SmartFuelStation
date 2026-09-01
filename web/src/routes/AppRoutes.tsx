@@ -47,6 +47,7 @@ import { NotificationsPage } from '@/features/notifications/NotificationsPage';
 import { AiAssistantPage } from '@/features/ai/AiAssistantPage';
 import { CustomerSettingsPage } from '@/features/customer/settings/CustomerSettingsPage';
 import { MyReviewsPage } from '@/features/customer/reviews/MyReviewsPage';
+import { MyComplaintsPage } from '@/features/customer/complaints/MyComplaintsPage';
 
 // Every nav item except "Overview" (which has its own real dashboard page)
 // gets a shared ComingSoonPage — the shell is done, page details are not.
@@ -56,15 +57,16 @@ const providerSubRoutes: ReturnType<typeof getNavForRole> = [];
 // Every admin nav item now has a real page, so no ComingSoonPage stubs
 // remain for this role either.
 const adminSubRoutes: ReturnType<typeof getNavForRole> = [];
-// "Find Services", "AI Assistant", "Bookings", "Reviews", and "Settings"
-// have real pages; the rest of the customer nav is still ComingSoonPage,
-// same convention as above.
+// "Find Services", "AI Assistant", "Bookings", "Reviews", "Complaints", and
+// "Settings" have real pages; the rest of the customer nav is still
+// ComingSoonPage, same convention as above.
 const customerSubRoutes = getNavForRole('CUSTOMER').filter(
   (item) =>
     item.path !== '/customer/search' &&
     item.path !== '/assistant' &&
     item.path !== '/customer/bookings' &&
     item.path !== '/customer/reviews' &&
+    item.path !== '/customer/complaints' &&
     item.path !== '/customer/settings',
 );
 
@@ -398,6 +400,18 @@ export function AppRoutes() {
                 <RoleRoute roles={['CUSTOMER']}>
                   <AuthenticatedDashboardLayout>
                     <MyReviewsPage />
+                  </AuthenticatedDashboardLayout>
+                </RoleRoute>
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/customer/complaints"
+            element={
+              <PageTransition>
+                <RoleRoute roles={['CUSTOMER']}>
+                  <AuthenticatedDashboardLayout>
+                    <MyComplaintsPage />
                   </AuthenticatedDashboardLayout>
                 </RoleRoute>
               </PageTransition>

@@ -674,6 +674,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myReviewsEmpty => 'You haven\'t reviewed any bookings yet.';
 
   @override
+  String get myComplaintsTitle => 'My Complaints';
+
+  @override
+  String get myComplaintsEmpty => 'You haven\'t filed any complaints.';
+
+  @override
+  String get complaintFile => 'File a complaint';
+
+  @override
+  String get complaintFileTitle => 'File a complaint';
+
+  @override
+  String get complaintBusiness => 'Business';
+
+  @override
+  String get complaintSubject => 'Subject';
+
+  @override
+  String get complaintSeverity => 'Severity';
+
+  @override
+  String get complaintDetails => 'Details (optional)';
+
+  @override
+  String get complaintSubmit => 'Submit complaint';
+
+  @override
+  String get complaintSubmitted => 'Complaint submitted';
+
+  @override
+  String get complaintErrorProvider => 'Choose a business';
+
+  @override
+  String get complaintErrorSubject => 'Subject is required';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override

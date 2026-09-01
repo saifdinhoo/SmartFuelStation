@@ -1,3 +1,4 @@
+import '../../../core/models/admin_models.dart' show Complaint, ComplaintSeverity;
 import '../../../core/models/live_camera_models.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/state/async_value.dart';
@@ -13,6 +14,7 @@ class CacheKeys {
   static const bookings = 'bookings';
   static const myQueue = 'queue/mine';
   static const myReviews = 'reviews/mine';
+  static const myComplaints = 'complaints/mine';
 
   static String providerReviews(int id) => 'provider/$id/reviews';
   static String providerRating(int id) => 'provider/$id/rating';
@@ -338,4 +340,49 @@ class CustomerRepository {
 
   Future<List<MyReview>> refreshMyReviews() =>
       _cache.refresh(CacheKeys.myReviews, _loadMyReviews);
+
+  // --- complaints ------------------------------------------------------------
+
+  /// GET /complaints/me — this customer's own filed complaints. The same
+  /// [Complaint] model admin's triage screen already uses; the
+  /// `submittedBy*` fields are simply absent from this response (the
+  /// customer already knows who filed it), which [Complaint.fromJson]
+  /// already handles as optional.
+  Future<List<Complaint>> _loadMyComplaints() async {
+    final raw = await _api.get('/complaints/me') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((json) => Complaint.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  AsyncValue<List<Complaint>> watchMyComplaints() =>
+      _cache.watch(CacheKeys.myComplaints, _loadMyComplaints);
+
+  Future<List<Complaint>> refreshMyComplaints() =>
+      _cache.refresh(CacheKeys.myComplaints, _loadMyComplaints);
+
+  /// POST /complaints requires a real provider; customerId always comes
+  /// from the verified JWT server-side, never sent from here.
+  Future<Complaint> submitComplaint({
+    required int providerId,
+    required String subject,
+    String? details,
+    ComplaintSeverity severity = ComplaintSeverity.medium,
+  }) async {
+    final json =
+        await _api.post(
+              '/complaints',
+              body: {
+                'providerId': providerId,
+                'subject': subject,
+                'severity': severity.api,
+                if (details != null && details.trim().isNotEmpty)
+                  'details': details.trim(),
+              },
+            )
+            as Map;
+    _cache.invalidate(CacheKeys.myComplaints);
+    return Complaint.fromJson(Map<String, dynamic>.from(json));
+  }
 }

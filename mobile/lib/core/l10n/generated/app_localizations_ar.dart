@@ -674,6 +674,42 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myReviewsEmpty => 'لم تقيّم أي حجوزات بعد.';
 
   @override
+  String get myComplaintsTitle => 'شكاواي';
+
+  @override
+  String get myComplaintsEmpty => 'لم تقدّم أي شكاوى بعد.';
+
+  @override
+  String get complaintFile => 'تقديم شكوى';
+
+  @override
+  String get complaintFileTitle => 'تقديم شكوى';
+
+  @override
+  String get complaintBusiness => 'النشاط التجاري';
+
+  @override
+  String get complaintSubject => 'الموضوع';
+
+  @override
+  String get complaintSeverity => 'الخطورة';
+
+  @override
+  String get complaintDetails => 'التفاصيل (اختياري)';
+
+  @override
+  String get complaintSubmit => 'إرسال الشكوى';
+
+  @override
+  String get complaintSubmitted => 'تم إرسال الشكوى';
+
+  @override
+  String get complaintErrorProvider => 'اختر نشاطًا تجاريًا';
+
+  @override
+  String get complaintErrorSubject => 'الموضوع مطلوب';
+
+  @override
   String get profileTitle => 'حسابي';
 
   @override

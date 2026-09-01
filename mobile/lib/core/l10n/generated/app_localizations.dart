@@ -1292,6 +1292,78 @@ abstract class AppLocalizations {
   /// **'You haven\'t reviewed any bookings yet.'**
   String get myReviewsEmpty;
 
+  /// No description provided for @myComplaintsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Complaints'**
+  String get myComplaintsTitle;
+
+  /// No description provided for @myComplaintsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t filed any complaints.'**
+  String get myComplaintsEmpty;
+
+  /// No description provided for @complaintFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File a complaint'**
+  String get complaintFile;
+
+  /// No description provided for @complaintFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'File a complaint'**
+  String get complaintFileTitle;
+
+  /// No description provided for @complaintBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get complaintBusiness;
+
+  /// No description provided for @complaintSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get complaintSubject;
+
+  /// No description provided for @complaintSeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity'**
+  String get complaintSeverity;
+
+  /// No description provided for @complaintDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get complaintDetails;
+
+  /// No description provided for @complaintSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit complaint'**
+  String get complaintSubmit;
+
+  /// No description provided for @complaintSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint submitted'**
+  String get complaintSubmitted;
+
+  /// No description provided for @complaintErrorProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a business'**
+  String get complaintErrorProvider;
+
+  /// No description provided for @complaintErrorSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject is required'**
+  String get complaintErrorSubject;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

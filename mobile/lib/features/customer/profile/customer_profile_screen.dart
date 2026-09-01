@@ -128,11 +128,22 @@ class CustomerProfileScreen extends StatelessWidget {
 
           const SizedBox(height: 20),
           Card(
-            child: ListTile(
-              leading: const Icon(Icons.star_outline_rounded),
-              title: Text(l10n.myReviewsTitle),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(Routes.customerReviews),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.star_outline_rounded),
+                  title: Text(l10n.myReviewsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerReviews),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.report_gmailerrorred_outlined),
+                  title: Text(l10n.myComplaintsTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(Routes.customerComplaints),
+                ),
+              ],
             ),
           ),
 
