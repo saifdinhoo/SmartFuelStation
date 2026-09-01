@@ -36,8 +36,16 @@
 
   "loginSubmitting": "Logging in…",
   "loginNoAccount": "No account? Register",
+  "loginForgotPassword": "Forgot password?",
   "registerSubmitting": "Registering…",
   "registerProviderNotice": "Your provider account will need admin approval before it's active.",
+
+  "forgotPasswordTitle": "Forgot your password?",
+  "forgotPasswordSubtitle": "We'll email you a link to reset it",
+  "forgotPasswordSubmit": "Send reset link",
+  "forgotPasswordCheckEmailTitle": "Check your email",
+  "forgotPasswordCheckEmailBody": "If an account exists for that email, we've sent a link to reset your password. Open it on this phone or any device to finish resetting your password.",
+  "forgotPasswordBackToLogin": "Back to login",
 
   "navDashboard": "Dashboard",
   "navCategories": "Categories",

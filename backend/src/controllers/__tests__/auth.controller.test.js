@@ -64,3 +64,64 @@ describe('changePassword', () => {
     expect(res.json).not.toHaveBeenCalled();
   });
 });
+
+describe('forgotPassword', () => {
+  it('always responds the same generic message, regardless of what the service did internally', async () => {
+    authService.requestPasswordReset.mockResolvedValue(undefined);
+    const req = { body: { email: 'user@example.com' } };
+    const res = fakeRes();
+
+    await authController.forgotPassword(req, res, jest.fn());
+
+    expect(authService.requestPasswordReset).toHaveBeenCalledWith('user@example.com');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: { message: expect.any(String) },
+    });
+  });
+
+  it('gives the identical response for an unknown email too — same call, same shape', async () => {
+    authService.requestPasswordReset.mockResolvedValue(undefined);
+    const req = { body: { email: 'nobody@example.com' } };
+    const res = fakeRes();
+
+    await authController.forgotPassword(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: { message: expect.any(String) },
+    });
+  });
+});
+
+describe('resetPassword (public token flow)', () => {
+  it('passes the token and newPassword from the body straight through — there is no req.user to source from', async () => {
+    authService.resetPassword.mockResolvedValue({ message: 'Password reset successfully' });
+    const req = { body: { token: 'raw-token-value', newPassword: 'new-real-password' } };
+    const res = fakeRes();
+
+    await authController.resetPassword(req, res, jest.fn());
+
+    expect(authService.resetPassword).toHaveBeenCalledWith({
+      token: 'raw-token-value',
+      newPassword: 'new-real-password',
+    });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('passes an invalid/expired-token error to next() rather than leaking which case it was', async () => {
+    const err = new Error('This reset link is invalid or has expired');
+    err.statusCode = 400;
+    authService.resetPassword.mockRejectedValue(err);
+    const req = { body: { token: 'bad-token', newPassword: 'new-real-password' } };
+    const res = fakeRes();
+    const next = jest.fn();
+
+    await authController.resetPassword(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(err);
+    expect(res.json).not.toHaveBeenCalled();
+  });
+});

@@ -10,4 +10,7 @@ module.exports = {
   googleTranslateApiKey: process.env.GOOGLE_TRANSLATE_API_KEY,
   aiProvider: process.env.AI_PROVIDER || 'gemini',
   geminiApiKey: process.env.GEMINI_API_KEY,
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  gmailUser: process.env.GMAIL_USER,
+  gmailAppPassword: process.env.GMAIL_APP_PASSWORD,
 };

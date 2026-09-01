@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'No account? Register'**
   String get loginNoAccount;
 
+  /// No description provided for @loginForgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get loginForgotPassword;
+
   /// No description provided for @registerSubmitting.
   ///
   /// In en, this message translates to:
@@ -289,6 +295,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your provider account will need admin approval before it\'s active.'**
   String get registerProviderNotice;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll email you a link to reset it'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @forgotPasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotPasswordSubmit;
+
+  /// No description provided for @forgotPasswordCheckEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get forgotPasswordCheckEmailTitle;
+
+  /// No description provided for @forgotPasswordCheckEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for that email, we\'ve sent a link to reset your password. Open it on this phone or any device to finish resetting your password.'**
+  String get forgotPasswordCheckEmailBody;
+
+  /// No description provided for @forgotPasswordBackToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get forgotPasswordBackToLogin;
 
   /// No description provided for @navDashboard.
   ///

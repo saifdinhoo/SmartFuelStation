@@ -28,3 +28,24 @@ describe('PATCH /change-password route wiring', () => {
     expect(middlewareNames).not.toContain('authorize');
   });
 });
+
+// forgot-password/reset-password are public by design — the token itself
+// (not a session) is what authorizes reset-password, and forgot-password
+// must be reachable by a logged-out visitor who forgot their password.
+describe('POST /forgot-password and /reset-password route wiring', () => {
+  it('POST /forgot-password has no authenticate middleware', () => {
+    const layer = authRoutes.stack.find(
+      (l) => l.route && l.route.path === '/forgot-password' && l.route.methods.post,
+    );
+    expect(layer).toBeDefined();
+    expect(layer.route.stack.map((l) => l.name)).toEqual(['forgotPassword']);
+  });
+
+  it('POST /reset-password has no authenticate middleware', () => {
+    const layer = authRoutes.stack.find(
+      (l) => l.route && l.route.path === '/reset-password' && l.route.methods.post,
+    );
+    expect(layer).toBeDefined();
+    expect(layer.route.stack.map((l) => l.name)).toEqual(['resetPassword']);
+  });
+});

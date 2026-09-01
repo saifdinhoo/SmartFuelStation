@@ -19,6 +19,7 @@ import '../features/admin/shell/admin_shell.dart';
 import '../features/admin/users/admin_user_details_screen.dart';
 import '../features/admin/users/admin_users_screen.dart';
 import '../features/ai/screens/ai_assistant_screen.dart';
+import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/state/auth_state.dart';
@@ -57,6 +58,7 @@ class Routes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  static const forgotPassword = '/forgot-password';
   static const unauthorized = '/unauthorized';
 
   // Admin area.
@@ -182,6 +184,10 @@ GoRouter createRouter(AuthState auth) {
       ),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
+      GoRoute(
+        path: Routes.forgotPassword,
+        builder: (_, _) => const ForgotPasswordScreen(),
+      ),
       GoRoute(
         path: Routes.unauthorized,
         builder: (_, _) => const UnauthorizedScreen(),

@@ -44,9 +44,38 @@ async function changePassword(req, res, next) {
   }
 }
 
+// Always the same response whether or not the email belongs to a real
+// account — authService.requestPasswordReset() itself is a silent no-op
+// for an unknown email, so there is nothing here to branch on.
+async function forgotPassword(req, res, next) {
+  try {
+    await authService.requestPasswordReset(req.body.email);
+    res.status(200).json({
+      success: true,
+      data: { message: 'If an account exists for that email, a reset link has been sent.' },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const result = await authService.resetPassword({
+      token: req.body.token,
+      newPassword: req.body.newPassword,
+    });
+    res.status(200).json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
   me,
   changePassword,
+  forgotPassword,
+  resetPassword,
 };

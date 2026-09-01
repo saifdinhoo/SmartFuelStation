@@ -99,11 +99,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginNoAccount => 'No account? Register';
 
   @override
+  String get loginForgotPassword => 'Forgot password?';
+
+  @override
   String get registerSubmitting => 'Registering…';
 
   @override
   String get registerProviderNotice =>
       'Your provider account will need admin approval before it\'s active.';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot your password?';
+
+  @override
+  String get forgotPasswordSubtitle => 'We\'ll email you a link to reset it';
+
+  @override
+  String get forgotPasswordSubmit => 'Send reset link';
+
+  @override
+  String get forgotPasswordCheckEmailTitle => 'Check your email';
+
+  @override
+  String get forgotPasswordCheckEmailBody =>
+      'If an account exists for that email, we\'ve sent a link to reset your password. Open it on this phone or any device to finish resetting your password.';
+
+  @override
+  String get forgotPasswordBackToLogin => 'Back to login';
 
   @override
   String get navDashboard => 'Dashboard';

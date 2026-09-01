@@ -99,11 +99,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginNoAccount => 'ليس لديك حساب؟ أنشئ حسابًا';
 
   @override
+  String get loginForgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
   String get registerSubmitting => 'جارٍ إنشاء الحساب…';
 
   @override
   String get registerProviderNotice =>
       'يحتاج حساب مقدّم الخدمة إلى موافقة المشرف قبل تفعيله.';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordSubtitle => 'سنرسل إليك رابطًا لإعادة تعيينها';
+
+  @override
+  String get forgotPasswordSubmit => 'إرسال رابط إعادة التعيين';
+
+  @override
+  String get forgotPasswordCheckEmailTitle => 'تحقق من بريدك الإلكتروني';
+
+  @override
+  String get forgotPasswordCheckEmailBody =>
+      'إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فقد أرسلنا رابطًا لإعادة تعيين كلمة المرور. افتحه على هذا الهاتف أو أي جهاز آخر لإتمام إعادة تعيين كلمة المرور.';
+
+  @override
+  String get forgotPasswordBackToLogin => 'العودة لتسجيل الدخول';
 
   @override
   String get navDashboard => 'الرئيسية';

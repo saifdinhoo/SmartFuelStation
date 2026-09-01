@@ -36,8 +36,16 @@
 
   "loginSubmitting": "جارٍ تسجيل الدخول…",
   "loginNoAccount": "ليس لديك حساب؟ أنشئ حسابًا",
+  "loginForgotPassword": "نسيت كلمة المرور؟",
   "registerSubmitting": "جارٍ إنشاء الحساب…",
   "registerProviderNotice": "يحتاج حساب مقدّم الخدمة إلى موافقة المشرف قبل تفعيله.",
+
+  "forgotPasswordTitle": "نسيت كلمة المرور؟",
+  "forgotPasswordSubtitle": "سنرسل إليك رابطًا لإعادة تعيينها",
+  "forgotPasswordSubmit": "إرسال رابط إعادة التعيين",
+  "forgotPasswordCheckEmailTitle": "تحقق من بريدك الإلكتروني",
+  "forgotPasswordCheckEmailBody": "إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فقد أرسلنا رابطًا لإعادة تعيين كلمة المرور. افتحه على هذا الهاتف أو أي جهاز آخر لإتمام إعادة تعيين كلمة المرور.",
+  "forgotPasswordBackToLogin": "العودة لتسجيل الدخول",
 
   "navDashboard": "الرئيسية",
   "navCategories": "الفئات",

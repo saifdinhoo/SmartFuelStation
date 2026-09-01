@@ -7,16 +7,15 @@ import { ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import { resetPassword } from './authApi';
 import { resetPasswordSchema, type ResetPasswordFormValues } from './resetPasswordSchema';
-import { resetPassword } from './mockPasswordResetApi';
 
-// Placeholder page: the real flow needs a backend reset-password endpoint
-// that doesn't exist yet. This validates the form and simulates the call
-// so the UI/UX is ready to wire up once that endpoint exists.
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [submitted, setSubmitted] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -24,8 +23,13 @@ export function ResetPasswordPage() {
   } = useForm<ResetPasswordFormValues>({ resolver: zodResolver(resetPasswordSchema) });
 
   async function onSubmit(values: ResetPasswordFormValues) {
-    await resetPassword(token ?? '', values.password);
-    setSubmitted(true);
+    setServerError(null);
+    try {
+      await resetPassword(token ?? '', values.password);
+      setSubmitted(true);
+    } catch (err) {
+      setServerError(getErrorMessage(err, 'This reset link is invalid or has expired.'));
+    }
   }
 
   return (
@@ -58,6 +62,12 @@ export function ResetPasswordPage() {
             {!token && (
               <Alert variant="warning" title="Missing reset token" className="mb-4">
                 This link looks incomplete. Request a new one from the forgot password page.
+              </Alert>
+            )}
+
+            {serverError && (
+              <Alert variant="destructive" title="Could not reset password" className="mb-4">
+                {serverError}
               </Alert>
             )}
 

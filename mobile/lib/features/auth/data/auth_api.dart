@@ -35,4 +35,10 @@ class AuthApi {
       body: {'currentPassword': currentPassword, 'newPassword': newPassword},
     );
   }
+
+  /// Always succeeds the same way whether or not the email belongs to a
+  /// real account — the backend's response never reveals which.
+  Future<void> requestPasswordReset(String email) async {
+    await _client.post('/auth/forgot-password', body: {'email': email});
+  }
 }
