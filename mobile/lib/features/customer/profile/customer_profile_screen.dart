@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../app/router.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../core/network/api_exception.dart';
@@ -121,6 +123,16 @@ class CustomerProfileScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.star_outline_rounded),
+              title: Text(l10n.myReviewsTitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(Routes.customerReviews),
             ),
           ),
 

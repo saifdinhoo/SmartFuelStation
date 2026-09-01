@@ -115,6 +115,20 @@ Widget _harness({required AuthState auth}) {
   );
 }
 
+/// The Change Password section sits below other real profile content (the
+/// My Reviews link, etc.), so in the test's fixed-size viewport it starts
+/// off past what `ListView`'s sliver has actually mounted — `ensureVisible`
+/// alone can't bring a not-yet-mounted widget into view, so this scrolls
+/// incrementally until the target itself first appears.
+Future<void> _scrollToChangePassword(WidgetTester tester) async {
+  await tester.scrollUntilVisible(
+    find.text('Current password'),
+    300,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() => TestWidgetsFlutterBinding.ensureInitialized());
   setUp(() {
@@ -186,6 +200,7 @@ void main() {
       final auth = await fakeAuthState(_FakeAuthApi());
       await tester.pumpWidget(_harness(auth: auth));
       await tester.pumpAndSettle();
+      await _scrollToChangePassword(tester);
 
       expect(find.text('Current password'), findsOneWidget);
       expect(find.text('New password'), findsOneWidget);
@@ -201,6 +216,7 @@ void main() {
       final auth = await fakeAuthState(api);
       await tester.pumpWidget(_harness(auth: auth));
       await tester.pumpAndSettle();
+      await _scrollToChangePassword(tester);
 
       await tester.enterText(find.widgetWithText(TextField, 'Current password'), 'demo123');
       await tester.enterText(find.widgetWithText(TextField, 'New password'), 'new-real-pw');
@@ -219,6 +235,7 @@ void main() {
       final auth = await fakeAuthState(_FakeAuthApi());
       await tester.pumpWidget(_harness(auth: auth));
       await tester.pumpAndSettle();
+      await _scrollToChangePassword(tester);
 
       await tester.enterText(find.widgetWithText(TextField, 'Current password'), 'demo123');
       await tester.enterText(find.widgetWithText(TextField, 'New password'), 'abc');
@@ -237,6 +254,7 @@ void main() {
       final auth = await fakeAuthState(_FakeAuthApi());
       await tester.pumpWidget(_harness(auth: auth));
       await tester.pumpAndSettle();
+      await _scrollToChangePassword(tester);
 
       await tester.enterText(find.widgetWithText(TextField, 'Current password'), 'demo123');
       await tester.enterText(find.widgetWithText(TextField, 'New password'), 'new-real-pw');
@@ -260,6 +278,7 @@ void main() {
       final auth = await fakeAuthState(api);
       await tester.pumpWidget(_harness(auth: auth));
       await tester.pumpAndSettle();
+      await _scrollToChangePassword(tester);
 
       await tester.enterText(find.widgetWithText(TextField, 'Current password'), 'wrong');
       await tester.enterText(find.widgetWithText(TextField, 'New password'), 'new-real-pw');

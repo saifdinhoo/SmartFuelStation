@@ -23,4 +23,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, remove };
+async function listMine(req, res, next) {
+  try {
+    const reviews = await reviewService.listMyReviews(req.user.userId);
+    res.status(200).json({ success: true, data: reviews });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, remove, listMine };

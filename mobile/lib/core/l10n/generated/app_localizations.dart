@@ -1280,6 +1280,18 @@ abstract class AppLocalizations {
   /// **'You can review a business after they complete your booking.'**
   String get reviewOnlyAfterCompleted;
 
+  /// No description provided for @myReviewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reviews'**
+  String get myReviewsTitle;
+
+  /// No description provided for @myReviewsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t reviewed any bookings yet.'**
+  String get myReviewsEmpty;
+
   /// No description provided for @profileTitle.
   ///
   /// In en, this message translates to:

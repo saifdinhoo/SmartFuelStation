@@ -116,6 +116,30 @@ describe('createReview', () => {
   });
 });
 
+describe('listMyReviews', () => {
+  it('only ever queries by the given customerId — never another customer\'s reviews', async () => {
+    prisma.review.findMany.mockResolvedValue([]);
+
+    await reviewService.listMyReviews(33);
+
+    expect(prisma.review.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { customerId: 33 } }),
+    );
+  });
+
+  it('returns newest first, with the provider business name attached', async () => {
+    const rows = [{ id: 9, rating: 4, provider: { id: 2, businessName: 'Al-Nour Auto' } }];
+    prisma.review.findMany.mockResolvedValue(rows);
+
+    const result = await reviewService.listMyReviews(33);
+
+    expect(result).toBe(rows);
+    expect(prisma.review.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } }),
+    );
+  });
+});
+
 describe('listProviderReviews / getProviderRatingSummary permissions', () => {
   it('404s when the provider does not exist', async () => {
     prisma.provider.findUnique.mockResolvedValue(null);

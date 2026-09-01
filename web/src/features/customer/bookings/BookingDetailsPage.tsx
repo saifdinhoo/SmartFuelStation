@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Ban, Calendar, MapPin, Wrench } from 'lucide-react';
+import { ArrowLeft, Ban, Calendar, MapPin, Star, Wrench } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { CustomerQueueStatusCard } from '@/features/customer/queue/CustomerQueueStatusCard';
+import { CreateReviewModal } from '@/features/customer/reviews/CreateReviewModal';
 import { useBookingDetails } from './useBookingDetails';
 import { useCancelBooking } from './useCancelBooking';
 import { BookingStatusBadge } from './BookingStatusBadge';
@@ -21,6 +22,7 @@ export function BookingDetailsPage() {
   const { booking, isPending, isError, errorMessage, reload } = useBookingDetails(id ?? '');
   const { cancelBooking, isPending: isCancelling } = useCancelBooking();
   const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
 
   async function handleConfirmCancel() {
     if (!booking) return;
@@ -125,6 +127,22 @@ export function BookingDetailsPage() {
               </Button>
             </div>
           )}
+
+          {booking.status === 'COMPLETED' && (
+            <div>
+              {booking.review ? (
+                <p className="text-body-sm flex items-center gap-1.5 text-muted-foreground">
+                  <Star className="h-4 w-4 fill-warning text-warning" />
+                  You already reviewed this booking.
+                </p>
+              ) : (
+                <Button variant="secondary" onClick={() => setReviewing(true)}>
+                  <Star className="h-4 w-4" />
+                  Leave a review
+                </Button>
+              )}
+            </div>
+          )}
         </Reveal>
       )}
 
@@ -138,6 +156,15 @@ export function BookingDetailsPage() {
         danger
         isLoading={isCancelling}
       />
+
+      {booking && (
+        <CreateReviewModal
+          open={reviewing}
+          onClose={() => setReviewing(false)}
+          bookingId={booking.id}
+          businessName={booking.providerService.provider.businessName}
+        />
+      )}
     </div>
   );
 }

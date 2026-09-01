@@ -258,6 +258,43 @@ class Review {
   }
 }
 
+/// One of the current customer's own reviews — GET /reviews/me. A distinct
+/// shape from [Review] (which is the provider-facing "who reviewed me"
+/// list, keyed by customer): this one is keyed by which provider it was
+/// for, since the customer already knows they wrote it.
+class MyReview {
+  const MyReview({
+    required this.id,
+    required this.rating,
+    required this.createdAt,
+    required this.providerId,
+    required this.providerBusinessName,
+    this.comment,
+    this.bookingId,
+  });
+
+  final int id;
+  final int rating;
+  final String? comment;
+  final DateTime createdAt;
+  final int providerId;
+  final String providerBusinessName;
+  final int? bookingId;
+
+  factory MyReview.fromJson(Map<String, dynamic> json) {
+    final provider = asMapOrNull(json['provider']);
+    return MyReview(
+      id: asInt(json['id']),
+      rating: asInt(json['rating']),
+      comment: asStringOrNull(json['comment']),
+      createdAt: asDate(json['createdAt']),
+      providerId: asInt(provider?['id']),
+      providerBusinessName: asString(provider?['businessName']),
+      bookingId: asIntOrNull(json['bookingId']),
+    );
+  }
+}
+
 /// Server-side Prisma aggregation — never computed on the client.
 /// [averageRating] is null when the provider has no reviews at all, which
 /// must render as a dash rather than 0.0.

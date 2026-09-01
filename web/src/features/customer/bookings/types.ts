@@ -58,6 +58,9 @@ export interface Booking {
     category: { id: number; name: string };
     provider: { id: number; businessName: string; address: string; userId: number };
   };
+  // Existence only — present (non-null) once this booking has been
+  // reviewed, so the UI can gate "Leave a review" without a second fetch.
+  review: { id: number } | null;
 }
 
 export interface CreateBookingInput {

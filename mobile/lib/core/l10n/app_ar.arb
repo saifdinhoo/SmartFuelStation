@@ -245,6 +245,8 @@
   "reviewDeleteConfirmBody": "سيؤدي هذا إلى إزالته من تقييم النشاط. لا يمكن التراجع.",
   "reviewDeleted": "تم حذف التقييم",
   "reviewOnlyAfterCompleted": "يمكنك تقييم النشاط بعد إتمام حجزك.",
+  "myReviewsTitle": "مراجعاتي",
+  "myReviewsEmpty": "لم تقيّم أي حجوزات بعد.",
 
   "profileTitle": "حسابي",
   "profileAccount": "الحساب",

@@ -668,6 +668,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can review a business after they complete your booking.';
 
   @override
+  String get myReviewsTitle => 'My Reviews';
+
+  @override
+  String get myReviewsEmpty => 'You haven\'t reviewed any bookings yet.';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override

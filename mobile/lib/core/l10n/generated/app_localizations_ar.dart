@@ -668,6 +668,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reviewOnlyAfterCompleted => 'يمكنك تقييم النشاط بعد إتمام حجزك.';
 
   @override
+  String get myReviewsTitle => 'مراجعاتي';
+
+  @override
+  String get myReviewsEmpty => 'لم تقيّم أي حجوزات بعد.';
+
+  @override
   String get profileTitle => 'حسابي';
 
   @override

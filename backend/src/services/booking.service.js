@@ -54,6 +54,10 @@ const WITH_DETAILS = {
       provider: { select: { id: true, businessName: true, address: true, userId: true } },
     },
   },
+  // Existence only — just enough for a client to know whether "leave a
+  // review" should show at all, never the review's own content (that
+  // already has its own real endpoints, see review.service.js).
+  review: { select: { id: true } },
 };
 
 async function requireOwnProviderId(userId, tx = prisma) {

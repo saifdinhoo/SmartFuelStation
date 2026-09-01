@@ -245,6 +245,8 @@
   "reviewDeleteConfirmBody": "This removes it from the business's rating. This cannot be undone.",
   "reviewDeleted": "Review deleted",
   "reviewOnlyAfterCompleted": "You can review a business after they complete your booking.",
+  "myReviewsTitle": "My Reviews",
+  "myReviewsEmpty": "You haven't reviewed any bookings yet.",
 
   "profileTitle": "Profile",
   "profileAccount": "Account",

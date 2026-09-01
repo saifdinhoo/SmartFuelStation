@@ -12,6 +12,7 @@ class CacheKeys {
   static const categories = 'categories';
   static const bookings = 'bookings';
   static const myQueue = 'queue/mine';
+  static const myReviews = 'reviews/mine';
 
   static String providerReviews(int id) => 'provider/$id/reviews';
   static String providerRating(int id) => 'provider/$id/rating';
@@ -309,6 +310,7 @@ class CustomerRepository {
     // The provider's rating and review list both change.
     _cache.invalidatePrefix(CacheKeys.providerPrefix);
     _cache.invalidate(CacheKeys.providers);
+    _cache.invalidate(CacheKeys.myReviews);
     return Review.fromJson(Map<String, dynamic>.from(json));
   }
 
@@ -319,5 +321,21 @@ class CustomerRepository {
     _cache.invalidate(CacheKeys.bookings);
     _cache.invalidatePrefix(CacheKeys.providerPrefix);
     _cache.invalidate(CacheKeys.providers);
+    _cache.invalidate(CacheKeys.myReviews);
   }
+
+  /// GET /reviews/me — this customer's own reviews, across every provider.
+  Future<List<MyReview>> _loadMyReviews() async {
+    final raw = await _api.get('/reviews/me') as List<dynamic>;
+    return raw
+        .whereType<Map>()
+        .map((json) => MyReview.fromJson(Map<String, dynamic>.from(json)))
+        .toList();
+  }
+
+  AsyncValue<List<MyReview>> watchMyReviews() =>
+      _cache.watch(CacheKeys.myReviews, _loadMyReviews);
+
+  Future<List<MyReview>> refreshMyReviews() =>
+      _cache.refresh(CacheKeys.myReviews, _loadMyReviews);
 }

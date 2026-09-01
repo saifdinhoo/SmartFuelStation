@@ -30,6 +30,7 @@ import '../features/customer/home/customer_home_screen.dart';
 import '../features/customer/live_station/live_station_screen.dart';
 import '../features/customer/profile/customer_profile_screen.dart';
 import '../features/customer/queue/queue_screen.dart';
+import '../features/customer/reviews/my_reviews_screen.dart';
 import '../features/customer/shell/customer_shell.dart';
 import '../features/notifications/screens/notifications_screen.dart';
 import '../features/provider/analytics/provider_analytics_screen.dart';
@@ -80,6 +81,7 @@ class Routes {
   static const customerProfile = '/customer/profile';
   static const customerNotifications = '/customer/notifications';
   static const customerAssistant = '/customer/assistant';
+  static const customerReviews = '/customer/reviews';
 
   static String customerProviderDetails(int id) => '/customer/providers/$id';
   static String customerBookingDetails(int id) => '/customer/bookings/$id';
@@ -207,6 +209,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: Routes.customerAssistant,
         builder: (_, _) => const AiAssistantScreen(),
+      ),
+      GoRoute(
+        path: Routes.customerReviews,
+        builder: (_, _) => const MyReviewsScreen(),
       ),
       ShellRoute(
         builder: (_, _, child) => CustomerShell(child: child),
