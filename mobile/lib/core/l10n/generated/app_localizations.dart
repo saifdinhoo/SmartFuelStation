@@ -332,6 +332,12 @@ abstract class AppLocalizations {
   /// **'Back to login'**
   String get forgotPasswordBackToLogin;
 
+  /// No description provided for @forgotPasswordInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get forgotPasswordInvalidEmail;
+
   /// No description provided for @navDashboard.
   ///
   /// In en, this message translates to:

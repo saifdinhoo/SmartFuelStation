@@ -48,12 +48,16 @@ describe('sendPasswordResetEmail', () => {
     Object.values(spies).forEach((s) => s.mockRestore());
   });
 
-  it('sends a real email containing the reset link when credentials are configured', async () => {
+  it('sends a real email containing the Reset Password CTA and the reset link when credentials are configured', async () => {
     mockEnv.gmailUser = 'sender@gmail.com';
     mockEnv.gmailAppPassword = 'app-password';
     mockSendMail.mockResolvedValue({});
 
-    await emailService.sendPasswordResetEmail({ to: 'user@example.com', resetUrl: RESET_URL });
+    await emailService.sendPasswordResetEmail({
+      to: 'user@example.com',
+      name: 'Layla Haddad',
+      resetUrl: RESET_URL,
+    });
 
     expect(mockSendMail).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -64,6 +68,10 @@ describe('sendPasswordResetEmail', () => {
         html: expect.stringContaining(RESET_URL),
       }),
     );
+    const call = mockSendMail.mock.calls[0][0];
+    expect(call.html).toMatch(/Reset your password/i);
+    expect(call.text).toMatch(/expire in 1 hour/i);
+    expect(call.text).not.toContain('<'); // real plain-text fallback, not HTML reused as-is
   });
 
   it('never includes the App Password anywhere in the outgoing message', async () => {

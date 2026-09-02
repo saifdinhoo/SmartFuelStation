@@ -7,6 +7,7 @@
 // just because the credentials aren't set yet.
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
+const { buildPasswordResetEmailHtml, buildPasswordResetEmailText } = require('./passwordResetEmailTemplate');
 
 let transporter = null;
 function getTransporter() {
@@ -42,7 +43,7 @@ function logConfigStatus() {
 // Never logs the raw token or the full reset URL, on any path (configured,
 // unconfigured, or a failed send) — a leaked reset link is a live
 // credential, so it gets no more exposure than the recipient's own inbox.
-async function sendPasswordResetEmail({ to, resetUrl }) {
+async function sendPasswordResetEmail({ to, name, resetUrl }) {
   if (!isConfigured()) return;
 
   try {
@@ -50,8 +51,8 @@ async function sendPasswordResetEmail({ to, resetUrl }) {
       from: env.gmailUser,
       to,
       subject: 'Reset your Smart Automotive Service Platform password',
-      text: `We received a request to reset your password.\n\nReset it here: ${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, you can safely ignore this email.`,
-      html: `<p>We received a request to reset your password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>`,
+      text: buildPasswordResetEmailText({ name, resetUrl }),
+      html: buildPasswordResetEmailHtml({ name, resetUrl }),
     });
   } catch (err) {
     // Only a short transport error CATEGORY (e.g. EAUTH, ECONNECTION,

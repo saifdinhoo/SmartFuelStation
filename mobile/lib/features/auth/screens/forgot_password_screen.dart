@@ -25,6 +25,11 @@ class ForgotPasswordScreen extends StatefulWidget {
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
+// Deliberately simple — a shape check, not full RFC 5322 validation. Its
+// only job is to catch an obviously-empty/malformed submission before a
+// network round trip; the backend is the real authority on the address.
+final _emailShape = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _email = TextEditingController();
   String? _error;
@@ -38,12 +43,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
+    final email = _email.text.trim();
+    if (!_emailShape.hasMatch(email)) {
+      setState(() => _error = l10n.forgotPasswordInvalidEmail);
+      return;
+    }
+
     setState(() {
       _error = null;
       _submitting = true;
     });
     try {
-      await context.read<AuthState>().requestPasswordReset(_email.text.trim());
+      await context.read<AuthState>().requestPasswordReset(email);
       if (mounted) setState(() => _submitted = true);
     } on ApiException catch (e) {
       if (!mounted) return;
