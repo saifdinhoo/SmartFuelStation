@@ -386,7 +386,9 @@ describe('requestPasswordReset', () => {
   });
 
   it('creates a hashed (never raw) token and emails a link built from it, for a real account', async () => {
-    prisma.user.findUnique.mockResolvedValue(dbUser({ id: 42, email: 'user@example.com' }));
+    prisma.user.findUnique.mockResolvedValue(
+      dbUser({ id: 42, email: 'user@example.com', name: 'Layla Haddad' }),
+    );
 
     await authService.requestPasswordReset('user@example.com');
 
@@ -399,6 +401,7 @@ describe('requestPasswordReset', () => {
     expect(emailService.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
     const emailCall = emailService.sendPasswordResetEmail.mock.calls[0][0];
     expect(emailCall.to).toBe('user@example.com');
+    expect(emailCall.name).toBe('Layla Haddad');
     expect(emailCall.resetUrl).toContain('/reset-password?token=');
     // The raw token in the URL is never the same string as what got stored.
     const rawToken = emailCall.resetUrl.split('token=')[1];

@@ -46,6 +46,7 @@
   "forgotPasswordCheckEmailTitle": "Check your email",
   "forgotPasswordCheckEmailBody": "If an account exists for that email, we've sent a link to reset your password. Open it on this phone or any device to finish resetting your password.",
   "forgotPasswordBackToLogin": "Back to login",
+  "forgotPasswordInvalidEmail": "Enter a valid email address",
 
   "navDashboard": "Dashboard",
   "navCategories": "Categories",

@@ -131,4 +131,31 @@ void main() {
     expect(find.text('Too many requests'), findsOneWidget);
     expect(find.text('Check your email'), findsNothing);
   });
+
+  testWidgets('rejects an obviously-malformed email client-side, before ever calling the backend', (
+    tester,
+  ) async {
+    final adapter = _CapturingAdapter();
+    final auth = _buildAuthState(adapter);
+
+    await tester.pumpWidget(harness(child: const ForgotPasswordScreen(), auth: auth));
+    await tester.enterText(find.byType(TextField), 'not-an-email');
+    await tester.tap(find.widgetWithText(FilledButton, 'Send reset link'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter a valid email address'), findsOneWidget);
+    expect(adapter.lastOptions, isNull);
+  });
+
+  testWidgets('rejects a blank email client-side, before ever calling the backend', (tester) async {
+    final adapter = _CapturingAdapter();
+    final auth = _buildAuthState(adapter);
+
+    await tester.pumpWidget(harness(child: const ForgotPasswordScreen(), auth: auth));
+    await tester.tap(find.widgetWithText(FilledButton, 'Send reset link'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Enter a valid email address'), findsOneWidget);
+    expect(adapter.lastOptions, isNull);
+  });
 }

@@ -128,6 +128,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get forgotPasswordBackToLogin => 'العودة لتسجيل الدخول';
 
   @override
+  String get forgotPasswordInvalidEmail => 'أدخل بريدًا إلكترونيًا صحيحًا';
+
+  @override
   String get navDashboard => 'الرئيسية';
 
   @override

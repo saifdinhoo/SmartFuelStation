@@ -161,7 +161,9 @@ GoRouter createRouter(AuthState auth) {
 
       final signedIn = auth.isAuthenticated;
       final onAuthScreen =
-          location == Routes.login || location == Routes.register;
+          location == Routes.login ||
+          location == Routes.register ||
+          location == Routes.forgotPassword;
 
       if (!signedIn) {
         // Returning null when already on an auth screen prevents a loop.

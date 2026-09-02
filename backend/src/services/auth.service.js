@@ -191,7 +191,7 @@ async function requestPasswordReset(email) {
   });
 
   const resetUrl = `${env.webAppUrl}/reset-password?token=${token}`;
-  await emailService.sendPasswordResetEmail({ to: user.email, resetUrl });
+  await emailService.sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl });
 }
 
 // Deliberately one generic error for "no such token", "already used", and

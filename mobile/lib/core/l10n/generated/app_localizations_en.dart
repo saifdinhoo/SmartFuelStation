@@ -128,6 +128,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get forgotPasswordBackToLogin => 'Back to login';
 
   @override
+  String get forgotPasswordInvalidEmail => 'Enter a valid email address';
+
+  @override
   String get navDashboard => 'Dashboard';
 
   @override
