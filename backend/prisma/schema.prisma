@@ -78,6 +78,11 @@ model User {
   password  String
   role      Role
   phone     String?
+  // Account deactivation (self-service, e.g. a provider closing their
+  // account). false blocks future logins (see auth.service.js's login());
+  // it never deletes or hides existing bookings/reviews/finance/fuel/queue
+  // history, which all remain exactly as they are.
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

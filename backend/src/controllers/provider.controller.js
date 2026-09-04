@@ -153,6 +153,19 @@ async function updateMe(req, res, next) {
   }
 }
 
+// Deactivates the caller's own account only — req.user.userId is the sole
+// source of identity, so there is no way to point this at another
+// provider. See providerProfile.service.js's deactivateOwnAccount for what
+// this does and does not touch.
+async function deactivateMe(req, res, next) {
+  try {
+    const result = await profileService.deactivateOwnAccount(req.user.userId);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function myAnalytics(req, res, next) {
   try {
     const data = await analyticsService.getProviderAnalytics(req.user.userId, req.query.range);
@@ -344,6 +357,7 @@ module.exports = {
   ratingSummary,
   getMe,
   updateMe,
+  deactivateMe,
   myAnalytics,
   createMyService,
   updateMyService,

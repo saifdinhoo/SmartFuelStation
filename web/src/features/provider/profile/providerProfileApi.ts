@@ -137,3 +137,12 @@ export async function fetchOwnReviews(providerId: number): Promise<ProviderRevie
   );
   return data.data;
 }
+
+// --- account deactivation ---------------------------------------------------
+// Not a delete: the backend only flips User.isActive and closes the
+// business (Provider.isOpen = false). Every service/booking/review/finance/
+// fuel/queue record is left untouched — see providerProfile.service.js's
+// deactivateOwnAccount.
+export async function deactivateOwnAccount(): Promise<void> {
+  await apiClient.post('/providers/me/deactivate');
+}

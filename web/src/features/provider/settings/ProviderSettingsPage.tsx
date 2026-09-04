@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bell, Languages, Palette, Trash2 } from 'lucide-react';
+import { Languages, Palette, Trash2 } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -10,8 +11,10 @@ import { Switch } from '@/components/ui/Switch';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
 import { LanguageToggle } from '@/components/common/LanguageToggle';
+import { useAuth } from '@/app/providers/AuthProvider';
 import { useToast } from '@/app/providers/ToastProvider';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import {
@@ -23,28 +26,18 @@ import {
   useOwnProviderProfile,
   useUpdateOwnProfile,
 } from '@/features/provider/profile/useOwnProviderProfile';
-
-// Settings that have no backing in the database are shown disabled with the
-// reason stated, rather than rendered as working switches that silently
-// discard the change. Each one is a real gap, not a placeholder for effect.
-const UNSUPPORTED = [
-  {
-    icon: Bell,
-    title: 'Notification preferences',
-    reason: 'No notifications backend exists yet — nothing would be sent or stored.',
-  },
-  {
-    icon: Trash2,
-    title: 'Delete account',
-    reason: 'No account-deletion endpoint exists, and bookings/reviews reference the account.',
-  },
-];
+import { useDeactivateAccount } from '@/features/provider/profile/useDeactivateAccount';
+import { NotificationPreferencesCard } from '@/features/notifications/preferences/NotificationPreferencesCard';
 
 export function ProviderSettingsPage() {
   const { profile, isPending, isError, errorMessage, reload } = useOwnProviderProfile();
   const { save, isSaving } = useUpdateOwnProfile();
   const { showToast } = useToast();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const { changePassword, isPending: isChangingPassword } = useChangePassword();
+  const { deactivate, isDeactivating } = useDeactivateAccount();
+  const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
   const {
     register,
     handleSubmit,
@@ -63,6 +56,20 @@ export function ProviderSettingsPage() {
     } catch (err) {
       showToast({
         title: getErrorMessage(err, 'Could not change your password'),
+        variant: 'destructive',
+      });
+    }
+  }
+
+  async function onConfirmDeactivate() {
+    try {
+      await deactivate();
+      setConfirmingDeactivate(false);
+      logout();
+      navigate('/login');
+    } catch (err) {
+      showToast({
+        title: getErrorMessage(err, 'Could not deactivate your account'),
         variant: 'destructive',
       });
     }
@@ -199,29 +206,47 @@ export function ProviderSettingsPage() {
             </CardContent>
           </Card>
 
+          <NotificationPreferencesCard />
+
           <Card>
             <CardHeader>
-              <h2 className="text-heading-3">Not available yet</h2>
+              <h2 className="flex items-center gap-2 text-heading-3 text-destructive">
+                <Trash2 className="h-4 w-4" />
+                Danger zone
+              </h2>
             </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              {UNSUPPORTED.map(({ icon: Icon, title, reason }) => (
-                <div key={title} className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-2">
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{title}</p>
-                      <p className="text-caption">{reason}</p>
-                    </div>
-                  </div>
-                  <Button variant="secondary" disabled aria-disabled className="shrink-0">
-                    Unavailable
-                  </Button>
+            <CardContent>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Deactivate Account</p>
+                  <p className="text-caption">
+                    Closes your business and blocks future logins. Your services, bookings,
+                    reviews, and financial history are all kept — nothing is deleted.
+                  </p>
                 </div>
-              ))}
+                <Button
+                  variant="destructive"
+                  className="shrink-0"
+                  onClick={() => setConfirmingDeactivate(true)}
+                >
+                  Deactivate Account
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </Reveal>
       )}
+
+      <ConfirmDialog
+        open={confirmingDeactivate}
+        onClose={() => setConfirmingDeactivate(false)}
+        onConfirm={onConfirmDeactivate}
+        title="Deactivate your account?"
+        description="You will be logged out immediately and won't be able to log back in. Your business will be marked closed, but every service, booking, review, and financial record stays exactly as it is — nothing is deleted."
+        confirmLabel="Deactivate Account"
+        danger
+        isLoading={isDeactivating}
+      />
     </div>
   );
 }

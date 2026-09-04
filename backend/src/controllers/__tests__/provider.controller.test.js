@@ -13,6 +13,7 @@ jest.mock('../../services/auditLog.service');
 
 const auditLogService = require('../../services/auditLog.service');
 const providerService = require('../../services/provider.service');
+const profileService = require('../../services/providerProfile.service');
 const hoursService = require('../../services/providerHours.service');
 const availabilityService = require('../../services/availability.service');
 const fuelService = require('../../services/fuelInventory.service');
@@ -435,5 +436,41 @@ describe('live camera (Phase F)', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(res.destroy).toHaveBeenCalled();
+  });
+});
+
+describe('deactivateMe', () => {
+  it('deactivates the caller\'s own account — identity comes only from req.user.userId', async () => {
+    profileService.deactivateOwnAccount.mockResolvedValue({ deactivated: true });
+    const res = fakeRes();
+
+    await providerController.deactivateMe({ user: PROVIDER, body: {} }, res, jest.fn());
+
+    expect(profileService.deactivateOwnAccount).toHaveBeenCalledWith(PROVIDER.userId);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: { deactivated: true } });
+  });
+
+  it('ignores any userId supplied in the request body — never a client-forgeable target', async () => {
+    profileService.deactivateOwnAccount.mockResolvedValue({ deactivated: true });
+    const res = fakeRes();
+
+    await providerController.deactivateMe(
+      { user: PROVIDER, body: { userId: 999 } },
+      res,
+      jest.fn(),
+    );
+
+    expect(profileService.deactivateOwnAccount).toHaveBeenCalledWith(PROVIDER.userId);
+  });
+
+  it('passes a service error (e.g. no linked provider) to next()', async () => {
+    const err = new Error('No provider profile is linked to this account');
+    err.statusCode = 403;
+    profileService.deactivateOwnAccount.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await providerController.deactivateMe({ user: PROVIDER, body: {} }, fakeRes(), next);
+
+    expect(next).toHaveBeenCalledWith(err);
   });
 });

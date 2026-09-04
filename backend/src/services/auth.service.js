@@ -107,6 +107,16 @@ async function login({ email, password }) {
   const isValid = await comparePassword(password, user.password);
   if (!isValid) throw invalidCredentials();
 
+  // Checked only after the password itself is confirmed correct, so a
+  // wrong-password guess against a deactivated account still gets the same
+  // generic "Invalid email or password" — it never reveals account state
+  // to someone who hasn't proven they hold the password.
+  if (!user.isActive) {
+    const err = new Error('This account has been deactivated');
+    err.statusCode = 403;
+    throw err;
+  }
+
   return buildAuthResult(user);
 }
 

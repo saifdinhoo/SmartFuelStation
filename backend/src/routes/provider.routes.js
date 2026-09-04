@@ -10,6 +10,12 @@ const router = express.Router();
 // client on any of them, so one provider cannot address another's data.
 router.get('/me', authenticate, authorize('PROVIDER'), providerController.getMe);
 router.patch('/me', authenticate, authorize('PROVIDER'), providerController.updateMe);
+router.post(
+  '/me/deactivate',
+  authenticate,
+  authorize('PROVIDER'),
+  providerController.deactivateMe,
+);
 router.get('/me/analytics', authenticate, authorize('PROVIDER'), providerController.myAnalytics);
 router.get('/me/hours', authenticate, authorize('PROVIDER'), providerController.getMyHours);
 router.put('/me/hours', authenticate, authorize('PROVIDER'), providerController.updateMyHours);

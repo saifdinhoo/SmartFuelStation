@@ -19,7 +19,7 @@ import {
 } from '@/features/auth/changePasswordSchema';
 import { useChangePassword } from '@/features/auth/useChangePassword';
 import { BookingPolicyCard } from '@/features/admin/bookingPolicy/BookingPolicyCard';
-import { NotificationPreferencesCard } from '@/features/admin/notificationPreferences/NotificationPreferencesCard';
+import { NotificationPreferencesCard } from '@/features/notifications/preferences/NotificationPreferencesCard';
 import { useExportBackup } from '@/features/admin/backup/useExportBackup';
 
 export function AdminSettingsPage() {

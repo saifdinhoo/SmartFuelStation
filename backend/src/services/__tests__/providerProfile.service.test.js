@@ -97,6 +97,44 @@ describe('updateOwnProfile', () => {
   });
 });
 
+describe('deactivateOwnAccount', () => {
+  it('rejects an account with no linked provider profile', async () => {
+    prisma.provider.findUnique.mockResolvedValue(null);
+    await expect(profileService.deactivateOwnAccount(999)).rejects.toMatchObject({
+      statusCode: 403,
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(prisma.provider.update).not.toHaveBeenCalled();
+  });
+
+  it('marks the linked user inactive and closes the business — nothing else', async () => {
+    prisma.provider.findUnique.mockResolvedValue(ownProvider());
+
+    const result = await profileService.deactivateOwnAccount(OWNER_USER_ID);
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: OWNER_USER_ID },
+      data: { isActive: false },
+    });
+    expect(prisma.provider.update).toHaveBeenCalledWith({
+      where: { id: PROVIDER_ID },
+      data: { isOpen: false },
+    });
+    expect(result).toEqual({ deactivated: true });
+  });
+
+  it('never touches services, bookings, or any other model', async () => {
+    prisma.provider.findUnique.mockResolvedValue(ownProvider());
+
+    await profileService.deactivateOwnAccount(OWNER_USER_ID);
+
+    expect(prisma.providerService.create).not.toHaveBeenCalled();
+    expect(prisma.providerService.update).not.toHaveBeenCalled();
+    expect(prisma.providerService.delete).not.toHaveBeenCalled();
+    expect(prisma.booking.count).not.toHaveBeenCalled();
+  });
+});
+
 describe('createService', () => {
   beforeEach(() => {
     prisma.provider.findUnique.mockResolvedValue(ownProvider());
