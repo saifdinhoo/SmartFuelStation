@@ -1586,23 +1586,35 @@ abstract class AppLocalizations {
   /// **'Not set'**
   String get profileNotSet;
 
-  /// No description provided for @profileUnsupportedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available yet'**
-  String get profileUnsupportedTitle;
-
-  /// No description provided for @profileEditUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Editing your profile needs a backend endpoint that doesn\'t exist yet.'**
-  String get profileEditUnsupported;
-
   /// No description provided for @profileUnavailable.
   ///
   /// In en, this message translates to:
   /// **'Unavailable'**
   String get profileUnavailable;
+
+  /// No description provided for @fieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get fieldPhone;
+
+  /// No description provided for @profileEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get profileEditProfile;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get profileNameRequired;
+
+  /// No description provided for @profileUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdateSuccess;
 
   /// No description provided for @profileChangePasswordTitle.
   ///

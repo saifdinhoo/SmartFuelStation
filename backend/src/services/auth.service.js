@@ -118,6 +118,45 @@ async function getCurrentUser(userId) {
   return sanitizeUser(user);
 }
 
+// Whitelisted by construction: only `name` and `phone` are ever read off
+// `input` below, so an `email`, `role`, `password`, or `id` field in the
+// request body is silently ignored rather than accepted — there is no
+// spread/mass-assignment of the raw body anywhere in this function. Email,
+// role, and password each already have their own dedicated, more carefully
+// guarded path (login-email is immutable here on purpose, role changes
+// have no endpoint at all, and passwords go through changePassword()
+// above with its own current-password check) — this endpoint does not
+// duplicate or bypass any of them.
+async function updateCurrentUser(userId, input) {
+  const data = {};
+
+  if (input.name !== undefined) {
+    const name = typeof input.name === 'string' ? input.name.trim() : '';
+    if (!name) throw badRequest('name cannot be empty');
+    data.name = name;
+  }
+
+  if (input.phone !== undefined) {
+    if (input.phone === null) {
+      data.phone = null;
+    } else {
+      const phone = typeof input.phone === 'string' ? input.phone.trim() : '';
+      data.phone = phone || null;
+    }
+  }
+
+  if (Object.keys(data).length === 0) {
+    throw badRequest('At least one of name or phone must be provided');
+  }
+
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data,
+    include: { provider: true },
+  });
+  return sanitizeUser(user);
+}
+
 // The minimum length enforced everywhere a password is created — matches
 // the existing web register/reset-password Zod schemas ("Password must be
 // at least 6 characters"). This is the first place it is enforced
@@ -249,6 +288,7 @@ module.exports = {
   register,
   login,
   getCurrentUser,
+  updateCurrentUser,
   changePassword,
   requestPasswordReset,
   resetPassword,

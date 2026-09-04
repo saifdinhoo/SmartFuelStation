@@ -7,6 +7,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: 'CUSTOMER' | 'PROVIDER' | 'ADMIN';
+  phone: string | null;
 }
 
 interface AuthResponse {
@@ -29,6 +30,17 @@ export async function register(values: RegisterFormValues) {
 
 export async function getCurrentUser() {
   const { data } = await apiClient.get<{ success: boolean; data: AuthUser }>('/auth/me');
+  return data.data;
+}
+
+// Only name/phone are ever sent — email, role and password each have their
+// own separate path and are never accepted by the backend here (see
+// auth.service.js's updateCurrentUser doc comment).
+export async function updateProfile(values: { name: string; phone: string }) {
+  const { data } = await apiClient.patch<{ success: boolean; data: AuthUser }>(
+    '/auth/me',
+    values,
+  );
   return data.data;
 }
 

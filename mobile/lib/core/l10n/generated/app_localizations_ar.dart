@@ -825,14 +825,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileNotSet => 'غير محدّد';
 
   @override
-  String get profileUnsupportedTitle => 'غير متاح بعد';
-
-  @override
-  String get profileEditUnsupported =>
-      'تعديل الملف الشخصي يحتاج إلى واجهة برمجية غير موجودة بعد.';
-
-  @override
   String get profileUnavailable => 'غير متاح';
+
+  @override
+  String get fieldPhone => 'رقم الهاتف';
+
+  @override
+  String get profileEditProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get profileNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get profileUpdateSuccess => 'تم تحديث الملف الشخصي بنجاح';
 
   @override
   String get profileChangePasswordTitle => 'تغيير كلمة المرور';

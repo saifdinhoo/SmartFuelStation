@@ -7,6 +7,7 @@ interface AuthContextValue {
   loading: boolean;
   isAuthenticated: boolean;
   loginWithResult: (result: { token: string; user: AuthUser }, remember: boolean) => void;
+  updateUser: (user: AuthUser) => void;
   logout: () => void;
 }
 
@@ -40,9 +41,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  // Replaces the in-memory session user with the real, sanitized row the
+  // backend just returned (e.g. after PATCH /auth/me) — every consumer of
+  // useAuth().user re-renders with the new value immediately, with no
+  // separate refetch.
+  function updateUser(next: AuthUser) {
+    setUser(next);
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, isAuthenticated: user !== null, loginWithResult, logout }}
+      value={{
+        user,
+        loading,
+        isAuthenticated: user !== null,
+        loginWithResult,
+        updateUser,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

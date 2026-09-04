@@ -10,8 +10,14 @@ import type { Notification } from '@/features/notifications/types';
 // instead.
 
 const mockUsers: Record<'PROVIDER' | 'ADMIN', AuthUser> = {
-  PROVIDER: { id: 1, name: 'Ahmad Auto Garage', email: 'provider1@test.com', role: 'PROVIDER' },
-  ADMIN: { id: 2, name: 'Sara Ahmed', email: 'admin@smartfuelstation.com', role: 'ADMIN' },
+  PROVIDER: {
+    id: 1,
+    name: 'Ahmad Auto Garage',
+    email: 'provider1@test.com',
+    role: 'PROVIDER',
+    phone: null,
+  },
+  ADMIN: { id: 2, name: 'Sara Ahmed', email: 'admin@smartfuelstation.com', role: 'ADMIN', phone: null },
 };
 
 const mockNotifications: Notification[] = [

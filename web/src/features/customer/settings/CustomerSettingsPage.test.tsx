@@ -9,12 +9,20 @@ vi.mock('@/services/apiClient', () => ({
   apiClient: { patch: vi.fn() },
 }));
 
+const updateUser = vi.fn();
 vi.mock('@/app/providers/AuthProvider', () => ({
   useAuth: () => ({
-    user: { id: 1, name: 'Layla Haddad', email: 'layla@smartauto.local', role: 'CUSTOMER' },
+    user: {
+      id: 1,
+      name: 'Layla Haddad',
+      email: 'layla@smartauto.local',
+      role: 'CUSTOMER',
+      phone: '+961 70 555 101',
+    },
     isAuthenticated: true,
     loading: false,
     loginWithResult: vi.fn(),
+    updateUser,
     logout: vi.fn(),
   }),
 }));
@@ -52,6 +60,7 @@ describe('CustomerSettingsPage', () => {
     renderPage();
     expect(screen.getByText('Layla Haddad')).toBeInTheDocument();
     expect(screen.getByText('layla@smartauto.local')).toBeInTheDocument();
+    expect(screen.getByText('+961 70 555 101')).toBeInTheDocument();
     expect(screen.getByText('Customer')).toBeInTheDocument();
   });
 
@@ -140,5 +149,112 @@ describe('CustomerSettingsPage', () => {
         expect.objectContaining({ title: 'Current password is incorrect', variant: 'destructive' }),
       ),
     );
+  });
+
+  describe('Edit Profile', () => {
+    it('Edit Profile opens edit mode with real current values, email disabled', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /edit profile/i }));
+
+      expect(screen.getByLabelText('Name')).toHaveValue('Layla Haddad');
+      expect(screen.getByLabelText('Phone')).toHaveValue('+961 70 555 101');
+      const emailInput = screen.getByLabelText('Email') as HTMLInputElement;
+      expect(emailInput).toHaveValue('layla@smartauto.local');
+      expect(emailInput).toBeDisabled();
+    });
+
+    it('rejects an empty name before ever calling the backend', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /edit profile/i }));
+      await user.clear(screen.getByLabelText('Name'));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      expect(await screen.findByText('Name is required')).toBeInTheDocument();
+      expect(apiClient.patch).not.toHaveBeenCalled();
+    });
+
+    it('Save calls the real PATCH /auth/me, refreshes the displayed user, exits edit mode, and shows success', async () => {
+      vi.mocked(apiClient.patch).mockResolvedValue({
+        data: {
+          success: true,
+          data: {
+            id: 1,
+            name: 'Layla H.',
+            email: 'layla@smartauto.local',
+            role: 'CUSTOMER',
+            phone: '+961 70 999 000',
+          },
+        },
+      });
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /edit profile/i }));
+      await user.clear(screen.getByLabelText('Name'));
+      await user.type(screen.getByLabelText('Name'), 'Layla H.');
+      await user.clear(screen.getByLabelText('Phone'));
+      await user.type(screen.getByLabelText('Phone'), '+961 70 999 000');
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() =>
+        expect(apiClient.patch).toHaveBeenCalledWith('/auth/me', {
+          name: 'Layla H.',
+          phone: '+961 70 999 000',
+        }),
+      );
+      await waitFor(() =>
+        expect(updateUser).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'Layla H.', phone: '+961 70 999 000' }),
+        ),
+      );
+      await waitFor(() =>
+        expect(showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'Profile updated successfully', variant: 'success' }),
+        ),
+      );
+      // Back to read-only view.
+      expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /edit profile/i })).toBeInTheDocument();
+    });
+
+    it('shows the real backend error on failure and stays in edit mode — never a fake success', async () => {
+      vi.mocked(apiClient.patch).mockRejectedValue({
+        isAxiosError: true,
+        response: { data: { message: 'name cannot be empty' } },
+      });
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /edit profile/i }));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() =>
+        expect(showToast).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'name cannot be empty', variant: 'destructive' }),
+        ),
+      );
+      expect(screen.getByLabelText('Name')).toBeInTheDocument();
+      expect(updateUser).not.toHaveBeenCalled();
+    });
+
+    it('Cancel discards the edit without persisting anything', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /edit profile/i }));
+      await user.clear(screen.getByLabelText('Name'));
+      await user.type(screen.getByLabelText('Name'), 'Unsaved Name');
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+      expect(apiClient.patch).not.toHaveBeenCalled();
+      expect(updateUser).not.toHaveBeenCalled();
+      // Original value is shown again, not the discarded edit.
+      expect(screen.getByText('Layla Haddad')).toBeInTheDocument();
+      expect(screen.queryByText('Unsaved Name')).not.toBeInTheDocument();
+    });
   });
 });

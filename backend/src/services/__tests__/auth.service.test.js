@@ -375,6 +375,111 @@ describe('changePassword', () => {
   });
 });
 
+describe('getCurrentUser', () => {
+  it('returns the real row, scoped to the given id, with the password stripped', async () => {
+    prisma.user.findUnique.mockResolvedValue(
+      dbUser({ id: 42, name: 'Layla Hassan', phone: '+961 70 555 101' }),
+    );
+
+    const result = await authService.getCurrentUser(42);
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { id: 42 },
+      include: { provider: true },
+    });
+    expect(result).not.toHaveProperty('password');
+    expect(result.name).toBe('Layla Hassan');
+    expect(result.phone).toBe('+961 70 555 101');
+  });
+});
+
+describe('updateCurrentUser', () => {
+  it('valid update: trims and saves name and phone, scoped to the given userId, password stripped from the result', async () => {
+    prisma.user.update.mockResolvedValue(
+      dbUser({ id: 42, name: 'Layla H.', phone: '+961 70 999 000' }),
+    );
+
+    const result = await authService.updateCurrentUser(42, {
+      name: '  Layla H.  ',
+      phone: '  +961 70 999 000  ',
+    });
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 42 },
+      data: { name: 'Layla H.', phone: '+961 70 999 000' },
+      include: { provider: true },
+    });
+    expect(result).not.toHaveProperty('password');
+  });
+
+  it('supports a partial update — only the fields actually sent are written', async () => {
+    prisma.user.update.mockResolvedValue(dbUser({ id: 42, name: 'New Name' }));
+
+    await authService.updateCurrentUser(42, { name: 'New Name' });
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: 42 },
+      data: { name: 'New Name' },
+      include: { provider: true },
+    });
+  });
+
+  it('clears the phone number when explicitly sent as an empty string or null', async () => {
+    prisma.user.update.mockResolvedValue(dbUser({ id: 42, phone: null }));
+
+    await authService.updateCurrentUser(42, { phone: '   ' });
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { phone: null } }),
+    );
+
+    prisma.user.update.mockClear();
+    await authService.updateCurrentUser(42, { phone: null });
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { phone: null } }),
+    );
+  });
+
+  it('rejects an empty/whitespace-only name, before ever touching the database', async () => {
+    await expect(authService.updateCurrentUser(42, { name: '   ' })).rejects.toMatchObject({
+      statusCode: 400,
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects a call with neither name nor phone — nothing to update', async () => {
+    await expect(authService.updateCurrentUser(42, {})).rejects.toMatchObject({
+      statusCode: 400,
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('is always scoped to the exact userId passed in — there is no id field in `input` for a client to target another account with', async () => {
+    prisma.user.update.mockResolvedValue(dbUser({ id: 99 }));
+
+    await authService.updateCurrentUser(99, { name: 'Someone' });
+
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 99 } }),
+    );
+  });
+
+  it.each(['email', 'role', 'password', 'passwordHash', 'id'])(
+    'never writes a %s field even if the caller passes one through — only name/phone are ever read off input',
+    async (field) => {
+      prisma.user.update.mockResolvedValue(dbUser({ id: 42 }));
+
+      await authService.updateCurrentUser(42, {
+        name: 'Legit Name',
+        [field]: 'attempted-injection',
+      });
+
+      const updateCall = prisma.user.update.mock.calls[0][0];
+      expect(updateCall.data).not.toHaveProperty(field);
+      expect(Object.keys(updateCall.data)).toEqual(['name']);
+    },
+  );
+});
+
 describe('requestPasswordReset', () => {
   it('creates no token and sends no email for an unknown address — never reveals whether it exists', async () => {
     prisma.user.findUnique.mockResolvedValue(null);

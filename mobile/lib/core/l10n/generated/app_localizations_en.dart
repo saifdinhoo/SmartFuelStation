@@ -826,14 +826,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileNotSet => 'Not set';
 
   @override
-  String get profileUnsupportedTitle => 'Not available yet';
-
-  @override
-  String get profileEditUnsupported =>
-      'Editing your profile needs a backend endpoint that doesn\'t exist yet.';
-
-  @override
   String get profileUnavailable => 'Unavailable';
+
+  @override
+  String get fieldPhone => 'Phone';
+
+  @override
+  String get profileEditProfile => 'Edit Profile';
+
+  @override
+  String get profileNameRequired => 'Name is required';
+
+  @override
+  String get profileUpdateSuccess => 'Profile updated successfully';
 
   @override
   String get profileChangePasswordTitle => 'Change password';
