@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/l10n/generated/app_localizations.dart';
 import '../core/widgets/loading_view.dart';
 import '../features/admin/analytics/admin_analytics_screen.dart';
+import '../features/admin/auditLog/admin_audit_log_screen.dart';
 import '../features/admin/bookings/admin_booking_details_screen.dart';
 import '../features/admin/bookings/admin_bookings_screen.dart';
 import '../features/admin/categories/admin_categories_screen.dart';
@@ -72,6 +73,7 @@ class Routes {
   static const adminReviews = '/admin/reviews';
   static const adminAnalytics = '/admin/analytics';
   static const adminFinance = '/admin/finance';
+  static const adminAuditLog = '/admin/audit-log';
 
   static String adminUserDetails(int id) => '/admin/users/$id';
   static String adminProviderDetails(int id) => '/admin/providers/$id';
@@ -377,6 +379,10 @@ GoRouter createRouter(AuthState auth) {
       GoRoute(
         path: Routes.adminFinance,
         builder: (_, _) => const AdminFinanceScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminAuditLog,
+        builder: (_, _) => const AdminAuditLogScreen(),
       ),
       GoRoute(
         path: Routes.adminNotifications,

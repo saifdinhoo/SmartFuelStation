@@ -9,8 +9,10 @@ const {
   dayOfWeekOf,
   formatDateOnly,
   overlaps,
+  localDateOnlyOf,
 } = require('./shared/availabilityRules');
 const { assertProviderReadAccess } = require('./providerHours.service');
+const bookingPolicyService = require('./bookingPolicy.service');
 
 function badRequest(message) {
   const err = new Error(message);
@@ -69,6 +71,25 @@ async function getAvailability({ providerId: providerIdParam, serviceId: service
     serviceDurationMinutes: service.durationMinutes,
   };
 
+  // Platform-wide booking policy (see bookingPolicy.service.js) — checked
+  // at the day level before anything else, so a date the policy rejects
+  // never even gets an hours/overlap lookup. booking.service.js's
+  // createBooking re-derives this exact same check independently at
+  // booking time, matching how the rest of this function's output is never
+  // trusted as the sole enforcement (see this file's own doc comment).
+  const policy = await bookingPolicyService.getActivePolicy();
+  const todayOnly = localDateOnlyOf(new Date());
+  const todayMidnight = combineLocalDateTime(todayOnly, { hour: 0, minute: 0 });
+  const requestedMidnight = combineLocalDateTime(dateOnly, { hour: 0, minute: 0 });
+  const daysFromToday = Math.round((requestedMidnight.getTime() - todayMidnight.getTime()) / 86_400_000);
+
+  if (daysFromToday === 0 && !policy.allowSameDayBooking) {
+    return { ...base, status: 'SAME_DAY_DISABLED', openingTime: null, closingTime: null, slots: [] };
+  }
+  if (daysFromToday > policy.maxAdvanceDays) {
+    return { ...base, status: 'TOO_FAR_IN_ADVANCE', openingTime: null, closingTime: null, slots: [] };
+  }
+
   const dayOfWeek = dayOfWeekOf(dateOnly);
   const hours = await prisma.providerOperatingHour.findUnique({
     where: { providerId_dayOfWeek: { providerId, dayOfWeek } },
@@ -121,6 +142,7 @@ async function getAvailability({ providerId: providerIdParam, serviceId: service
   });
 
   const now = new Date();
+  const minAdvanceMs = policy.minAdvanceMinutes * 60_000;
   const slots = [];
 
   // A candidate start must let the *entire* service fit before closing —
@@ -140,6 +162,10 @@ async function getAvailability({ providerId: providerIdParam, serviceId: service
     let status;
     if (slotStart.getTime() <= now.getTime()) {
       status = 'PAST';
+    } else if (slotStart.getTime() < now.getTime() + minAdvanceMs) {
+      // Hasn't happened yet, but doesn't give the provider the platform's
+      // required minimum notice — distinct from PAST, which already did.
+      status = 'TOO_SOON';
     } else if (blockingRanges.some((range) => overlaps(slotStart, slotEnd, range.start, range.end))) {
       status = 'BOOKED';
     } else {

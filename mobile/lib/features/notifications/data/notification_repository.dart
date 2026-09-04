@@ -10,6 +10,7 @@ class NotificationCacheKeys {
   const NotificationCacheKeys._();
 
   static const notifications = 'notifications';
+  static const preferences = 'notifications/preferences';
 }
 
 /// Notifications are user-scoped, not role-scoped — there is exactly one
@@ -47,5 +48,40 @@ class NotificationRepository {
   Future<void> markAllRead() async {
     await _api.patch('/notifications/read-all');
     _cache.invalidate(NotificationCacheKeys.notifications);
+  }
+
+  // --- preferences — always the caller's own (see the backend's
+  // notification.controller.js: req.user.userId is authoritative, there is
+  // no id parameter to spoof another user's preferences with) -------------
+
+  Future<NotificationPreferences> _loadPreferences() async {
+    final json = await _api.get('/notifications/preferences') as Map;
+    return NotificationPreferences.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<NotificationPreferences> watchPreferences() =>
+      _cache.watch(NotificationCacheKeys.preferences, _loadPreferences);
+
+  /// PATCH /notifications/preferences with just the one field that changed
+  /// — a real partial update, not a full resend of every category.
+  Future<NotificationPreferences> updatePreference({
+    bool? bookingUpdates,
+    bool? queueUpdates,
+    bool? reviewUpdates,
+    bool? providerUpdates,
+  }) async {
+    final body = <String, dynamic>{
+      'bookingUpdates': ?bookingUpdates,
+      'queueUpdates': ?queueUpdates,
+      'reviewUpdates': ?reviewUpdates,
+      'providerUpdates': ?providerUpdates,
+    };
+    final json =
+        await _api.patch('/notifications/preferences', body: body) as Map;
+    final updated = NotificationPreferences.fromJson(
+      Map<String, dynamic>.from(json),
+    );
+    _cache.setData(NotificationCacheKeys.preferences, updated);
+    return updated;
   }
 }

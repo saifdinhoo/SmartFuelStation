@@ -32,6 +32,7 @@ import { AdminReviewsPage } from '@/features/admin/reviews/AdminReviewsPage';
 import { AdminComplaintsPage } from '@/features/admin/complaints/AdminComplaintsPage';
 import { AdminAnalyticsPage } from '@/features/admin/analytics/AdminAnalyticsPage';
 import { AdminSettingsPage } from '@/features/admin/settings/AdminSettingsPage';
+import { AdminAuditLogPage } from '@/features/admin/auditLog/AdminAuditLogPage';
 import { AdminFuelPage } from '@/features/admin/fuel/AdminFuelPage';
 import { BookingHistoryPage } from '@/features/customer/bookings/BookingHistoryPage';
 import { BookingDetailsPage } from '@/features/customer/bookings/BookingDetailsPage';
@@ -256,6 +257,7 @@ export function AppRoutes() {
               ['/admin/analytics', <AdminAnalyticsPage key="an" />],
               ['/admin/finance', <AdminFinancePage key="fin" />],
               ['/admin/system-settings', <AdminSettingsPage key="set" />],
+              ['/admin/audit-log', <AdminAuditLogPage key="audit" />],
             ] as const
           ).map(([path, element]) => (
             <Route

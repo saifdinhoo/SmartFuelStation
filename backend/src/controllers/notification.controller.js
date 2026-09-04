@@ -1,4 +1,5 @@
 const notificationService = require('../services/notification.service');
+const notificationPreferenceService = require('../services/notificationPreference.service');
 
 async function list(req, res, next) {
   try {
@@ -48,4 +49,25 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, unreadCount, markRead, markAllRead, remove };
+async function getPreferences(req, res, next) {
+  try {
+    const preferences = await notificationPreferenceService.getOwnPreferences(req.user.userId);
+    res.json({ success: true, data: preferences });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updatePreferences(req, res, next) {
+  try {
+    const preferences = await notificationPreferenceService.updateOwnPreferences(
+      req.user.userId,
+      req.body,
+    );
+    res.json({ success: true, data: preferences });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { list, unreadCount, markRead, markAllRead, remove, getPreferences, updatePreferences };

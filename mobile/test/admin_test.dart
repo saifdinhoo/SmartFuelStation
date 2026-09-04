@@ -669,7 +669,6 @@ void main() {
 
     test('the unsupported-feature copy explains why, in both languages', () {
       for (final l10n in [en, ar]) {
-        expect(l10n.aMoreNoPlatformSettings, isNotEmpty);
         expect(l10n.aUsersReadOnly, isNotEmpty);
         expect(l10n.aAnalyticsSource, isNotEmpty);
         expect(l10n.aMoreRealtimeNote, isNotEmpty);
@@ -678,6 +677,26 @@ void main() {
       expect(en.aAnalyticsSource, contains('/admin/analytics'));
       expect(ar.aAnalyticsSource, contains('/admin/analytics'));
     });
+
+    test(
+      'booking policy, notification settings, backup and audit log copy is translated, not an English fallback',
+      () {
+        final pairs = <(String, String)>[
+          (en.aMoreBookingPolicyTitle, ar.aMoreBookingPolicyTitle),
+          (en.aMoreNotificationSettingsTitle, ar.aMoreNotificationSettingsTitle),
+          (en.aMoreBackupTitle, ar.aMoreBackupTitle),
+          (en.auditLogTitle, ar.auditLogTitle),
+        ];
+        for (final (english, arabic) in pairs) {
+          expect(arabic, isNotEmpty);
+          expect(
+            arabic,
+            isNot(english),
+            reason: '"$english" must actually be translated',
+          );
+        }
+      },
+    );
 
     testWidgets('admin strings render right-to-left in Arabic', (tester) async {
       await tester.pumpWidget(

@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+
 import '../../../core/models/admin_models.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/state/async_value.dart';
 import '../../../core/state/query_cache.dart';
 
@@ -52,6 +57,15 @@ class AdminKeys {
       'admin/finance/providers/$providerId/$range';
   static String commission(int providerId) =>
       'admin/providers/$providerId/commission';
+
+  // --- booking policy / audit log ------------------------------------------
+  static const bookingPolicy = 'admin/booking-policy';
+
+  static String auditLog({
+    required int page,
+    required String action,
+    required String entityType,
+  }) => 'admin/audit-log?page=$page&action=$action&entityType=$entityType';
 }
 
 /// Everything the admin area reads and writes.
@@ -576,5 +590,114 @@ class AdminRepository {
     _cache.invalidatePrefix('provider/me/finance');
     _cache.invalidate('provider/me/commission');
     return updated;
+  }
+
+  // --- booking policy (ADMIN-only writes, enforced server-side) -----------
+
+  Future<BookingPolicy> _loadBookingPolicy() async {
+    final json = await _api.get('/admin/booking-policy') as Map;
+    return BookingPolicy.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<BookingPolicy> watchBookingPolicy() =>
+      _cache.watch(AdminKeys.bookingPolicy, _loadBookingPolicy);
+
+  Future<BookingPolicy> refreshBookingPolicy() =>
+      _cache.refresh(AdminKeys.bookingPolicy, _loadBookingPolicy);
+
+  /// PATCH /admin/booking-policy — the ONLY place these values may be
+  /// written. Enforced by the backend's availability and booking-creation
+  /// checks, not just displayed here.
+  Future<BookingPolicy> updateBookingPolicy({
+    required int minAdvanceMinutes,
+    required int maxAdvanceDays,
+    required bool allowSameDayBooking,
+  }) async {
+    final json =
+        await _api.patch(
+              '/admin/booking-policy',
+              body: {
+                'minAdvanceMinutes': minAdvanceMinutes,
+                'maxAdvanceDays': maxAdvanceDays,
+                'allowSameDayBooking': allowSameDayBooking,
+              },
+            )
+            as Map;
+    final updated = BookingPolicy.fromJson(Map<String, dynamic>.from(json));
+    _cache.setData(AdminKeys.bookingPolicy, updated);
+    return updated;
+  }
+
+  // --- audit log (ADMIN-only, read-only) -----------------------------------
+
+  Future<AuditLogPage> _loadAuditLog({
+    required int page,
+    required String action,
+    required String entityType,
+  }) async {
+    final json =
+        await _api.get(
+              '/admin/audit-log',
+              query: {
+                'page': page,
+                if (action != 'ALL') 'action': action,
+                if (entityType != 'ALL') 'entityType': entityType,
+              },
+            )
+            as Map;
+    return AuditLogPage.fromJson(Map<String, dynamic>.from(json));
+  }
+
+  AsyncValue<AuditLogPage> watchAuditLog({
+    int page = 1,
+    String action = 'ALL',
+    String entityType = 'ALL',
+  }) => _cache.watch(
+    AdminKeys.auditLog(page: page, action: action, entityType: entityType),
+    () => _loadAuditLog(page: page, action: action, entityType: entityType),
+  );
+
+  Future<AuditLogPage> refreshAuditLog({
+    int page = 1,
+    String action = 'ALL',
+    String entityType = 'ALL',
+  }) => _cache.refresh(
+    AdminKeys.auditLog(page: page, action: action, entityType: entityType),
+    () => _loadAuditLog(page: page, action: action, entityType: entityType),
+  );
+
+  // --- backup export (ADMIN-only) -------------------------------------------
+
+  /// Returns the raw JSON snapshot text exactly as the server sends it — the
+  /// one deliberate exception to every other method here, which all go
+  /// through [ApiClient]'s `{success,data}`-unwrapping helpers. The backend
+  /// responds with the backup file's bytes directly (see backup.service.js /
+  /// admin.controller.js's exportBackup), so this bypasses that unwrapping
+  /// via the client's raw Dio instance instead.
+  Future<String> exportBackupJson() async {
+    try {
+      final response = await _api.raw.post<String>(
+        '/admin/backups/export',
+        options: Options(responseType: ResponseType.plain),
+      );
+      return response.data ?? '';
+    } on DioException catch (error) {
+      final data = error.response?.data;
+      String? serverMessage;
+      if (data is String) {
+        try {
+          final decoded = jsonDecode(data);
+          if (decoded is Map && decoded['message'] is String) {
+            serverMessage = decoded['message'] as String;
+          }
+        } catch (_) {
+          // Not JSON — serverMessage stays null, handled below.
+        }
+      }
+      if (serverMessage != null) {
+        throw ApiException(serverMessage, statusCode: error.response?.statusCode);
+      }
+      throw ApiException.fromDio(error);
+    }
   }
 }

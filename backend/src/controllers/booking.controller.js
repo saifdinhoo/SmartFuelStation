@@ -1,6 +1,7 @@
 const bookingService = require('../services/booking.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
+const auditLogService = require('../services/auditLog.service');
 const { bookingStatusNotification } = require('../services/shared/bookingStatusNotification');
 
 // Same contract as queue.controller.js's `safely`: socket pushes run only
@@ -133,6 +134,20 @@ async function updateStatus(req, res, next) {
     );
     if (notification) {
       await safely(() => notificationService.createNotification(notification));
+    }
+
+    // Only an ADMIN acting on someone else's booking is an administrative
+    // action worth auditing — a customer cancelling their own booking or a
+    // provider progressing their own queue is ordinary platform use, not
+    // something an admin did.
+    if (req.user.role === 'ADMIN') {
+      await auditLogService.record({
+        adminId: req.user.userId,
+        action: 'BOOKING_STATUS_CHANGED',
+        entityType: 'Booking',
+        entityId: booking.id,
+        metadata: { newStatus: booking.status },
+      });
     }
   } catch (err) {
     next(err);

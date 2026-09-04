@@ -1,6 +1,9 @@
 const adminService = require('../services/admin.service');
 const fuelService = require('../services/fuelInventory.service');
 const financeService = require('../services/finance.service');
+const bookingPolicyService = require('../services/bookingPolicy.service');
+const auditLogService = require('../services/auditLog.service');
+const backupService = require('../services/backup.service');
 const socketEvents = require('../sockets/queueEvents');
 
 async function safely(fn) {
@@ -109,6 +112,13 @@ async function updateProviderFuel(req, res, next) {
     await safely(() =>
       socketEvents.notifyProviderFuelUpdated({ providerId: Number(req.params.providerId) }),
     );
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: 'FUEL_INVENTORY_UPDATED',
+      entityType: 'Provider',
+      entityId: Number(req.params.providerId),
+      metadata: { fuelType: req.params.fuelType },
+    });
   } catch (err) {
     next(err);
   }
@@ -164,6 +174,13 @@ async function settleFinanceTransaction(req, res, next) {
     res.json({ success: true, data: transaction });
 
     await safely(() => socketEvents.notifyFinanceUpdated({ providerId: transaction.providerId }));
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: 'FINANCE_SETTLED',
+      entityType: 'FinancialTransaction',
+      entityId: transaction.id,
+      metadata: { providerId: transaction.providerId },
+    });
   } catch (err) {
     next(err);
   }
@@ -190,6 +207,97 @@ async function setProviderCommission(req, res, next) {
     res.json({ success: true, data: commission });
 
     await safely(() => socketEvents.notifyFinanceUpdated({ providerId: commission.providerId }));
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: 'COMMISSION_RATE_UPDATED',
+      entityType: 'Provider',
+      entityId: commission.providerId,
+      metadata: { newCommissionRate: commission.commissionRate },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- booking policy (ADMIN-only — enforced by router.use above) -----------
+
+async function getBookingPolicy(req, res, next) {
+  try {
+    res.json({ success: true, data: await bookingPolicyService.getPolicy() });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateBookingPolicy(req, res, next) {
+  try {
+    const policy = await bookingPolicyService.updatePolicy(
+      {
+        minAdvanceMinutes: req.body.minAdvanceMinutes,
+        maxAdvanceDays: req.body.maxAdvanceDays,
+        allowSameDayBooking: req.body.allowSameDayBooking,
+      },
+      req.user.userId,
+    );
+    res.json({ success: true, data: policy });
+
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: 'BOOKING_POLICY_UPDATED',
+      entityType: 'BookingPolicy',
+      entityId: policy.id,
+      metadata: {
+        minAdvanceMinutes: policy.minAdvanceMinutes,
+        maxAdvanceDays: policy.maxAdvanceDays,
+        allowSameDayBooking: policy.allowSameDayBooking,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- audit log (ADMIN-only, read-only — enforced by router.use above) -----
+
+async function listAuditLog(req, res, next) {
+  try {
+    const result = await auditLogService.list({
+      page: req.query.page,
+      pageSize: req.query.pageSize,
+      action: req.query.action,
+      entityType: req.query.entityType,
+      from: req.query.from,
+      to: req.query.to,
+    });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// --- backup export (ADMIN-only — enforced by router.use above) ------------
+
+// Responds with the raw JSON snapshot as the entire body (not the usual
+// {success,data} envelope) and real download headers, so both the browser
+// and a native client can save the response verbatim as a .json file —
+// see backup.service.js for exactly what it contains.
+async function exportBackup(req, res, next) {
+  try {
+    const snapshot = await backupService.buildSnapshot();
+    const filename = backupService.backupFilename();
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(JSON.stringify(snapshot));
+
+    // The payload itself is never stored in audit metadata — only the fact
+    // that an export happened.
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: 'SYSTEM_BACKUP_EXPORTED',
+      entityType: 'System',
+      metadata: { filename },
+    });
   } catch (err) {
     next(err);
   }
@@ -212,4 +320,8 @@ module.exports = {
   settleFinanceTransaction,
   getProviderCommission,
   setProviderCommission,
+  getBookingPolicy,
+  updateBookingPolicy,
+  listAuditLog,
+  exportBackup,
 };

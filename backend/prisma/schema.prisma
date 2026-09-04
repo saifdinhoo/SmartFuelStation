@@ -81,20 +81,23 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  provider             Provider?
-  approvedProviders    Provider[]              @relation("ProviderApprover")
-  bookings             Booking[]
-  reviews              Review[]
-  complaints           Complaint[]
-  queueEntries         QueueEntry[]
-  passwordResetTokens  PasswordResetToken[]
-  notifications        Notification[]
-  fuelInventoryUpdates ProviderFuelInventory[] @relation("FuelInventoryUpdatedBy")
-  fuelHistoryChanges   FuelInventoryHistory[]  @relation("FuelHistoryChangedBy")
-  commissionUpdates    Provider[]              @relation("ProviderCommissionUpdatedBy")
-  settledTransactions  FinancialTransaction[]  @relation("FinanceSettledBy")
-  favorites            Favorite[]
-  vehicles             Vehicle[]
+  provider               Provider?
+  approvedProviders      Provider[]              @relation("ProviderApprover")
+  bookings               Booking[]
+  reviews                Review[]
+  complaints             Complaint[]
+  queueEntries           QueueEntry[]
+  passwordResetTokens    PasswordResetToken[]
+  notifications          Notification[]
+  fuelInventoryUpdates   ProviderFuelInventory[] @relation("FuelInventoryUpdatedBy")
+  fuelHistoryChanges     FuelInventoryHistory[]  @relation("FuelHistoryChangedBy")
+  commissionUpdates      Provider[]              @relation("ProviderCommissionUpdatedBy")
+  settledTransactions    FinancialTransaction[]  @relation("FinanceSettledBy")
+  favorites              Favorite[]
+  vehicles               Vehicle[]
+  bookingPolicyUpdates   BookingPolicy[]         @relation("BookingPolicyUpdatedBy")
+  notificationPreference NotificationPreference?
+  auditLogEntries        AdminAuditLog[]         @relation("AdminAuditActor")
 
   @@index([role])
   @@index([createdAt])
@@ -132,23 +135,23 @@ model Provider {
   // onto the resulting FinancialTransaction — changing this value here
   // only ever affects transactions created *after* the change; every
   // existing FinancialTransaction keeps the rate it was created with.
-  commissionRate             Decimal  @default(10.00) @db.Decimal(5, 2)
+  commissionRate             Decimal   @default(10.00) @db.Decimal(5, 2)
   commissionUpdatedAt        DateTime?
   commissionUpdatedByAdminId Int?
 
-  user                    User                    @relation(fields: [userId], references: [id])
-  approvedBy              User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  commissionUpdatedByAdmin User?                  @relation("ProviderCommissionUpdatedBy", fields: [commissionUpdatedByAdminId], references: [id], onDelete: SetNull)
-  services                ProviderService[]
-  reviews                 Review[]
-  complaints              Complaint[]
-  queueEntries            QueueEntry[]
-  notifications           Notification[]
-  operatingHours          ProviderOperatingHour[]
-  fuelInventory           ProviderFuelInventory[]
-  fuelHistory             FuelInventoryHistory[]
-  financialTransactions   FinancialTransaction[]
-  favoritedBy             Favorite[]
+  user                     User                    @relation(fields: [userId], references: [id])
+  approvedBy               User?                   @relation("ProviderApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  commissionUpdatedByAdmin User?                   @relation("ProviderCommissionUpdatedBy", fields: [commissionUpdatedByAdminId], references: [id], onDelete: SetNull)
+  services                 ProviderService[]
+  reviews                  Review[]
+  complaints               Complaint[]
+  queueEntries             QueueEntry[]
+  notifications            Notification[]
+  operatingHours           ProviderOperatingHour[]
+  fuelInventory            ProviderFuelInventory[]
+  fuelHistory              FuelInventoryHistory[]
+  financialTransactions    FinancialTransaction[]
+  favoritedBy              Favorite[]
 
   @@index([isApproved, isOpen])
   @@index([createdAt])
@@ -274,11 +277,11 @@ model Booking {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  customer            User                   @relation(fields: [customerId], references: [id])
-  providerService     ProviderService        @relation(fields: [providerServiceId], references: [id])
-  review              Review?
-  queueEntry          QueueEntry?
-  notifications       Notification[]
+  customer             User                  @relation(fields: [customerId], references: [id])
+  providerService      ProviderService       @relation(fields: [providerServiceId], references: [id])
+  review               Review?
+  queueEntry           QueueEntry?
+  notifications        Notification[]
   financialTransaction FinancialTransaction?
 
   @@index([customerId, scheduledAt])
@@ -479,8 +482,8 @@ model FuelInventoryHistory {
 // backfilled for them — see the Phase D report's "existing-booking
 // strategy" section for the full reasoning.
 model FinancialTransaction {
-  id         Int      @id @default(autoincrement())
-  bookingId  Int      @unique
+  id         Int @id @default(autoincrement())
+  bookingId  Int @unique
   providerId Int
 
   grossAmount       Decimal @db.Decimal(10, 2)
@@ -502,4 +505,63 @@ model FinancialTransaction {
   @@index([providerId, settlementStatus])
   @@index([providerId, createdAt])
   @@index([settlementStatus])
+}
+
+// Platform-wide booking policy — a single row rather than a table of named
+// settings, since there is currently exactly one thing to configure.
+// Enforced (never merely displayed) by availability.service.js and
+// booking.service.js, so a customer can never see or book a slot the
+// policy would reject — see bookingPolicy.service.js for the one place this
+// row is read and written.
+model BookingPolicy {
+  id                  Int      @id @default(autoincrement())
+  minAdvanceMinutes   Int      @default(30)
+  maxAdvanceDays      Int      @default(30)
+  allowSameDayBooking Boolean  @default(true)
+  updatedAt           DateTime @updatedAt
+  updatedByAdminId    Int?
+
+  updatedByAdmin User? @relation("BookingPolicyUpdatedBy", fields: [updatedByAdminId], references: [id], onDelete: SetNull)
+}
+
+// One row per user, created lazily on first read/write (see
+// notificationPreference.service.js) — absence means "every category still
+// enabled," not "unconfigured." Fields map 1:1 to the real NotificationType
+// groupings notification.service.js actually creates; there is no column
+// for a notification family that does not exist today (no COMPLAINT_* or
+// FINANCE_* type is ever created — see the NotificationType enum above), so
+// this can never offer a toggle that silently does nothing.
+model NotificationPreference {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  bookingUpdates  Boolean  @default(true)
+  queueUpdates    Boolean  @default(true)
+  reviewUpdates   Boolean  @default(true)
+  providerUpdates Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Append-only. Never updated or deleted through the public API (see
+// auditLog.service.js) — a row is only ever inserted. `metadata` holds
+// small, safe, structured details about the change (e.g. { from: 5, to: 10 }
+// for a commission-rate update) and must never contain a secret or
+// credential — see auditLog.service.js's record() for the one place rows
+// are created and its ACTIONS list for the closed set of real events logged.
+model AdminAuditLog {
+  id         Int      @id @default(autoincrement())
+  adminId    Int
+  action     String
+  entityType String
+  entityId   Int?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  admin User @relation("AdminAuditActor", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
 }

@@ -3,6 +3,7 @@ jest.mock('../../config/prisma', () => ({
   providerService: { findUnique: jest.fn() },
   providerOperatingHour: { findUnique: jest.fn() },
   booking: { findMany: jest.fn() },
+  bookingPolicy: { findUnique: jest.fn(), upsert: jest.fn() },
 }));
 
 const prisma = require('../../config/prisma');
@@ -30,11 +31,20 @@ function serviceRow(overrides = {}) {
   return { id: 5, providerId: 2, durationMinutes: 30, isAvailable: true, ...overrides };
 }
 
+// Permissive enough that DATE (a year out) is never rejected by policy —
+// this file's pre-existing tests are about hours/overlap/PAST logic, not
+// the booking-policy feature, which gets its own dedicated describe block
+// below with a tighter policy per test.
+function policyRow(overrides = {}) {
+  return { id: 1, minAdvanceMinutes: 0, maxAdvanceDays: 5000, allowSameDayBooking: true, ...overrides };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   prisma.provider.findUnique.mockResolvedValue(providerRow());
   prisma.providerService.findUnique.mockResolvedValue(serviceRow());
   prisma.booking.findMany.mockResolvedValue([]);
+  prisma.bookingPolicy.findUnique.mockResolvedValue(policyRow());
 });
 
 describe('getAvailability — validation', () => {
@@ -286,6 +296,63 @@ describe('getAvailability — access control', () => {
     await expect(
       getAvailability({ providerId: 2, serviceId: 5, date: DATE }, ADMIN),
     ).resolves.toBeDefined();
+  });
+});
+
+describe('getAvailability — booking policy enforcement', () => {
+  it('reports TOO_FAR_IN_ADVANCE (never touching hours) for a date beyond maxAdvanceDays', async () => {
+    prisma.bookingPolicy.findUnique.mockResolvedValue(policyRow({ maxAdvanceDays: 30 }));
+    const result = await getAvailability({ providerId: 2, serviceId: 5, date: DATE }, CUSTOMER);
+    expect(result.status).toBe('TOO_FAR_IN_ADVANCE');
+    expect(result.slots).toEqual([]);
+    expect(prisma.providerOperatingHour.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('reports SAME_DAY_DISABLED for today when the policy disallows same-day booking', async () => {
+    prisma.bookingPolicy.findUnique.mockResolvedValue(
+      policyRow({ maxAdvanceDays: 5000, allowSameDayBooking: false }),
+    );
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const result = await getAvailability({ providerId: 2, serviceId: 5, date: todayString }, CUSTOMER);
+    expect(result.status).toBe('SAME_DAY_DISABLED');
+    expect(result.slots).toEqual([]);
+  });
+
+  it('still allows today when the policy allows same-day booking', async () => {
+    prisma.bookingPolicy.findUnique.mockResolvedValue(
+      policyRow({ maxAdvanceDays: 5000, allowSameDayBooking: true }),
+    );
+    prisma.providerOperatingHour.findUnique.mockResolvedValue({
+      isClosed: false,
+      openTime: '00:00',
+      closeTime: '23:30',
+    });
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const result = await getAvailability({ providerId: 2, serviceId: 5, date: todayString }, CUSTOMER);
+    expect(result.status).toBe('OPEN');
+  });
+
+  it('marks a slot TOO_SOON (not AVAILABLE) when it starts sooner than minAdvanceMinutes from now, but PAST still wins for slots already gone', async () => {
+    prisma.bookingPolicy.findUnique.mockResolvedValue(
+      policyRow({ maxAdvanceDays: 5000, allowSameDayBooking: true, minAdvanceMinutes: 120 }),
+    );
+    prisma.providerOperatingHour.findUnique.mockResolvedValue({
+      isClosed: false,
+      openTime: '00:00',
+      closeTime: '23:30',
+    });
+    const now = new Date();
+    const todayString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const result = await getAvailability({ providerId: 2, serviceId: 5, date: todayString }, CUSTOMER);
+
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const soonSlot = result.slots.find((s) => minutesOf(s.startTime) > nowMinutes && minutesOf(s.startTime) < nowMinutes + 120);
+    const farSlot = result.slots.find((s) => minutesOf(s.startTime) >= nowMinutes + 120 + 30);
+
+    if (soonSlot) expect(soonSlot.status).toBe('TOO_SOON');
+    if (farSlot) expect(farSlot.status).toBe('AVAILABLE');
   });
 });
 

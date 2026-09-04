@@ -70,6 +70,11 @@ dependencies:
   # needed. Deliberately not paired with Chewie or any other player-UI
   # wrapper — this feature stays to a plain muted/autoplay/no-controls view.
   video_player: ^2.14.0
+  # Admin "download backup" export — the only way to hand the device's user
+  # a real file (the JSON snapshot) without a platform-specific save dialog.
+  # No file-saving/sharing package existed in this app before; this is the
+  # official Flutter Community "Flutter Favorite" package for it.
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

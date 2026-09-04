@@ -7,7 +7,7 @@ import { AdminSettingsPage } from './AdminSettingsPage';
 import { apiClient } from '@/services/apiClient';
 
 vi.mock('@/services/apiClient', () => ({
-  apiClient: { patch: vi.fn() },
+  apiClient: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
 }));
 
 vi.mock('@/app/providers/AuthProvider', () => ({
@@ -33,6 +33,38 @@ vi.mock('@/app/providers/DirectionProvider', () => ({
   useDirection: () => ({ language: 'en', dir: 'ltr', toggleLanguage: vi.fn() }),
 }));
 
+const BOOKING_POLICY = {
+  id: 1,
+  minAdvanceMinutes: 30,
+  maxAdvanceDays: 30,
+  allowSameDayBooking: true,
+  updatedAt: '2026-09-04T00:00:00.000Z',
+  updatedByAdminId: null,
+};
+
+const NOTIFICATION_PREFERENCES = {
+  id: 1,
+  userId: 1,
+  bookingUpdates: true,
+  queueUpdates: true,
+  reviewUpdates: true,
+  providerUpdates: true,
+  createdAt: '2026-09-04T00:00:00.000Z',
+  updatedAt: '2026-09-04T00:00:00.000Z',
+};
+
+function mockDefaultGets() {
+  vi.mocked(apiClient.get).mockImplementation((path: string) => {
+    if (path === '/admin/booking-policy') {
+      return Promise.resolve({ data: { success: true, data: BOOKING_POLICY } });
+    }
+    if (path === '/notifications/preferences') {
+      return Promise.resolve({ data: { success: true, data: NOTIFICATION_PREFERENCES } });
+    }
+    return Promise.reject(new Error(`Unexpected GET ${path}`));
+  });
+}
+
 function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -48,18 +80,10 @@ function renderPage() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockDefaultGets();
 });
 
 describe('AdminSettingsPage', () => {
-  it('lists only the three genuinely-unsupported items — Change password is no longer one of them', () => {
-    renderPage();
-
-    expect(screen.getAllByRole('button', { name: 'Unavailable' })).toHaveLength(3);
-    expect(screen.getByText('Booking window configuration')).toBeInTheDocument();
-    expect(screen.getByText('Notification settings')).toBeInTheDocument();
-    expect(screen.getByText('Backups & audit log')).toBeInTheDocument();
-  });
-
   it('renders a real, working change-password form', () => {
     renderPage();
 
@@ -111,5 +135,77 @@ describe('AdminSettingsPage', () => {
         expect.objectContaining({ title: 'Current password is incorrect', variant: 'destructive' }),
       ),
     );
+  });
+
+  it('loads and displays the real booking policy — no longer "Unavailable"', async () => {
+    renderPage();
+
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/admin/booking-policy'));
+    expect(await screen.findByLabelText('Minimum advance time (minutes)')).toHaveValue(30);
+    expect(screen.getByLabelText('Maximum days in advance')).toHaveValue(30);
+    expect(screen.getByRole('switch', { name: 'Allow same-day booking' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    expect(screen.queryByText('Unavailable')).not.toBeInTheDocument();
+  });
+
+  it('saves an edited booking policy via a real PATCH request', async () => {
+    vi.mocked(apiClient.patch).mockImplementation((path: string, body) => {
+      if (path === '/admin/booking-policy') {
+        return Promise.resolve({ data: { success: true, data: { ...BOOKING_POLICY, ...(body as object) } } });
+      }
+      return Promise.reject(new Error(`Unexpected PATCH ${path}`));
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    const minAdvanceInput = await screen.findByLabelText('Minimum advance time (minutes)');
+    await user.clear(minAdvanceInput);
+    await user.type(minAdvanceInput, '60');
+    await user.click(screen.getByRole('button', { name: 'Save booking policy' }));
+
+    await waitFor(() =>
+      expect(apiClient.patch).toHaveBeenCalledWith(
+        '/admin/booking-policy',
+        expect.objectContaining({ minAdvanceMinutes: 60, maxAdvanceDays: 30, allowSameDayBooking: true }),
+      ),
+    );
+  });
+
+  it('loads and displays real notification preferences — no longer "Unavailable"', async () => {
+    renderPage();
+
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/notifications/preferences'));
+    expect(await screen.findByRole('switch', { name: 'Booking updates' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+  });
+
+  it('toggling a notification preference sends a real PATCH request with just that field', async () => {
+    vi.mocked(apiClient.patch).mockImplementation((path: string, body) => {
+      if (path === '/notifications/preferences') {
+        return Promise.resolve({ data: { success: true, data: { ...NOTIFICATION_PREFERENCES, ...(body as object) } } });
+      }
+      return Promise.reject(new Error(`Unexpected PATCH ${path}`));
+    });
+    const user = userEvent.setup();
+    renderPage();
+
+    const toggle = await screen.findByRole('switch', { name: 'Booking updates' });
+    await user.click(toggle);
+
+    await waitFor(() =>
+      expect(apiClient.patch).toHaveBeenCalledWith('/notifications/preferences', { bookingUpdates: false }),
+    );
+  });
+
+  it('shows a real backup download button and links to the real audit log page', async () => {
+    renderPage();
+
+    expect(await screen.findByRole('button', { name: /download backup/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'audit log' })).toHaveAttribute('href', '/admin/audit-log');
+    expect(screen.queryByText('Backups & audit log')).not.toBeInTheDocument();
   });
 });

@@ -1970,19 +1970,144 @@ class AppLocalizationsAr extends AppLocalizations {
   String get aMorePreferences => 'التفضيلات';
 
   @override
-  String get aMoreUnsupported => 'غير متاح';
-
-  @override
-  String get aMoreNoPlatformSettings =>
-      'لا يوجد جدول لإعدادات نوافذ الحجز أو ما شابهها من قيم الجدولة — أما نسب العمولة فهي مخزَّنة وقابلة للتعديل من صفحة المالية.';
-
-  @override
-  String get aMoreNoAudit =>
-      'لا يُسجَّل أي إجراء إداري، لذلك لا يوجد سجل تدقيق لعرضه.';
-
-  @override
   String get aMoreRealtimeNote =>
       'تُحدَّث قوائم المشرف عند الطلب: الحدث المباشر الوحيد الذي يرسله الخادم للمشرف هو فتح نشاط أو إغلاقه.';
+
+  @override
+  String get aMoreBookingPolicyTitle => 'إعدادات نافذة الحجز';
+
+  @override
+  String get aMoreBookingPolicyDescription =>
+      'تُطبَّق على مستوى المنصة لكل مزودي الخدمة — ويتم تنفيذها فعليًا في جدول الأوقات المتاحة وعند إنشاء الحجز، وليست عرضًا فقط.';
+
+  @override
+  String get fieldMinAdvanceMinutes => 'الحد الأدنى للوقت المسبق (بالدقائق)';
+
+  @override
+  String get fieldMaxAdvanceDays => 'أقصى عدد أيام للحجز المسبق';
+
+  @override
+  String get fieldAllowSameDayBooking => 'السماح بالحجز في نفس اليوم';
+
+  @override
+  String get aMoreBookingPolicyInvalid =>
+      'أدخل حدًا أدنى للوقت المسبق يساوي 0 أو أكثر، وحدًا أقصى لا يقل عن يوم واحد.';
+
+  @override
+  String get aMoreBookingPolicySaved => 'تم تحديث سياسة الحجز';
+
+  @override
+  String get aMoreNotificationSettingsTitle => 'إعدادات الإشعارات';
+
+  @override
+  String get aMoreNotificationSettingsDescription =>
+      'الإشعارات داخل التطبيق التي تصلك على هذا الحساب. تعطيل فئة يوقف إنشاء إشعاراتها لك تمامًا.';
+
+  @override
+  String get notifPrefBookingUpdates => 'تحديثات الحجوزات';
+
+  @override
+  String get notifPrefBookingUpdatesDesc =>
+      'الحجوزات عند إنشائها وتأكيدها ورفضها وإلغائها وبدء الخدمة وإتمامها.';
+
+  @override
+  String get notifPrefQueueUpdates => 'تحديثات الطابور';
+
+  @override
+  String get notifPrefQueueUpdatesDesc => 'الانضمام إلى الطابور واقتراب دورك.';
+
+  @override
+  String get notifPrefReviewUpdates => 'تحديثات التقييمات';
+
+  @override
+  String get notifPrefReviewUpdatesDesc => 'عند إضافة تقييم جديد لمزود خدمة.';
+
+  @override
+  String get notifPrefProviderUpdates => 'تحديثات مزودي الخدمة';
+
+  @override
+  String get notifPrefProviderUpdatesDesc =>
+      'عند تسجيل مزود خدمة جديد أو الموافقة عليه أو رفضه.';
+
+  @override
+  String get aMoreBackupTitle => 'نسخة احتياطية لبيانات النظام';
+
+  @override
+  String get aMoreBackupDescription =>
+      'تصدير نسخة JSON حقيقية من بيانات المنصة — المستخدمون (بدون كلمات المرور)، مزودو الخدمة، الحجوزات، التقييمات، الماليات، وغيرها. لا تتضمن أبدًا بيانات اعتماد أو رموزًا أو مفاتيح API.';
+
+  @override
+  String get actionDownloadBackup => 'تنزيل النسخة الاحتياطية';
+
+  @override
+  String get aMoreBackupSaved => 'تم حفظ النسخة الاحتياطية';
+
+  @override
+  String get aMoreAuditLog => 'سجل التدقيق';
+
+  @override
+  String get auditLogTitle => 'سجل التدقيق';
+
+  @override
+  String get auditLogDescription =>
+      'سجل حقيقي غير قابل للتعديل لإجراءات المشرفين — من فعل ماذا ومتى. لا يمكن تعديل أو حذف أي شيء هنا.';
+
+  @override
+  String get auditLogFilterAction => 'تصفية حسب الإجراء';
+
+  @override
+  String get auditLogAllActions => 'كل الإجراءات';
+
+  @override
+  String get auditLogEmptyTitle => 'لا توجد سجلات تدقيق';
+
+  @override
+  String get auditLogEmptyDescription =>
+      'ستظهر هنا إجراءات المشرفين فور حدوثها.';
+
+  @override
+  String auditLogPagination(int page, int totalPages) {
+    return 'صفحة $page من $totalPages';
+  }
+
+  @override
+  String get actionPrevious => 'السابق';
+
+  @override
+  String get actionNext => 'التالي';
+
+  @override
+  String get auditActionProviderApproved => 'تمت الموافقة على مزود الخدمة';
+
+  @override
+  String get auditActionProviderRejected => 'تم رفض مزود الخدمة';
+
+  @override
+  String get auditActionCategoryCreated => 'تم إنشاء فئة';
+
+  @override
+  String get auditActionCategoryUpdated => 'تم تحديث فئة';
+
+  @override
+  String get auditActionCategoryDeleted => 'تم حذف فئة';
+
+  @override
+  String get auditActionFuelInventoryUpdated => 'تم تحديث مخزون الوقود';
+
+  @override
+  String get auditActionFinanceSettled => 'تمت تسوية مالية';
+
+  @override
+  String get auditActionCommissionRateUpdated => 'تم تحديث نسبة العمولة';
+
+  @override
+  String get auditActionBookingStatusChanged => 'تم تغيير حالة الحجز';
+
+  @override
+  String get auditActionBookingPolicyUpdated => 'تم تحديث سياسة الحجز';
+
+  @override
+  String get auditActionSystemBackupExported => 'تم تصدير نسخة احتياطية للنظام';
 
   @override
   String get aBookingNotes => 'ملاحظات';
