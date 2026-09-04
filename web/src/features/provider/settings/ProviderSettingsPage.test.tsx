@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,7 +7,19 @@ import { ProviderSettingsPage } from './ProviderSettingsPage';
 import { apiClient } from '@/services/apiClient';
 
 vi.mock('@/services/apiClient', () => ({
-  apiClient: { get: vi.fn(), patch: vi.fn() },
+  apiClient: { get: vi.fn(), patch: vi.fn(), post: vi.fn() },
+}));
+
+const logout = vi.fn();
+vi.mock('@/app/providers/AuthProvider', () => ({
+  useAuth: () => ({
+    user: { id: 7, name: 'Sami Provider', email: 'sami@smartauto.local', role: 'PROVIDER' },
+    isAuthenticated: true,
+    loading: false,
+    loginWithResult: vi.fn(),
+    updateUser: vi.fn(),
+    logout,
+  }),
 }));
 
 const showToast = vi.fn();
@@ -41,6 +53,29 @@ const PROFILE = {
   rating: { averageRating: null, reviewCount: 0 },
 };
 
+const NOTIFICATION_PREFERENCES = {
+  id: 1,
+  userId: 7,
+  bookingUpdates: true,
+  queueUpdates: true,
+  reviewUpdates: true,
+  providerUpdates: true,
+  createdAt: '2026-09-04T00:00:00.000Z',
+  updatedAt: '2026-09-04T00:00:00.000Z',
+};
+
+function mockDefaultGets() {
+  vi.mocked(apiClient.get).mockImplementation((path: string) => {
+    if (path === '/providers/me') {
+      return Promise.resolve({ data: { success: true, data: PROFILE } });
+    }
+    if (path === '/notifications/preferences') {
+      return Promise.resolve({ data: { success: true, data: NOTIFICATION_PREFERENCES } });
+    }
+    return Promise.reject(new Error(`Unexpected GET ${path}`));
+  });
+}
+
 function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -56,17 +91,99 @@ function renderPage() {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.mocked(apiClient.get).mockResolvedValue({ data: { success: true, data: PROFILE } });
+  mockDefaultGets();
 });
 
 describe('ProviderSettingsPage', () => {
-  it('lists only the two genuinely-unsupported items — Change password is no longer one of them', async () => {
+  it('renders real notification preference toggles, loaded from the backend — never stale "Unavailable" text', async () => {
     renderPage();
     await screen.findByText('Sami Provider');
 
-    expect(screen.getAllByRole('button', { name: 'Unavailable' })).toHaveLength(2);
-    expect(screen.getByText('Notification preferences')).toBeInTheDocument();
-    expect(screen.getByText('Delete account')).toBeInTheDocument();
+    expect(await screen.findByRole('switch', { name: 'Booking updates' })).toBeChecked();
+    expect(screen.queryByText(/not available yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Unavailable' })).not.toBeInTheDocument();
+  });
+
+  it('saves a real PATCH to /notifications/preferences when a toggle is switched', async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({
+      data: { success: true, data: { ...NOTIFICATION_PREFERENCES, bookingUpdates: false } },
+    });
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Sami Provider');
+
+    await user.click(await screen.findByRole('switch', { name: 'Booking updates' }));
+
+    await waitFor(() =>
+      expect(apiClient.patch).toHaveBeenCalledWith('/notifications/preferences', {
+        bookingUpdates: false,
+      }),
+    );
+  });
+
+  it('replaces "Delete account" with a real, non-destructive "Deactivate Account" action', async () => {
+    renderPage();
+    await screen.findByText('Sami Provider');
+
+    expect(screen.queryByText('Delete account')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Deactivate Account' })).toBeInTheDocument();
+  });
+
+  it('shows a destructive confirmation dialog before deactivating, and does nothing on Cancel', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Sami Provider');
+
+    await user.click(screen.getByRole('button', { name: 'Deactivate Account' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/deactivate your account/i)).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+    expect(apiClient.post).not.toHaveBeenCalled();
+    expect(logout).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('confirming deactivation calls the real endpoint, logs out, and redirects to login', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { success: true, data: { deactivated: true } },
+    });
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Sami Provider');
+
+    await user.click(screen.getByRole('button', { name: 'Deactivate Account' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Deactivate Account' }));
+
+    await waitFor(() => expect(apiClient.post).toHaveBeenCalledWith('/providers/me/deactivate'));
+    await waitFor(() => expect(logout).toHaveBeenCalled());
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('shows the real backend error and stays logged in if deactivation fails — never a fake success', async () => {
+    vi.mocked(apiClient.post).mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: 'No provider profile is linked to this account' } },
+    });
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Sami Provider');
+
+    await user.click(screen.getByRole('button', { name: 'Deactivate Account' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Deactivate Account' }));
+
+    await waitFor(() =>
+      expect(showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'No provider profile is linked to this account',
+          variant: 'destructive',
+        }),
+      ),
+    );
+    expect(logout).not.toHaveBeenCalled();
   });
 
   it('renders a real, working change-password form', async () => {

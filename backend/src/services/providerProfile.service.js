@@ -317,6 +317,24 @@ async function deleteService(userId, serviceIdParam) {
   return { id: service.id };
 }
 
+// Self-service deactivation, not deletion: nothing is removed. The linked
+// User is marked inactive (blocks future logins — see auth.service.js's
+// login()) and the business is closed to new bookings (isOpen: false, the
+// same flag Live Status already uses), but every service, booking, review,
+// finance/fuel/queue record, and audit trail entry is left exactly as it
+// is. There is no path back to true here on purpose — re-activation isn't
+// asked for by this feature, so it isn't built.
+async function deactivateOwnAccount(userId) {
+  const provider = await requireOwnProvider(userId);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({ where: { id: userId }, data: { isActive: false } });
+    await tx.provider.update({ where: { id: provider.id }, data: { isOpen: false } });
+  });
+
+  return { deactivated: true };
+}
+
 module.exports = {
   requireOwnProvider,
   getOwnProfile,
@@ -324,4 +342,5 @@ module.exports = {
   createService,
   updateService,
   deleteService,
+  deactivateOwnAccount,
 };

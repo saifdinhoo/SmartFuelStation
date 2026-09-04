@@ -47,6 +47,7 @@ function dbUser(overrides = {}) {
     password: 'hashed-value-never-real',
     role: 'CUSTOMER',
     phone: null,
+    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
     provider: null,
@@ -233,6 +234,25 @@ describe('login (Phase E)', () => {
     await expect(
       authService.login({ email: 'unapproved@example.com', password: 'demo123' }),
     ).resolves.toMatchObject({ user: { role: 'PROVIDER' } });
+  });
+
+  it('rejects a correct password with 403 once the account has been deactivated', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ isActive: false }));
+    comparePassword.mockResolvedValue(true);
+
+    await expect(
+      authService.login({ email: 'user@example.com', password: 'demo123' }),
+    ).rejects.toMatchObject({ statusCode: 403 });
+    expect(signToken).not.toHaveBeenCalled();
+  });
+
+  it('still reports a wrong password as "Invalid email or password" on a deactivated account — never leaks account state before the password is proven', async () => {
+    prisma.user.findUnique.mockResolvedValue(dbUser({ isActive: false }));
+    comparePassword.mockResolvedValue(false);
+
+    await expect(
+      authService.login({ email: 'user@example.com', password: 'wrong' }),
+    ).rejects.toMatchObject({ statusCode: 401, message: 'Invalid email or password' });
   });
 });
 
