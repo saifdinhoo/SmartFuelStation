@@ -38,4 +38,17 @@ router.patch('/finance/transactions/:id/settlement', adminController.settleFinan
 router.get('/providers/:providerId/commission', adminController.getProviderCommission);
 router.put('/providers/:providerId/commission', adminController.setProviderCommission);
 
+// Booking policy — the ONLY place these values may be written. Enforced by
+// availability.service.js and booking.service.js, not just displayed here.
+router.get('/booking-policy', adminController.getBookingPolicy);
+router.patch('/booking-policy', adminController.updateBookingPolicy);
+
+// Audit log — read-only through the public API. No update/delete route
+// exists anywhere: a row, once written, cannot be changed or removed.
+router.get('/audit-log', adminController.listAuditLog);
+
+// Application data export — a real JSON snapshot, not pg_dump. See
+// backup.service.js for exactly what is (and is never) included.
+router.post('/backups/export', adminController.exportBackup);
+
 module.exports = router;

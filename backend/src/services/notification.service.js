@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const { getIO, roomForUser } = require('../sockets');
+const notificationPreferenceService = require('./notificationPreference.service');
 
 function notFound(message) {
   const err = new Error(message);
@@ -28,6 +29,12 @@ function toId(value, label) {
 // from client input), so a notification can never be redirected to
 // another user's room — same guarantee sockets/queueEvents.js relies on
 // for booking/queue pushes.
+// Every one of today's NotificationType values is optional/user-configurable
+// (see notificationPreference.service.js's doc comment — nothing
+// security/system-critical exists yet), so a disabled category simply skips
+// creation entirely: no row, no socket push, no unread-count bump. If a
+// mandatory type is ever introduced it must bypass this check explicitly
+// rather than being added to CATEGORY_BY_TYPE as "always on".
 async function createNotification({
   userId,
   type,
@@ -38,6 +45,9 @@ async function createNotification({
   relatedReviewId = null,
   relatedQueueEntryId = null,
 }) {
+  const enabled = await notificationPreferenceService.isCategoryEnabled(userId, type);
+  if (!enabled) return null;
+
   const notification = await prisma.notification.create({
     data: {
       userId,

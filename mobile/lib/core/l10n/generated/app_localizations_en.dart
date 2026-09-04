@@ -1980,19 +1980,146 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aMorePreferences => 'Preferences';
 
   @override
-  String get aMoreUnsupported => 'Not available';
-
-  @override
-  String get aMoreNoPlatformSettings =>
-      'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.';
-
-  @override
-  String get aMoreNoAudit =>
-      'Nothing records administrative actions, so there is no audit log to show.';
-
-  @override
   String get aMoreRealtimeNote =>
       'Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.';
+
+  @override
+  String get aMoreBookingPolicyTitle => 'Booking window configuration';
+
+  @override
+  String get aMoreBookingPolicyDescription =>
+      'Applies platform-wide, to every provider — enforced on both the availability grid and booking creation, not just shown here.';
+
+  @override
+  String get fieldMinAdvanceMinutes => 'Minimum advance time (minutes)';
+
+  @override
+  String get fieldMaxAdvanceDays => 'Maximum days in advance';
+
+  @override
+  String get fieldAllowSameDayBooking => 'Allow same-day booking';
+
+  @override
+  String get aMoreBookingPolicyInvalid =>
+      'Enter a minimum advance time of 0 or more and a maximum of at least 1 day.';
+
+  @override
+  String get aMoreBookingPolicySaved => 'Booking policy updated';
+
+  @override
+  String get aMoreNotificationSettingsTitle => 'Notification settings';
+
+  @override
+  String get aMoreNotificationSettingsDescription =>
+      'Which in-app notifications you receive on this account. Disabling a category stops it from being created for you at all.';
+
+  @override
+  String get notifPrefBookingUpdates => 'Booking updates';
+
+  @override
+  String get notifPrefBookingUpdatesDesc =>
+      'Created, confirmed, rejected, cancelled, started, and completed bookings.';
+
+  @override
+  String get notifPrefQueueUpdates => 'Queue updates';
+
+  @override
+  String get notifPrefQueueUpdatesDesc =>
+      'Joining a queue and when your turn is next.';
+
+  @override
+  String get notifPrefReviewUpdates => 'Review updates';
+
+  @override
+  String get notifPrefReviewUpdatesDesc =>
+      'A new review is left for a provider.';
+
+  @override
+  String get notifPrefProviderUpdates => 'Provider updates';
+
+  @override
+  String get notifPrefProviderUpdatesDesc =>
+      'A new provider registers, is approved, or is rejected.';
+
+  @override
+  String get aMoreBackupTitle => 'System data backup';
+
+  @override
+  String get aMoreBackupDescription =>
+      'Exports a real JSON snapshot of the platform\'s application data — users (without passwords), providers, bookings, reviews, finance, and more. Never includes credentials, tokens, or API keys.';
+
+  @override
+  String get actionDownloadBackup => 'Download backup';
+
+  @override
+  String get aMoreBackupSaved => 'Backup saved';
+
+  @override
+  String get aMoreAuditLog => 'Audit log';
+
+  @override
+  String get auditLogTitle => 'Audit log';
+
+  @override
+  String get auditLogDescription =>
+      'A real, append-only record of administrative actions — who did what, and when. Nothing here can be edited or removed.';
+
+  @override
+  String get auditLogFilterAction => 'Filter by action';
+
+  @override
+  String get auditLogAllActions => 'All actions';
+
+  @override
+  String get auditLogEmptyTitle => 'No audit entries';
+
+  @override
+  String get auditLogEmptyDescription =>
+      'Administrative actions will appear here as they happen.';
+
+  @override
+  String auditLogPagination(int page, int totalPages) {
+    return 'Page $page of $totalPages';
+  }
+
+  @override
+  String get actionPrevious => 'Previous';
+
+  @override
+  String get actionNext => 'Next';
+
+  @override
+  String get auditActionProviderApproved => 'Provider approved';
+
+  @override
+  String get auditActionProviderRejected => 'Provider rejected';
+
+  @override
+  String get auditActionCategoryCreated => 'Category created';
+
+  @override
+  String get auditActionCategoryUpdated => 'Category updated';
+
+  @override
+  String get auditActionCategoryDeleted => 'Category deleted';
+
+  @override
+  String get auditActionFuelInventoryUpdated => 'Fuel inventory updated';
+
+  @override
+  String get auditActionFinanceSettled => 'Finance settled';
+
+  @override
+  String get auditActionCommissionRateUpdated => 'Commission rate updated';
+
+  @override
+  String get auditActionBookingStatusChanged => 'Booking status changed';
+
+  @override
+  String get auditActionBookingPolicyUpdated => 'Booking policy updated';
+
+  @override
+  String get auditActionSystemBackupExported => 'System backup exported';
 
   @override
   String get aBookingNotes => 'Notes';

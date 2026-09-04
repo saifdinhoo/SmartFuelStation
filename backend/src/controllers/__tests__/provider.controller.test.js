@@ -9,7 +9,9 @@ jest.mock('../../services/finance.service');
 jest.mock('../../services/liveCamera.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
+jest.mock('../../services/auditLog.service');
 
+const auditLogService = require('../../services/auditLog.service');
 const providerService = require('../../services/provider.service');
 const hoursService = require('../../services/providerHours.service');
 const availabilityService = require('../../services/availability.service');
@@ -100,6 +102,48 @@ describe('setApproval', () => {
       estimatedWaitMinutes: 5,
       isApproved: true,
     });
+  });
+
+  it('records a PROVIDER_APPROVED audit entry when approved', async () => {
+    providerService.setProviderApproval.mockResolvedValue({
+      id: 2,
+      userId: 77,
+      businessName: 'Al-Nour Auto',
+      isApproved: true,
+      isOpen: false,
+      estimatedWaitMinutes: 0,
+    });
+
+    await providerController.setApproval(
+      { user: ADMIN, params: { id: 2 }, body: { isApproved: true } },
+      fakeRes(),
+      jest.fn(),
+    );
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'PROVIDER_APPROVED', entityType: 'Provider', entityId: 2 }),
+    );
+  });
+
+  it('records a PROVIDER_REJECTED audit entry when revoked', async () => {
+    providerService.setProviderApproval.mockResolvedValue({
+      id: 2,
+      userId: 77,
+      businessName: 'Al-Nour Auto',
+      isApproved: false,
+      isOpen: false,
+      estimatedWaitMinutes: 0,
+    });
+
+    await providerController.setApproval(
+      { user: ADMIN, params: { id: 2 }, body: { isApproved: false } },
+      fakeRes(),
+      jest.fn(),
+    );
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'PROVIDER_REJECTED', entityType: 'Provider', entityId: 2 }),
+    );
   });
 });
 

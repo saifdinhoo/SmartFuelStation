@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bell, Database, Languages, Palette, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { Database, Download, Languages, Palette, ShieldCheck } from 'lucide-react';
 import { Reveal } from '@/components/common/Reveal';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -18,34 +18,15 @@ import {
   type ChangePasswordFormValues,
 } from '@/features/auth/changePasswordSchema';
 import { useChangePassword } from '@/features/auth/useChangePassword';
-
-// Nothing on this page pretends to be a stored platform setting. There is
-// no settings table in the schema, so the only real controls are the local
-// appearance ones and links to the pages where real configuration lives.
-const UNSUPPORTED = [
-  {
-    icon: SlidersHorizontal,
-    title: 'Booking window configuration',
-    reason:
-      'No settings table exists in the schema for booking windows or similar scheduling values.',
-  },
-  {
-    icon: Bell,
-    title: 'Notification settings',
-    reason: 'No notifications backend exists yet.',
-  },
-  {
-    icon: Database,
-    title: 'Backups & audit log',
-    reason:
-      'Nothing records administrative actions. Provider approvals store approvedById, but no general audit trail exists.',
-  },
-];
+import { BookingPolicyCard } from '@/features/admin/bookingPolicy/BookingPolicyCard';
+import { NotificationPreferencesCard } from '@/features/admin/notificationPreferences/NotificationPreferencesCard';
+import { useExportBackup } from '@/features/admin/backup/useExportBackup';
 
 export function AdminSettingsPage() {
   const { user } = useAuth();
   const { showToast } = useToast();
   const { changePassword, isPending: isChangingPassword } = useChangePassword();
+  const { exportBackup, isExporting } = useExportBackup();
   const {
     register,
     handleSubmit,
@@ -174,25 +155,40 @@ export function AdminSettingsPage() {
           </CardContent>
         </Card>
 
+        <BookingPolicyCard />
+
+        <NotificationPreferencesCard />
+
         <Card>
           <CardHeader>
-            <h2 className="text-heading-3">Not available yet</h2>
+            <h2 className="flex items-center gap-2 text-heading-3">
+              <Database className="h-4 w-4 text-muted-foreground" />
+              System data backup
+            </h2>
+            <p className="text-caption">
+              Downloads a real JSON snapshot of the platform's application data — users (without
+              passwords), providers, bookings, reviews, finance, and more. Never includes
+              credentials, tokens, or API keys.
+            </p>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {UNSUPPORTED.map(({ icon: Icon, title, reason }) => (
-              <div key={title} className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-2">
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{title}</p>
-                    <p className="text-caption">{reason}</p>
-                  </div>
-                </div>
-                <Button variant="secondary" disabled aria-disabled className="shrink-0">
-                  Unavailable
-                </Button>
-              </div>
-            ))}
+          <CardContent className="flex flex-col gap-3">
+            <Button
+              variant="secondary"
+              isLoading={isExporting}
+              onClick={() => exportBackup()}
+              className="self-start"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download backup
+            </Button>
+            <Alert variant="info" title="Audit log">
+              Every administrative action — approvals, category changes, settlements, policy
+              updates, and backup exports — is recorded in the{' '}
+              <Link to="/admin/audit-log" className="font-medium underline">
+                audit log
+              </Link>
+              .
+            </Alert>
           </CardContent>
         </Card>
       </Reveal>

@@ -1,10 +1,16 @@
 jest.mock('../../services/admin.service');
 jest.mock('../../services/fuelInventory.service');
 jest.mock('../../services/finance.service');
+jest.mock('../../services/bookingPolicy.service');
+jest.mock('../../services/auditLog.service');
+jest.mock('../../services/backup.service');
 jest.mock('../../sockets/queueEvents');
 
 const fuelService = require('../../services/fuelInventory.service');
 const financeService = require('../../services/finance.service');
+const bookingPolicyService = require('../../services/bookingPolicy.service');
+const auditLogService = require('../../services/auditLog.service');
+const backupService = require('../../services/backup.service');
 const socketEvents = require('../../sockets/queueEvents');
 const adminController = require('../admin.controller');
 
@@ -246,5 +252,167 @@ describe('setProviderCommission', () => {
 
     expect(next).toHaveBeenCalledWith(err);
     expect(socketEvents.notifyFinanceUpdated).not.toHaveBeenCalled();
+  });
+
+  it('records a COMMISSION_RATE_UPDATED audit entry after a successful write', async () => {
+    financeService.setProviderCommission.mockResolvedValue({ providerId: 2, commissionRate: 15 });
+
+    await adminController.setProviderCommission(
+      { params: { providerId: '2' }, body: { commissionRate: 15 }, user: ADMIN },
+      fakeRes(),
+      jest.fn(),
+    );
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'COMMISSION_RATE_UPDATED', entityType: 'Provider', entityId: 2 }),
+    );
+  });
+});
+
+describe('updateProviderFuel — audit', () => {
+  it('records a FUEL_INVENTORY_UPDATED audit entry after a successful write', async () => {
+    fuelService.adminUpsertFuel.mockResolvedValue({ fuelType: 'DIESEL' });
+
+    await adminController.updateProviderFuel(
+      { user: ADMIN, params: { providerId: '2', fuelType: 'DIESEL' }, body: {} },
+      fakeRes(),
+      jest.fn(),
+    );
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'FUEL_INVENTORY_UPDATED', entityType: 'Provider', entityId: 2 }),
+    );
+  });
+});
+
+describe('settleFinanceTransaction — audit', () => {
+  it('records a FINANCE_SETTLED audit entry after a successful settlement', async () => {
+    financeService.setSettlementStatus.mockResolvedValue({ id: 9, providerId: 2 });
+
+    await adminController.settleFinanceTransaction({ params: { id: '9' }, user: ADMIN }, fakeRes(), jest.fn());
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'FINANCE_SETTLED', entityType: 'FinancialTransaction', entityId: 9 }),
+    );
+  });
+});
+
+describe('getBookingPolicy', () => {
+  it('returns the service result', async () => {
+    const policy = { id: 1, minAdvanceMinutes: 30, maxAdvanceDays: 30, allowSameDayBooking: true };
+    bookingPolicyService.getPolicy.mockResolvedValue(policy);
+    const res = fakeRes();
+
+    await adminController.getBookingPolicy({}, res, jest.fn());
+
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: policy });
+  });
+});
+
+describe('updateBookingPolicy', () => {
+  it('forwards the body and the acting admin id, then records BOOKING_POLICY_UPDATED', async () => {
+    const policy = { id: 1, minAdvanceMinutes: 60, maxAdvanceDays: 14, allowSameDayBooking: false };
+    bookingPolicyService.updatePolicy.mockResolvedValue(policy);
+    const req = {
+      user: ADMIN,
+      body: { minAdvanceMinutes: 60, maxAdvanceDays: 14, allowSameDayBooking: false },
+    };
+
+    await adminController.updateBookingPolicy(req, fakeRes(), jest.fn());
+
+    expect(bookingPolicyService.updatePolicy).toHaveBeenCalledWith(
+      { minAdvanceMinutes: 60, maxAdvanceDays: 14, allowSameDayBooking: false },
+      1,
+    );
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({ adminId: 1, action: 'BOOKING_POLICY_UPDATED', entityType: 'BookingPolicy' }),
+    );
+  });
+
+  it('passes a validation error to next() rather than throwing', async () => {
+    const err = new Error('maxAdvanceDays must be an integer between 1 and 365');
+    err.statusCode = 400;
+    bookingPolicyService.updatePolicy.mockRejectedValue(err);
+    const next = jest.fn();
+
+    await adminController.updateBookingPolicy(
+      { user: ADMIN, body: { minAdvanceMinutes: 30, maxAdvanceDays: 9999, allowSameDayBooking: true } },
+      fakeRes(),
+      next,
+    );
+
+    expect(next).toHaveBeenCalledWith(err);
+    expect(auditLogService.record).not.toHaveBeenCalled();
+  });
+});
+
+describe('listAuditLog', () => {
+  it('forwards query filters to the service and never writes an entry itself', async () => {
+    const page = { items: [], page: 1, pageSize: 20, total: 0, totalPages: 1 };
+    auditLogService.list.mockResolvedValue(page);
+    const res = fakeRes();
+
+    await adminController.listAuditLog(
+      { query: { page: '2', pageSize: '10', action: 'CATEGORY_DELETED', entityType: 'ServiceCategory' } },
+      res,
+      jest.fn(),
+    );
+
+    expect(auditLogService.list).toHaveBeenCalledWith({
+      page: '2',
+      pageSize: '10',
+      action: 'CATEGORY_DELETED',
+      entityType: 'ServiceCategory',
+      from: undefined,
+      to: undefined,
+    });
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: page });
+    expect(auditLogService.record).not.toHaveBeenCalled();
+  });
+});
+
+describe('exportBackup', () => {
+  it('sends the raw snapshot with download headers — not the usual {success,data} envelope', async () => {
+    const snapshot = { formatVersion: 1, generatedAt: 'now', application: 'x', data: {} };
+    backupService.buildSnapshot.mockResolvedValue(snapshot);
+    backupService.backupFilename.mockReturnValue('smart-automotive-backup-2026-09-04-2105.json');
+    const res = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+    await adminController.exportBackup({ user: ADMIN }, res, jest.fn());
+
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/json');
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      'attachment; filename="smart-automotive-backup-2026-09-04-2105.json"',
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith(JSON.stringify(snapshot));
+  });
+
+  it('records a SYSTEM_BACKUP_EXPORTED audit entry without the payload itself', async () => {
+    backupService.buildSnapshot.mockResolvedValue({ data: { users: [{ id: 1 }] } });
+    backupService.backupFilename.mockReturnValue('smart-automotive-backup-2026-09-04-2105.json');
+    const res = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+    await adminController.exportBackup({ user: ADMIN }, res, jest.fn());
+
+    expect(auditLogService.record).toHaveBeenCalledWith({
+      adminId: 1,
+      action: 'SYSTEM_BACKUP_EXPORTED',
+      entityType: 'System',
+      metadata: { filename: 'smart-automotive-backup-2026-09-04-2105.json' },
+    });
+  });
+
+  it('passes a build failure to next() rather than sending a partial file', async () => {
+    const err = new Error('db unavailable');
+    backupService.buildSnapshot.mockRejectedValue(err);
+    const next = jest.fn();
+    const res = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), send: jest.fn() };
+
+    await adminController.exportBackup({ user: ADMIN }, res, next);
+
+    expect(next).toHaveBeenCalledWith(err);
+    expect(res.send).not.toHaveBeenCalled();
   });
 });

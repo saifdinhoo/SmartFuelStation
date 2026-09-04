@@ -9,15 +9,19 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../auth/state/auth_state.dart';
 import '../../auth/widgets/change_password_section.dart';
+import '../settings/admin_backup_card.dart';
+import '../settings/admin_booking_policy_card.dart';
+import '../settings/admin_notification_preferences_card.dart';
 import '../widgets/admin_widgets.dart';
 
 /// The long tail of the admin area: the screens that don't earn a
 /// bottom-bar slot, plus account and preferences.
 ///
-/// Nothing here pretends to be a stored platform setting. There is no
-/// settings table in the schema, so the only real controls are the local
-/// appearance ones — everything else is stated as unavailable, with the
-/// reason, rather than shown as a dead toggle.
+/// Booking window configuration, notification settings and the system
+/// backup export are real, backend-enforced features (see
+/// bookingPolicy.service.js, notificationPreference.service.js and
+/// backup.service.js) — not placeholders. The full audit history lives on
+/// its own screen, reached from the nav tile below.
 class AdminMoreScreen extends StatelessWidget {
   const AdminMoreScreen({super.key});
 
@@ -103,6 +107,12 @@ class AdminMoreScreen extends StatelessWidget {
                   label: l10n.aMoreFinance,
                   onTap: () => context.push(Routes.adminFinance),
                 ),
+                const Divider(height: 1),
+                _NavTile(
+                  icon: Icons.history_toggle_off_outlined,
+                  label: l10n.aMoreAuditLog,
+                  onTap: () => context.push(Routes.adminAuditLog),
+                ),
               ],
             ),
           ),
@@ -173,32 +183,13 @@ class AdminMoreScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
-          AdminSectionHeader(title: l10n.aMoreUnsupported),
-          const SizedBox(height: 8),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AdminGapNote(
-                    icon: Icons.tune_outlined,
-                    text: l10n.aMoreNoPlatformSettings,
-                  ),
-                  const SizedBox(height: 12),
-                  AdminGapNote(
-                    icon: Icons.history_toggle_off_outlined,
-                    text: l10n.aMoreNoAudit,
-                  ),
-                  const SizedBox(height: 12),
-                  AdminGapNote(
-                    icon: Icons.sync_outlined,
-                    text: l10n.aMoreRealtimeNote,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const AdminBookingPolicyCard(),
+
+          const SizedBox(height: 20),
+          const AdminNotificationPreferencesCard(),
+
+          const SizedBox(height: 20),
+          const AdminBackupCard(),
 
           const SizedBox(height: 20),
           OutlinedButton.icon(

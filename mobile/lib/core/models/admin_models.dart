@@ -715,3 +715,97 @@ class AdminAnalytics {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Booking policy — GET/PATCH /admin/booking-policy
+// ---------------------------------------------------------------------------
+
+/// Real, enforced platform-wide configuration (see bookingPolicy.service.js)
+/// — not merely displayed. availability.service.js and booking.service.js
+/// independently reject a booking that violates these values.
+class BookingPolicy {
+  const BookingPolicy({
+    required this.id,
+    required this.minAdvanceMinutes,
+    required this.maxAdvanceDays,
+    required this.allowSameDayBooking,
+  });
+
+  final int id;
+  final int minAdvanceMinutes;
+  final int maxAdvanceDays;
+  final bool allowSameDayBooking;
+
+  factory BookingPolicy.fromJson(Map<String, dynamic> json) => BookingPolicy(
+    id: asInt(json['id']),
+    minAdvanceMinutes: asInt(json['minAdvanceMinutes']),
+    maxAdvanceDays: asInt(json['maxAdvanceDays']),
+    allowSameDayBooking: asBool(json['allowSameDayBooking'], fallback: true),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Audit log — GET /admin/audit-log (read-only)
+// ---------------------------------------------------------------------------
+
+class AuditLogEntry {
+  const AuditLogEntry({
+    required this.id,
+    required this.action,
+    required this.entityType,
+    required this.entityId,
+    required this.metadata,
+    required this.createdAt,
+    required this.adminName,
+    required this.adminEmail,
+  });
+
+  final int id;
+  final String action;
+  final String entityType;
+  final int? entityId;
+  final Map<String, dynamic> metadata;
+  final DateTime createdAt;
+  final String adminName;
+  final String adminEmail;
+
+  factory AuditLogEntry.fromJson(Map<String, dynamic> json) {
+    final admin = asMapOrNull(json['admin']) ?? const {};
+    return AuditLogEntry(
+      id: asInt(json['id']),
+      action: asString(json['action']),
+      entityType: asString(json['entityType']),
+      entityId: asIntOrNull(json['entityId']),
+      metadata: asMapOrNull(json['metadata']) ?? const {},
+      createdAt: asDate(json['createdAt']),
+      adminName: asString(admin['name']),
+      adminEmail: asString(admin['email']),
+    );
+  }
+}
+
+class AuditLogPage {
+  const AuditLogPage({
+    required this.items,
+    required this.page,
+    required this.pageSize,
+    required this.total,
+    required this.totalPages,
+  });
+
+  final List<AuditLogEntry> items;
+  final int page;
+  final int pageSize;
+  final int total;
+  final int totalPages;
+
+  factory AuditLogPage.fromJson(Map<String, dynamic> json) => AuditLogPage(
+    items: asMapList(
+      json['items'],
+    ).map(AuditLogEntry.fromJson).toList(),
+    page: asInt(json['page']),
+    pageSize: asInt(json['pageSize']),
+    total: asInt(json['total']),
+    totalPages: asInt(json['totalPages']),
+  );
+}

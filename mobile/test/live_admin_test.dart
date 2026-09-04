@@ -1,6 +1,7 @@
 @Tags(['live'])
 library;
 
+import 'dart:convert' show jsonDecode;
 import 'dart:io' show HttpOverrides;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -483,6 +484,8 @@ void main() {
       '/admin/users',
       '/admin/reviews',
       '/admin/complaints',
+      '/admin/booking-policy',
+      '/admin/audit-log',
     ]) {
       await expectLater(
         customer.api.get(path),
@@ -517,6 +520,8 @@ void main() {
       '/admin/users',
       '/admin/reviews',
       '/admin/complaints',
+      '/admin/booking-policy',
+      '/admin/audit-log',
     ]) {
       await expectLater(
         provider.api.get(path),
@@ -571,5 +576,148 @@ void main() {
       QueryCache(),
     ).refreshOverview();
     expect(overview.users.total, greaterThan(0));
+  });
+
+  test(
+    'booking policy round-trips against the real backend, and restores the original values',
+    () async {
+      final s = await adminSession();
+      final original = await s.admin.refreshBookingPolicy();
+
+      final updated = await s.admin.updateBookingPolicy(
+        minAdvanceMinutes: 90,
+        maxAdvanceDays: 10,
+        allowSameDayBooking: false,
+      );
+      expect(updated.minAdvanceMinutes, 90);
+      expect(updated.maxAdvanceDays, 10);
+      expect(updated.allowSameDayBooking, isFalse);
+
+      // A second read agrees — this isn't just an echo of the request body.
+      final reread = await s.admin.refreshBookingPolicy();
+      expect(reread.minAdvanceMinutes, 90);
+      expect(reread.maxAdvanceDays, 10);
+      expect(reread.allowSameDayBooking, isFalse);
+
+      // Restore, so this test can be run repeatedly against the same
+      // seeded database without leaving the policy altered for every other
+      // suite (createBooking/getAvailability tests assume the defaults).
+      await s.admin.updateBookingPolicy(
+        minAdvanceMinutes: original.minAdvanceMinutes,
+        maxAdvanceDays: original.maxAdvanceDays,
+        allowSameDayBooking: original.allowSameDayBooking,
+      );
+    },
+  );
+
+  test('an invalid booking policy is refused by the backend', () async {
+    final s = await adminSession();
+    await expectLater(
+      s.admin.updateBookingPolicy(
+        minAdvanceMinutes: -1,
+        maxAdvanceDays: 30,
+        allowSameDayBooking: true,
+      ),
+      throwsA(
+        isA<ApiException>().having(
+          (e) => e.statusCode,
+          'is 400',
+          400,
+        ),
+      ),
+    );
+  });
+
+  test('audit log records a real admin action and is closed to a customer', () async {
+    final s = await adminSession();
+
+    // Any admin mutation creates a row — category create/delete is cheap
+    // and self-contained.
+    final name = 'Audit probe ${DateTime.now().millisecondsSinceEpoch}';
+    await s.admin.createCategory(name: name, description: 'temp');
+    final categories = await s.admin.refreshCategories();
+    final created = categories.firstWhere((c) => c.name == name);
+    await s.admin.deleteCategory(created.id);
+
+    // The raw endpoint directly, rather than the cached watch* helper, so
+    // this reads the real current state instead of a possibly-stale cache.
+    final raw =
+        await s.api.get(
+              '/admin/audit-log',
+              query: {'action': 'CATEGORY_CREATED', 'pageSize': 5},
+            )
+            as Map;
+    final items = (raw['items'] as List).cast<Map>();
+    expect(
+      items.any((e) => (e['metadata'] as Map?)?['name'] == name),
+      isTrue,
+      reason: 'the category-create action just performed must be logged',
+    );
+
+    final customer = await session(customerEmail);
+    await expectLater(
+      customer.api.get('/admin/audit-log'),
+      throwsA(
+        isA<ApiException>().having((e) => e.isForbidden, 'is 403', isTrue),
+      ),
+    );
+  });
+
+  test(
+    'notification preferences round-trip and are scoped to the caller (own account only)',
+    () async {
+      final admin = await adminSession();
+      final customer = await session(customerEmail);
+
+      final adminBefore = await admin.api.get('/notifications/preferences') as Map;
+      expect(adminBefore['bookingUpdates'], isTrue); // documented default
+
+      final updated =
+          await admin.api.patch(
+                '/notifications/preferences',
+                body: {'bookingUpdates': false},
+              )
+              as Map;
+      expect(updated['bookingUpdates'], isFalse);
+      // Untouched fields keep their previous value — a real partial update.
+      expect(updated['queueUpdates'], isTrue);
+
+      // The customer's own preferences are unaffected by the admin's write.
+      final customerPrefs = await customer.api.get('/notifications/preferences') as Map;
+      expect(customerPrefs['bookingUpdates'], isTrue);
+
+      // Restore.
+      await admin.api.patch(
+        '/notifications/preferences',
+        body: {'bookingUpdates': true},
+      );
+    },
+  );
+
+  test('backup export is a real, valid JSON snapshot with no secrets, and is closed to a customer', () async {
+    final s = await adminSession();
+    final json = await s.admin.exportBackupJson();
+
+    expect(json.toLowerCase(), isNot(contains('passwordhash')));
+    expect(json.toLowerCase(), isNot(contains('"password"')));
+    expect(json.toLowerCase(), isNot(contains('tokenhash')));
+
+    final decoded = jsonDecode(json) as Map;
+    expect(decoded['formatVersion'], 1);
+    expect(decoded['application'], 'Smart Automotive Service Platform');
+    final data = decoded['data'] as Map;
+    expect(data['users'], isA<List>());
+    expect(data['bookings'], isA<List>());
+    expect((data['users'] as List), isNotEmpty);
+    final firstUser = (data['users'] as List).first as Map;
+    expect(firstUser.containsKey('password'), isFalse);
+
+    final customer = await session(customerEmail);
+    await expectLater(
+      customer.api.post('/admin/backups/export'),
+      throwsA(
+        isA<ApiException>().having((e) => e.isForbidden, 'is 403', isTrue),
+      ),
+    );
   });
 }

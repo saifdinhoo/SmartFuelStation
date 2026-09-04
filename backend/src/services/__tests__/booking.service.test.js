@@ -9,6 +9,7 @@ jest.mock('../../config/prisma', () => ({
     delete: jest.fn(),
   },
   provider: { findUnique: jest.fn() },
+  bookingPolicy: { findUnique: jest.fn(), upsert: jest.fn() },
   $transaction: jest.fn(),
 }));
 jest.mock('../finance.service', () => ({
@@ -34,6 +35,18 @@ function localNoonOffsetByDays(days) {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, 12, 0, 0, 0);
 }
 
+// Strictly future, but guaranteed to still fall on today's calendar date
+// regardless of what time of day the suite happens to run at — a plain
+// "+6 hours" would occasionally roll past midnight and flip which day this
+// lands on right when a test run happens late at night.
+function laterTodayButSameDay() {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+  const msUntilMidnight = midnight.getTime() - now.getTime();
+  const offsetMs = Math.min(6 * 60 * 60_000, Math.max(60_000, msUntilMidnight - 60_000));
+  return new Date(now.getTime() + offsetMs).toISOString();
+}
+
 const FUTURE = localNoonOffsetByDays(1).toISOString();
 const PAST = localNoonOffsetByDays(-1).toISOString();
 
@@ -55,10 +68,17 @@ function availableService(overrides = {}) {
   };
 }
 
+// Permissive enough that FUTURE (local noon, one day out) is never rejected
+// by policy — this file's pre-existing tests are about operating hours,
+// overlap, and status transitions, not the booking-policy feature, which
+// gets its own dedicated describe block below with a tighter policy per test.
+const PERMISSIVE_POLICY = { id: 1, minAdvanceMinutes: 0, maxAdvanceDays: 5000, allowSameDayBooking: true };
+
 beforeEach(() => {
   jest.clearAllMocks();
   prisma.$transaction.mockImplementation(async (fn) => fn(prisma));
   prisma.providerOperatingHour.findUnique.mockResolvedValue(ALL_DAY_OPEN);
+  prisma.bookingPolicy.findUnique.mockResolvedValue(PERMISSIVE_POLICY);
 });
 
 describe('createBooking', () => {
@@ -312,6 +332,105 @@ describe('createBooking', () => {
         expect.any(Function),
         expect.objectContaining({ isolationLevel: 'Serializable' }),
       );
+    });
+  });
+
+  describe('booking policy enforcement', () => {
+    it('rejects a time sooner than the policy-required minimum notice', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 120,
+        maxAdvanceDays: 5000,
+        allowSameDayBooking: true,
+      });
+      // 30 minutes out is comfortably within the future but under the
+      // 120-minute policy minimum.
+      const soon = new Date(Date.now() + 30 * 60_000).toISOString();
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: soon }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.providerService.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('accepts a time that meets the policy-required minimum notice', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 30,
+        maxAdvanceDays: 5000,
+        allowSameDayBooking: true,
+      });
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).resolves.toBeDefined();
+    });
+
+    it('rejects a date beyond maxAdvanceDays', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 0,
+        maxAdvanceDays: 5,
+        allowSameDayBooking: true,
+      });
+      const farFuture = localNoonOffsetByDays(30).toISOString();
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: farFuture }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.providerService.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('accepts a date within maxAdvanceDays', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 0,
+        maxAdvanceDays: 30,
+        allowSameDayBooking: true,
+      });
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: FUTURE }),
+      ).resolves.toBeDefined();
+    });
+
+    it('rejects a same-day booking when the policy disallows it', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 0,
+        maxAdvanceDays: 5000,
+        allowSameDayBooking: false,
+      });
+      // Later today, comfortably in the future relative to "now".
+      const laterToday = laterTodayButSameDay();
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: laterToday }),
+      ).rejects.toMatchObject({ statusCode: 400 });
+      expect(prisma.providerService.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('allows a same-day booking when the policy allows it', async () => {
+      prisma.bookingPolicy.findUnique.mockResolvedValue({
+        id: 1,
+        minAdvanceMinutes: 0,
+        maxAdvanceDays: 5000,
+        allowSameDayBooking: true,
+      });
+      prisma.providerService.findUnique.mockResolvedValue(availableService());
+      prisma.booking.findMany.mockResolvedValue([]);
+      prisma.booking.create.mockResolvedValue({ id: 1 });
+      const laterToday = laterTodayButSameDay();
+
+      await expect(
+        bookingService.createBooking({ customerId: 33, providerServiceId: 5, scheduledAt: laterToday }),
+      ).resolves.toBeDefined();
     });
   });
 });

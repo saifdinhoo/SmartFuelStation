@@ -9,6 +9,9 @@ jest.mock('../../config/prisma', () => ({
     updateMany: jest.fn(),
     delete: jest.fn(),
   },
+  notificationPreference: {
+    findUnique: jest.fn(),
+  },
 }));
 jest.mock('../../sockets', () => ({
   getIO: jest.fn(),
@@ -21,6 +24,9 @@ const notificationService = require('../notification.service');
 
 beforeEach(() => {
   jest.resetAllMocks();
+  // No preference row -> every category defaults to enabled, matching the
+  // behavior every pre-existing test in this file already assumes.
+  prisma.notificationPreference.findUnique.mockResolvedValue(null);
 });
 
 describe('createNotification', () => {
@@ -70,6 +76,54 @@ describe('createNotification', () => {
     await expect(
       notificationService.createNotification({ userId: 5, type: 'NEW_REVIEW', title: 't', message: 'm' }),
     ).resolves.toBeDefined();
+  });
+
+  it('skips creation and emission entirely when the recipient disabled this category', async () => {
+    prisma.notificationPreference.findUnique.mockResolvedValue({
+      userId: 5,
+      bookingUpdates: false,
+      queueUpdates: true,
+      reviewUpdates: true,
+      providerUpdates: true,
+    });
+    const emit = jest.fn();
+    const to = jest.fn(() => ({ emit }));
+    getIO.mockReturnValue({ to });
+
+    const result = await notificationService.createNotification({
+      userId: 5,
+      type: 'BOOKING_CONFIRMED',
+      title: 't',
+      message: 'm',
+    });
+
+    expect(prisma.notification.create).not.toHaveBeenCalled();
+    expect(to).not.toHaveBeenCalled();
+    expect(result).toBeNull();
+  });
+
+  it('still creates and emits a category the recipient left enabled', async () => {
+    prisma.notificationPreference.findUnique.mockResolvedValue({
+      userId: 5,
+      bookingUpdates: false,
+      queueUpdates: true,
+      reviewUpdates: true,
+      providerUpdates: true,
+    });
+    prisma.notification.create.mockResolvedValue({ id: 1, userId: 5, type: 'QUEUE_ALMOST_TURN' });
+    const emit = jest.fn();
+    const to = jest.fn(() => ({ emit }));
+    getIO.mockReturnValue({ to });
+
+    await notificationService.createNotification({
+      userId: 5,
+      type: 'QUEUE_ALMOST_TURN',
+      title: 't',
+      message: 'm',
+    });
+
+    expect(prisma.notification.create).toHaveBeenCalledTimes(1);
+    expect(to).toHaveBeenCalledWith('user:5');
   });
 });
 

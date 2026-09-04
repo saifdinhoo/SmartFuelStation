@@ -9,6 +9,7 @@ const financeService = require('../services/finance.service');
 const liveCameraService = require('../services/liveCamera.service');
 const socketEvents = require('../sockets/queueEvents');
 const notificationService = require('../services/notification.service');
+const auditLogService = require('../services/auditLog.service');
 
 // Same contract as queue.controller.js and booking.controller.js: socket
 // pushes run only after the REST response has been sent, and a failed push
@@ -81,6 +82,14 @@ async function setApproval(req, res, next) {
             },
       ),
     );
+
+    await auditLogService.record({
+      adminId: req.user.userId,
+      action: provider.isApproved ? 'PROVIDER_APPROVED' : 'PROVIDER_REJECTED',
+      entityType: 'Provider',
+      entityId: provider.id,
+      metadata: { businessName: provider.businessName },
+    });
   } catch (err) {
     next(err);
   }

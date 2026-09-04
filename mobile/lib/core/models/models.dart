@@ -1151,6 +1151,45 @@ class AppNotification {
   );
 }
 
+/// GET/PATCH /notifications/preferences — always the caller's own; there is
+/// no id to address another user's preferences with. Fields map 1:1 to the
+/// real NotificationType groupings the backend actually emits (see
+/// notificationPreference.service.js's CATEGORY_BY_TYPE) — no field exists
+/// here for a notification family that doesn't exist yet.
+class NotificationPreferences {
+  const NotificationPreferences({
+    required this.bookingUpdates,
+    required this.queueUpdates,
+    required this.reviewUpdates,
+    required this.providerUpdates,
+  });
+
+  final bool bookingUpdates;
+  final bool queueUpdates;
+  final bool reviewUpdates;
+  final bool providerUpdates;
+
+  factory NotificationPreferences.fromJson(Map<String, dynamic> json) =>
+      NotificationPreferences(
+        bookingUpdates: asBool(json['bookingUpdates'], fallback: true),
+        queueUpdates: asBool(json['queueUpdates'], fallback: true),
+        reviewUpdates: asBool(json['reviewUpdates'], fallback: true),
+        providerUpdates: asBool(json['providerUpdates'], fallback: true),
+      );
+
+  NotificationPreferences copyWith({
+    bool? bookingUpdates,
+    bool? queueUpdates,
+    bool? reviewUpdates,
+    bool? providerUpdates,
+  }) => NotificationPreferences(
+    bookingUpdates: bookingUpdates ?? this.bookingUpdates,
+    queueUpdates: queueUpdates ?? this.queueUpdates,
+    reviewUpdates: reviewUpdates ?? this.reviewUpdates,
+    providerUpdates: providerUpdates ?? this.providerUpdates,
+  );
+}
+
 /// GET /queue/summary/:providerId — aggregate only, safe for any browsing
 /// customer (no entry-level detail, no other customer's identity).
 class QueueSummary {

@@ -3800,29 +3800,263 @@ abstract class AppLocalizations {
   /// **'Preferences'**
   String get aMorePreferences;
 
-  /// No description provided for @aMoreUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Not available'**
-  String get aMoreUnsupported;
-
-  /// No description provided for @aMoreNoPlatformSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'No settings table exists for booking windows or similar scheduling values — commission rates are stored and configurable under Finance.'**
-  String get aMoreNoPlatformSettings;
-
-  /// No description provided for @aMoreNoAudit.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing records administrative actions, so there is no audit log to show.'**
-  String get aMoreNoAudit;
-
   /// No description provided for @aMoreRealtimeNote.
   ///
   /// In en, this message translates to:
   /// **'Admin lists refresh on demand: the only live event the backend sends an admin is a business opening or closing.'**
   String get aMoreRealtimeNote;
+
+  /// No description provided for @aMoreBookingPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking window configuration'**
+  String get aMoreBookingPolicyTitle;
+
+  /// No description provided for @aMoreBookingPolicyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies platform-wide, to every provider — enforced on both the availability grid and booking creation, not just shown here.'**
+  String get aMoreBookingPolicyDescription;
+
+  /// No description provided for @fieldMinAdvanceMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum advance time (minutes)'**
+  String get fieldMinAdvanceMinutes;
+
+  /// No description provided for @fieldMaxAdvanceDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum days in advance'**
+  String get fieldMaxAdvanceDays;
+
+  /// No description provided for @fieldAllowSameDayBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow same-day booking'**
+  String get fieldAllowSameDayBooking;
+
+  /// No description provided for @aMoreBookingPolicyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a minimum advance time of 0 or more and a maximum of at least 1 day.'**
+  String get aMoreBookingPolicyInvalid;
+
+  /// No description provided for @aMoreBookingPolicySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking policy updated'**
+  String get aMoreBookingPolicySaved;
+
+  /// No description provided for @aMoreNotificationSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get aMoreNotificationSettingsTitle;
+
+  /// No description provided for @aMoreNotificationSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Which in-app notifications you receive on this account. Disabling a category stops it from being created for you at all.'**
+  String get aMoreNotificationSettingsDescription;
+
+  /// No description provided for @notifPrefBookingUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking updates'**
+  String get notifPrefBookingUpdates;
+
+  /// No description provided for @notifPrefBookingUpdatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Created, confirmed, rejected, cancelled, started, and completed bookings.'**
+  String get notifPrefBookingUpdatesDesc;
+
+  /// No description provided for @notifPrefQueueUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue updates'**
+  String get notifPrefQueueUpdates;
+
+  /// No description provided for @notifPrefQueueUpdatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining a queue and when your turn is next.'**
+  String get notifPrefQueueUpdatesDesc;
+
+  /// No description provided for @notifPrefReviewUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Review updates'**
+  String get notifPrefReviewUpdates;
+
+  /// No description provided for @notifPrefReviewUpdatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A new review is left for a provider.'**
+  String get notifPrefReviewUpdatesDesc;
+
+  /// No description provided for @notifPrefProviderUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider updates'**
+  String get notifPrefProviderUpdates;
+
+  /// No description provided for @notifPrefProviderUpdatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A new provider registers, is approved, or is rejected.'**
+  String get notifPrefProviderUpdatesDesc;
+
+  /// No description provided for @aMoreBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System data backup'**
+  String get aMoreBackupTitle;
+
+  /// No description provided for @aMoreBackupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Exports a real JSON snapshot of the platform\'s application data — users (without passwords), providers, bookings, reviews, finance, and more. Never includes credentials, tokens, or API keys.'**
+  String get aMoreBackupDescription;
+
+  /// No description provided for @actionDownloadBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Download backup'**
+  String get actionDownloadBackup;
+
+  /// No description provided for @aMoreBackupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get aMoreBackupSaved;
+
+  /// No description provided for @aMoreAuditLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get aMoreAuditLog;
+
+  /// No description provided for @auditLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit log'**
+  String get auditLogTitle;
+
+  /// No description provided for @auditLogDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A real, append-only record of administrative actions — who did what, and when. Nothing here can be edited or removed.'**
+  String get auditLogDescription;
+
+  /// No description provided for @auditLogFilterAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by action'**
+  String get auditLogFilterAction;
+
+  /// No description provided for @auditLogAllActions.
+  ///
+  /// In en, this message translates to:
+  /// **'All actions'**
+  String get auditLogAllActions;
+
+  /// No description provided for @auditLogEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No audit entries'**
+  String get auditLogEmptyTitle;
+
+  /// No description provided for @auditLogEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrative actions will appear here as they happen.'**
+  String get auditLogEmptyDescription;
+
+  /// No description provided for @auditLogPagination.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {totalPages}'**
+  String auditLogPagination(int page, int totalPages);
+
+  /// No description provided for @actionPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get actionPrevious;
+
+  /// No description provided for @actionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get actionNext;
+
+  /// No description provided for @auditActionProviderApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider approved'**
+  String get auditActionProviderApproved;
+
+  /// No description provided for @auditActionProviderRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider rejected'**
+  String get auditActionProviderRejected;
+
+  /// No description provided for @auditActionCategoryCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Category created'**
+  String get auditActionCategoryCreated;
+
+  /// No description provided for @auditActionCategoryUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Category updated'**
+  String get auditActionCategoryUpdated;
+
+  /// No description provided for @auditActionCategoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Category deleted'**
+  String get auditActionCategoryDeleted;
+
+  /// No description provided for @auditActionFuelInventoryUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel inventory updated'**
+  String get auditActionFuelInventoryUpdated;
+
+  /// No description provided for @auditActionFinanceSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance settled'**
+  String get auditActionFinanceSettled;
+
+  /// No description provided for @auditActionCommissionRateUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Commission rate updated'**
+  String get auditActionCommissionRateUpdated;
+
+  /// No description provided for @auditActionBookingStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking status changed'**
+  String get auditActionBookingStatusChanged;
+
+  /// No description provided for @auditActionBookingPolicyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking policy updated'**
+  String get auditActionBookingPolicyUpdated;
+
+  /// No description provided for @auditActionSystemBackupExported.
+  ///
+  /// In en, this message translates to:
+  /// **'System backup exported'**
+  String get auditActionSystemBackupExported;
 
   /// No description provided for @aBookingNotes.
   ///

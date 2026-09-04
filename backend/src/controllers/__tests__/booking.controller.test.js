@@ -1,10 +1,12 @@
 jest.mock('../../services/booking.service');
 jest.mock('../../sockets/queueEvents');
 jest.mock('../../services/notification.service');
+jest.mock('../../services/auditLog.service');
 
 const bookingService = require('../../services/booking.service');
 const socketEvents = require('../../sockets/queueEvents');
 const notificationService = require('../../services/notification.service');
+const auditLogService = require('../../services/auditLog.service');
 const bookingController = require('../booking.controller');
 
 function fakeRes() {
@@ -134,5 +136,30 @@ describe('updateStatus', () => {
     await bookingController.updateStatus(req, fakeRes(), jest.fn());
 
     expect(socketEvents.notifyProviderAvailabilityChanged).toHaveBeenCalledWith({ providerId: 2 });
+  });
+
+  it('records a BOOKING_STATUS_CHANGED audit entry when an ADMIN changes the status', async () => {
+    bookingService.updateBookingStatus.mockResolvedValue(booking('CANCELLED'));
+    const req = { user: { userId: 1, role: 'ADMIN' }, params: { id: 1 }, body: { status: 'CANCELLED' } };
+
+    await bookingController.updateStatus(req, fakeRes(), jest.fn());
+
+    expect(auditLogService.record).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adminId: 1,
+        action: 'BOOKING_STATUS_CHANGED',
+        entityType: 'Booking',
+        entityId: 1,
+      }),
+    );
+  });
+
+  it('does not record an audit entry when a customer or provider changes their own booking', async () => {
+    bookingService.updateBookingStatus.mockResolvedValue(booking('CONFIRMED'));
+    const req = { user: { userId: 77, role: 'PROVIDER' }, params: { id: 1 }, body: { status: 'CONFIRMED' } };
+
+    await bookingController.updateStatus(req, fakeRes(), jest.fn());
+
+    expect(auditLogService.record).not.toHaveBeenCalled();
   });
 });

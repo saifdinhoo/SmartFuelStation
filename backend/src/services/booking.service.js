@@ -1,5 +1,6 @@
 const prisma = require('../config/prisma');
 const financeService = require('./finance.service');
+const bookingPolicyService = require('./bookingPolicy.service');
 const { ACTIVE_STATUSES, ALL_STATUSES, TRANSITIONS } = require('./shared/bookingTransitions');
 const {
   parseTimeOnly,
@@ -7,6 +8,7 @@ const {
   localDateOnlyOf,
   localTimeOnlyOf,
   dayOfWeekOf,
+  combineLocalDateTime,
 } = require('./shared/availabilityRules');
 
 // Postgres's serialization_failure SQLSTATE (see the Serializable
@@ -81,6 +83,32 @@ async function createBooking({ customerId, providerServiceId, scheduledAt, notes
   }
   if (scheduledDate.getTime() <= Date.now()) {
     throw badRequest('scheduledAt must be in the future');
+  }
+
+  // Platform-wide booking policy (see bookingPolicy.service.js) —
+  // re-derived here independently rather than trusted from whatever the
+  // availability endpoint showed a moment earlier, matching every other
+  // check in this function (operating hours, overlap) that a client could
+  // otherwise bypass by posting directly to this endpoint.
+  const policy = await bookingPolicyService.getActivePolicy();
+  const minAdvanceMs = policy.minAdvanceMinutes * 60_000;
+  if (scheduledDate.getTime() < Date.now() + minAdvanceMs) {
+    throw badRequest(
+      `This provider requires at least ${policy.minAdvanceMinutes} minutes' notice — choose a later time`,
+    );
+  }
+
+  const requestedDateOnly = localDateOnlyOf(scheduledDate);
+  const todayOnly = localDateOnlyOf(new Date());
+  const todayMidnight = combineLocalDateTime(todayOnly, { hour: 0, minute: 0 });
+  const requestedMidnight = combineLocalDateTime(requestedDateOnly, { hour: 0, minute: 0 });
+  const daysFromToday = Math.round((requestedMidnight.getTime() - todayMidnight.getTime()) / 86_400_000);
+
+  if (daysFromToday === 0 && !policy.allowSameDayBooking) {
+    throw badRequest('Same-day booking is currently disabled — please choose a later date');
+  }
+  if (daysFromToday > policy.maxAdvanceDays) {
+    throw badRequest(`Bookings can only be made up to ${policy.maxAdvanceDays} days in advance`);
   }
 
   const service = await prisma.providerService.findUnique({
