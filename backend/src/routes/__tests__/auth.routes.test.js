@@ -29,6 +29,34 @@ describe('PATCH /change-password route wiring', () => {
   });
 });
 
+describe('PATCH /me route wiring', () => {
+  it('requires authenticate before the updateMe controller runs', () => {
+    const layer = authRoutes.stack.find(
+      (l) => l.route && l.route.path === '/me' && l.route.methods.patch,
+    );
+    expect(layer).toBeDefined();
+
+    const middlewareNames = layer.route.stack.map((l) => l.name);
+    expect(middlewareNames).toEqual(['authenticate', 'updateMe']);
+  });
+
+  it('has no role restriction — reachable by any authenticated role', () => {
+    const layer = authRoutes.stack.find(
+      (l) => l.route && l.route.path === '/me' && l.route.methods.patch,
+    );
+    const middlewareNames = layer.route.stack.map((l) => l.name);
+    expect(middlewareNames).not.toContain('authorize');
+  });
+
+  it('GET /me also requires authenticate', () => {
+    const layer = authRoutes.stack.find(
+      (l) => l.route && l.route.path === '/me' && l.route.methods.get,
+    );
+    expect(layer).toBeDefined();
+    expect(layer.route.stack.map((l) => l.name)).toEqual(['authenticate', 'me']);
+  });
+});
+
 // forgot-password/reset-password are public by design — the token itself
 // (not a session) is what authorizes reset-password, and forgot-password
 // must be reachable by a logged-out visitor who forgot their password.

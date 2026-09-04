@@ -101,6 +101,17 @@ class AuthState extends ChangeNotifier {
     required String newPassword,
   }) => api.changePassword(currentPassword: currentPassword, newPassword: newPassword);
 
+  /// Edits the signed-in user's own name/phone (PATCH /auth/me). Replaces
+  /// `_user` with the real, sanitized row the backend returns and calls
+  /// `notifyListeners()`, so `displayName` and every widget that reads it —
+  /// this screen, the app bar, anywhere else identity is shown — updates
+  /// immediately without a manual refetch.
+  Future<void> updateProfile({String? name, String? phone}) async {
+    final updated = await api.updateProfile(name: name, phone: phone);
+    _user = updated;
+    notifyListeners();
+  }
+
   /// No session exists yet at this point — nothing here to accept or store.
   Future<void> requestPasswordReset(String email) => api.requestPasswordReset(email);
 

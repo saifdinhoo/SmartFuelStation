@@ -26,6 +26,23 @@ class AuthApi {
   Future<Map<String, dynamic>> currentUser() async =>
       Map<String, dynamic>.from(await _client.get('/auth/me') as Map);
 
+  /// Only name/phone are ever sent — email, role and password each have
+  /// their own separate path and are never accepted here (see the
+  /// backend's auth.service.js updateCurrentUser doc comment). Passing an
+  /// empty string for `phone` clears the stored number (the backend treats
+  /// a blank value as "clear"); passing Dart `null` omits the field
+  /// entirely, leaving it untouched.
+  Future<Map<String, dynamic>> updateProfile({
+    String? name,
+    String? phone,
+  }) async => Map<String, dynamic>.from(
+    await _client.patch(
+          '/auth/me',
+          body: {'name': ?name, 'phone': ?phone},
+        )
+        as Map,
+  );
+
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

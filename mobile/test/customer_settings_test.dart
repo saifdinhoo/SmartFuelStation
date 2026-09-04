@@ -64,6 +64,8 @@ class _FakeAuthApi extends AuthApi {
     : super(ApiClient(readToken: () => null, onUnauthorized: () async {}));
 
   Object? failWith;
+  Object? updateProfileFailWith;
+  Map<String, dynamic>? lastUpdateProfileCall;
 
   @override
   Future<Map<String, dynamic>> login({
@@ -71,7 +73,13 @@ class _FakeAuthApi extends AuthApi {
     required String password,
   }) async => {
     'token': 'fake-token',
-    'user': {'id': 1, 'name': 'Layla Haddad', 'email': email, 'role': 'CUSTOMER'},
+    'user': {
+      'id': 1,
+      'name': 'Layla Haddad',
+      'email': email,
+      'role': 'CUSTOMER',
+      'phone': '+961 70 555 101',
+    },
   };
 
   @override
@@ -80,6 +88,19 @@ class _FakeAuthApi extends AuthApi {
     required String newPassword,
   }) async {
     if (failWith != null) throw failWith!;
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateProfile({String? name, String? phone}) async {
+    lastUpdateProfileCall = {'name': name, 'phone': phone};
+    if (updateProfileFailWith != null) throw updateProfileFailWith!;
+    return {
+      'id': 1,
+      'name': name ?? 'Layla Haddad',
+      'email': 'layla@smartauto.local',
+      'role': 'CUSTOMER',
+      'phone': phone ?? '+961 70 555 101',
+    };
   }
 }
 
@@ -90,17 +111,17 @@ Future<AuthState> fakeAuthState(AuthApi api) async {
   return auth;
 }
 
-Widget _harness({required AuthState auth}) {
+Widget _harness({required AuthState auth, Locale? locale}) {
   final theme = ThemeController(const PrefsStore());
-  final locale = LocaleController(const PrefsStore());
+  final localeController = LocaleController(const PrefsStore());
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<AuthState>.value(value: auth),
       ChangeNotifierProvider<ThemeController>.value(value: theme),
-      ChangeNotifierProvider<LocaleController>.value(value: locale),
+      ChangeNotifierProvider<LocaleController>.value(value: localeController),
     ],
     child: MaterialApp(
-      locale: locale.locale,
+      locale: locale ?? localeController.locale,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       supportedLocales: LocaleController.supported,
@@ -190,6 +211,78 @@ void main() {
 
       expect(auth.token, tokenBefore);
       expect(auth.user, userBefore);
+    });
+  });
+
+  group('AuthApi.updateProfile — real request shape', () {
+    test('PATCHes /auth/me with exactly name and phone', () async {
+      final adapter = _CapturingAdapter(
+        jsonEncode({
+          'success': true,
+          'data': {
+            'id': 1,
+            'name': 'Layla H.',
+            'email': 'layla@smartauto.local',
+            'role': 'CUSTOMER',
+            'phone': '+961 70 999 000',
+          },
+        }),
+      );
+      final apiClient = ApiClient(readToken: () => 'jwt-token', onUnauthorized: () async {});
+      apiClient.raw.httpClientAdapter = adapter;
+      final api = AuthApi(apiClient);
+
+      final result = await api.updateProfile(name: 'Layla H.', phone: '+961 70 999 000');
+
+      expect(adapter.lastOptions!.path, '/auth/me');
+      expect(adapter.lastOptions!.method, 'PATCH');
+      expect(adapter.lastBody, {'name': 'Layla H.', 'phone': '+961 70 999 000'});
+      expect(adapter.lastOptions!.headers['Authorization'], 'Bearer jwt-token');
+      expect(result['name'], 'Layla H.');
+    });
+
+    test('a validation error (e.g. empty name) surfaces as a real ApiException', () async {
+      final adapter = _CapturingAdapter('');
+      adapter.errorToThrow = DioException(
+        requestOptions: RequestOptions(path: '/auth/me'),
+        response: Response(
+          requestOptions: RequestOptions(path: '/auth/me'),
+          statusCode: 400,
+          data: {'success': false, 'message': 'name cannot be empty'},
+        ),
+        type: DioExceptionType.badResponse,
+      );
+      final apiClient = ApiClient(readToken: () => 'jwt-token', onUnauthorized: () async {});
+      apiClient.raw.httpClientAdapter = adapter;
+      final api = AuthApi(apiClient);
+
+      await expectLater(
+        api.updateProfile(name: '', phone: 'x'),
+        throwsA(isA<ApiException>().having((e) => e.message, 'message', 'name cannot be empty')),
+      );
+    });
+  });
+
+  group('AuthState.updateProfile', () {
+    test('replaces the in-memory user with the real sanitized row and notifies listeners', () async {
+      final auth = await fakeAuthState(_FakeAuthApi());
+      var notified = false;
+      auth.addListener(() => notified = true);
+
+      await auth.updateProfile(name: 'Layla H.', phone: '+961 70 999 000');
+
+      expect(auth.displayName, 'Layla H.');
+      expect(auth.user?['phone'], '+961 70 999 000');
+      expect(notified, isTrue);
+    });
+
+    test('does not touch the current session token', () async {
+      final auth = await fakeAuthState(_FakeAuthApi());
+      final tokenBefore = auth.token;
+
+      await auth.updateProfile(name: 'Layla H.', phone: '+961 70 999 000');
+
+      expect(auth.token, tokenBefore);
     });
   });
 
@@ -289,6 +382,163 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Current password is incorrect'), findsOneWidget);
+    });
+  });
+
+  group('CustomerProfileScreen — edit profile UI', () {
+    testWidgets('loads and shows the real authenticated values, never stale "unsupported" wording', (
+      tester,
+    ) async {
+      final auth = await fakeAuthState(_FakeAuthApi());
+      await tester.pumpWidget(_harness(auth: auth));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Layla Haddad'), findsWidgets);
+      expect(find.text('layla@smartauto.local'), findsOneWidget);
+      expect(find.text('+961 70 555 101'), findsOneWidget);
+      expect(find.text('Edit Profile'), findsOneWidget);
+      expect(find.textContaining('Not available yet'), findsNothing);
+      expect(find.textContaining('needs a backend endpoint'), findsNothing);
+    });
+
+    testWidgets('Edit Profile opens edit mode with editable Name/Phone and a disabled Email field', (
+      tester,
+    ) async {
+      final auth = await fakeAuthState(_FakeAuthApi());
+      await tester.pumpWidget(_harness(auth: auth));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Edit Profile'));
+      await tester.pumpAndSettle();
+
+      final nameField = tester.widget<TextField>(
+        find.widgetWithText(TextField, 'Layla Haddad').first,
+      );
+      expect(nameField.enabled, isTrue);
+      expect(nameField.controller!.text, 'Layla Haddad');
+
+      final phoneField = tester.widget<TextField>(
+        find.widgetWithText(TextField, '+961 70 555 101'),
+      );
+      expect(phoneField.enabled, isTrue);
+
+      final emailField = tester.widget<TextField>(
+        find.widgetWithText(TextField, 'layla@smartauto.local'),
+      );
+      expect(
+        emailField.enabled,
+        isFalse,
+        reason: 'email stays read-only even while editing the rest of the profile',
+      );
+
+      expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'Cancel'), findsOneWidget);
+    });
+
+    testWidgets('rejects an empty name locally, without calling the backend', (tester) async {
+      final api = _FakeAuthApi();
+      final auth = await fakeAuthState(api);
+      await tester.pumpWidget(_harness(auth: auth));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Edit Profile'));
+      await tester.pumpAndSettle();
+
+      final nameFieldFinder = find.widgetWithText(TextField, 'Layla Haddad').first;
+      await tester.enterText(nameFieldFinder, '   ');
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Name is required'), findsOneWidget);
+      expect(api.lastUpdateProfileCall, isNull);
+    });
+
+    testWidgets(
+      'Save calls the real repository, refreshes the displayed values everywhere, and exits edit mode',
+      (tester) async {
+        final api = _FakeAuthApi();
+        final auth = await fakeAuthState(api);
+        await tester.pumpWidget(_harness(auth: auth));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Edit Profile'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(find.widgetWithText(TextField, 'Layla Haddad').first, 'Layla H.');
+        await tester.enterText(
+          find.widgetWithText(TextField, '+961 70 555 101'),
+          '+961 70 999 000',
+        );
+        await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+        await tester.pumpAndSettle();
+
+        expect(api.lastUpdateProfileCall, {'name': 'Layla H.', 'phone': '+961 70 999 000'});
+        expect(find.text('Profile updated successfully'), findsOneWidget);
+        // Back to read-only view, showing the fresh values — not the stale
+        // pre-edit ones, and nowhere left showing the old name.
+        expect(find.widgetWithText(FilledButton, 'Save'), findsNothing);
+        expect(find.text('Layla H.'), findsWidgets);
+        expect(find.text('+961 70 999 000'), findsOneWidget);
+        expect(find.text('Layla Haddad'), findsNothing);
+        // AuthState itself was refreshed too, not just this screen's local state.
+        expect(auth.displayName, 'Layla H.');
+      },
+    );
+
+    testWidgets('shows the real backend error and stays in edit mode on failure — never a fake success', (
+      tester,
+    ) async {
+      final api = _FakeAuthApi()
+        ..updateProfileFailWith = ApiException('name cannot be empty', statusCode: 400);
+      final auth = await fakeAuthState(api);
+      await tester.pumpWidget(_harness(auth: auth));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Edit Profile'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('name cannot be empty'), findsOneWidget);
+      // Still in edit mode — a failed save must not look like it worked.
+      expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+    });
+
+    testWidgets('Cancel discards the edit without calling the backend or persisting anything', (
+      tester,
+    ) async {
+      final api = _FakeAuthApi();
+      final auth = await fakeAuthState(api);
+      await tester.pumpWidget(_harness(auth: auth));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Edit Profile'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Layla Haddad').first,
+        'Unsaved Name',
+      );
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(api.lastUpdateProfileCall, isNull);
+      expect(find.text('Layla Haddad'), findsWidgets);
+      expect(find.text('Unsaved Name'), findsNothing);
+      expect(auth.displayName, 'Layla Haddad');
+    });
+
+    testWidgets('renders correctly right-to-left in Arabic, with the real translated label', (
+      tester,
+    ) async {
+      final auth = await fakeAuthState(_FakeAuthApi());
+      await tester.pumpWidget(_harness(auth: auth, locale: const Locale('ar')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('تعديل الملف الشخصي'), findsOneWidget);
+      final directionality = tester.widget<Directionality>(
+        find.byType(Directionality).first,
+      );
+      expect(directionality.textDirection, TextDirection.rtl);
     });
   });
 }

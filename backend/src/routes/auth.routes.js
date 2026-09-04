@@ -14,6 +14,11 @@ router.post('/login', authController.login);
 // GET /api/auth/me — current logged-in user's profile
 router.get('/me', authenticate, authController.me);
 
+// PATCH /api/auth/me — edit the current user's own name/phone. Any
+// authenticated role (CUSTOMER, PROVIDER, or ADMIN); email, role, and
+// password are never editable through this route.
+router.patch('/me', authenticate, authController.updateMe);
+
 // PATCH /api/auth/change-password — any authenticated role (CUSTOMER,
 // PROVIDER, or ADMIN); the user acted on always comes from the JWT.
 router.patch('/change-password', authenticate, authController.changePassword);

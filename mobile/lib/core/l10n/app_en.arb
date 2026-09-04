@@ -302,9 +302,11 @@
   "profilePreferences": "Preferences",
   "profileRole": "Role",
   "profileNotSet": "Not set",
-  "profileUnsupportedTitle": "Not available yet",
-  "profileEditUnsupported": "Editing your profile needs a backend endpoint that doesn't exist yet.",
   "profileUnavailable": "Unavailable",
+  "fieldPhone": "Phone",
+  "profileEditProfile": "Edit Profile",
+  "profileNameRequired": "Name is required",
+  "profileUpdateSuccess": "Profile updated successfully",
 
   "profileChangePasswordTitle": "Change password",
   "fieldCurrentPassword": "Current password",

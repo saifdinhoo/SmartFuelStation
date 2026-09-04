@@ -302,9 +302,11 @@
   "profilePreferences": "التفضيلات",
   "profileRole": "الدور",
   "profileNotSet": "غير محدّد",
-  "profileUnsupportedTitle": "غير متاح بعد",
-  "profileEditUnsupported": "تعديل الملف الشخصي يحتاج إلى واجهة برمجية غير موجودة بعد.",
   "profileUnavailable": "غير متاح",
+  "fieldPhone": "رقم الهاتف",
+  "profileEditProfile": "تعديل الملف الشخصي",
+  "profileNameRequired": "الاسم مطلوب",
+  "profileUpdateSuccess": "تم تحديث الملف الشخصي بنجاح",
 
   "profileChangePasswordTitle": "تغيير كلمة المرور",
   "fieldCurrentPassword": "كلمة المرور الحالية",

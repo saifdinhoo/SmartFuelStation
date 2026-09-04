@@ -29,6 +29,23 @@ async function me(req, res, next) {
   }
 }
 
+async function updateMe(req, res, next) {
+  try {
+    // userId always comes from the verified JWT, never req.body — a client
+    // can never edit another account's profile by shaping the body. Only
+    // name/phone are ever forwarded; email, role and password all have
+    // their own separate, more carefully guarded paths (see
+    // auth.service.js's updateCurrentUser doc comment).
+    const user = await authService.updateCurrentUser(req.user.userId, {
+      name: req.body.name,
+      phone: req.body.phone,
+    });
+    res.status(200).json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function changePassword(req, res, next) {
   try {
     // userId always comes from the verified JWT, never req.body — a client
@@ -75,6 +92,7 @@ module.exports = {
   register,
   login,
   me,
+  updateMe,
   changePassword,
   forgotPassword,
   resetPassword,

@@ -65,6 +65,73 @@ describe('changePassword', () => {
   });
 });
 
+describe('updateMe', () => {
+  it('sources userId only from the verified JWT (req.user), never from the request body', async () => {
+    authService.updateCurrentUser.mockResolvedValue({ id: 42, name: 'Layla H.' });
+    const req = {
+      user: { userId: 42, role: 'CUSTOMER' },
+      // A body pretending to target a different account — must be ignored.
+      body: { userId: 999, name: 'Layla H.' },
+    };
+    const res = fakeRes();
+
+    await authController.updateMe(req, res, jest.fn());
+
+    expect(authService.updateCurrentUser).toHaveBeenCalledWith(42, {
+      name: 'Layla H.',
+      phone: undefined,
+    });
+  });
+
+  it('forwards only name/phone from the body — an email/role/password field is never passed through', async () => {
+    authService.updateCurrentUser.mockResolvedValue({ id: 1, name: 'X' });
+    const req = {
+      user: { userId: 1, role: 'CUSTOMER' },
+      body: {
+        name: 'X',
+        phone: '+961 70 555 101',
+        email: 'attempted-change@example.com',
+        role: 'ADMIN',
+        password: 'attempted-change',
+      },
+    };
+    const res = fakeRes();
+
+    await authController.updateMe(req, res, jest.fn());
+
+    expect(authService.updateCurrentUser).toHaveBeenCalledWith(1, {
+      name: 'X',
+      phone: '+961 70 555 101',
+    });
+  });
+
+  it('responds 200 with the sanitized service result on success', async () => {
+    const updated = { id: 1, name: 'New Name', email: 'user@example.com', role: 'CUSTOMER' };
+    authService.updateCurrentUser.mockResolvedValue(updated);
+    const req = { user: { userId: 1, role: 'CUSTOMER' }, body: { name: 'New Name' } };
+    const res = fakeRes();
+
+    await authController.updateMe(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ success: true, data: updated });
+  });
+
+  it('passes a validation error (e.g. empty name) to next() rather than throwing', async () => {
+    const err = new Error('name cannot be empty');
+    err.statusCode = 400;
+    authService.updateCurrentUser.mockRejectedValue(err);
+    const req = { user: { userId: 1, role: 'CUSTOMER' }, body: { name: '   ' } };
+    const res = fakeRes();
+    const next = jest.fn();
+
+    await authController.updateMe(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(err);
+    expect(res.json).not.toHaveBeenCalled();
+  });
+});
+
 describe('forgotPassword', () => {
   it('always responds the same generic message, regardless of what the service did internally', async () => {
     authService.requestPasswordReset.mockResolvedValue(undefined);
